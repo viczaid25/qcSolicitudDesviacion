@@ -1,0 +1,212 @@
+﻿@page "/solicitudes/aprobadas"
+@rendermode InteractiveServer
+
+@inject SolicitudDesviacionService SolicitudService
+
+<PageTitle>Desviaciones aprobadas</PageTitle>
+
+<div class="aprobadas-page">
+    <section class="nueva-hero">
+        <div>
+            <span class="nueva-kicker">Desviaciones aprobadas / Approved deviations</span>
+            <h1>Desviaciones aprobadas / Approved Deviations</h1>
+            <p class="hero-text">
+                Consulta las desviaciones aprobadas, genera una ficha compartible, descárgala como imagen o imprímela.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a class="hero-btn" href="/solicitudes">
+                Solicitudes / Requests
+            </a>
+
+            <a class="hero-btn primary" href="/solicitudes/crear">
+                Nueva desviación / New Deviation
+            </a>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-head">
+            <div>
+                <h2>Listado / List</h2>
+                <p class="panel-subtitle">Solo solicitudes aprobadas, con extensión aprobada o cerradas.</p>
+            </div>
+
+            <span class="panel-badge">@SolicitudesFiltradas.Count() registros</span>
+        </div>
+
+        <div class="approved-filters">
+            <div>
+                <label class="form-label">Buscar / Search</label>
+                <input class="form-control"
+                       placeholder="ID, parte, cliente, solicitante..."
+                       @bind="filtro"
+                       @bind:event="oninput" />
+            </div>
+        </div>
+
+        @if (cargando)
+        {
+            <div class="empty-state">
+                Cargando solicitudes aprobadas...
+            </div>
+        }
+        else if (!SolicitudesFiltradas.Any())
+        {
+            <div class="empty-state">
+                No hay desviaciones aprobadas para mostrar.
+            </div>
+        }
+        else
+        {
+            <div class="approved-list">
+                @foreach (var item in SolicitudesFiltradas)
+                {
+                    <article class="approved-card">
+                        <div class="approved-main">
+                            <div class="approved-title">
+                                <span class="approved-id">#@item.SolicitudId</span>
+                                <div>
+                                    <h3>@Texto(item.NumeroParteAfectado)</h3>
+                                    <p>@Texto(item.Clientes)</p>
+                                </div>
+                            </div>
+
+                            <div class="approved-meta-grid">
+                                <div>
+                                    <span>Solicitante / Applicant</span>
+                                    <strong>@Texto(item.NombreSolicitante)</strong>
+                                </div>
+
+                                <div>
+                                    <span>Fecha solicitud / Request Date</span>
+                                    <strong>@item.FechaSolicitud.ToString("yyyy-MM-dd")</strong>
+                                </div>
+
+                                <div>
+                                    <span>Vigencia / Validity</span>
+                                    <strong>@item.FechaVigencia.ToString("yyyy-MM-dd")</strong>
+                                </div>
+
+                                <div>
+                                    <span>Estado / Status</span>
+                                    <strong>@Texto(item.EstadoSolicitudEs)</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="approved-side">
+                            <span class="status-pill @EstadoVigenciaClass(item)">
+                                @EstadoVigenciaTexto(item)
+                            </span>
+
+                            <a class="table-btn table-btn-primary"
+                               href="/solicitudes/@item.SolicitudId/compartir">
+                                Ver ficha / Share Card
+                            </a>
+
+                            <a class="table-btn"
+                               href="/solicitudes/@item.SolicitudId">
+                                Detalle / Detail
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private bool cargando = true;
+    private string filtro = string.Empty;
+
+    private List<QcDesvSolicitudResumen> solicitudes = new();
+
+    private IEnumerable<QcDesvSolicitudResumen> SolicitudesFiltradas
+    {
+        get
+        {
+            var query = solicitudes.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(filtro))
+            {
+                var valor = filtro.Trim();
+
+                query = query.Where(x =>
+                    x.SolicitudId.ToString().Contains(valor, StringComparison.OrdinalIgnoreCase) ||
+                    Contiene(x.NumeroParteAfectado, valor) ||
+                    Contiene(x.Clientes, valor) ||
+                    Contiene(x.NombreSolicitante, valor) ||
+                    Contiene(x.EstadoSolicitudEs, valor));
+            }
+
+            return query;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var resumen = await SolicitudService.ObtenerResumenAsync();
+
+        solicitudes = resumen
+            .Where(EsCompartible)
+            .OrderByDescending(x => x.SolicitudId)
+            .ToList();
+
+        cargando = false;
+    }
+
+    private static bool EsCompartible(QcDesvSolicitudResumen solicitud)
+    {
+        return solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Aprobada ||
+               solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.ExtensionAprobada ||
+               solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada;
+    }
+
+    private static bool EstaVencida(QcDesvSolicitudResumen solicitud)
+    {
+        if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
+        {
+            return false;
+        }
+
+        return solicitud.FechaVigencia.Date < DateTime.Today;
+    }
+
+    private static string EstadoVigenciaTexto(QcDesvSolicitudResumen solicitud)
+    {
+        if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
+        {
+            return "Cerrada / Closed";
+        }
+
+        return EstaVencida(solicitud)
+            ? "Vencida / Expired"
+            : "Vigente / Active";
+    }
+
+    private static string EstadoVigenciaClass(QcDesvSolicitudResumen solicitud)
+    {
+        if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
+        {
+            return "closed";
+        }
+
+        return EstaVencida(solicitud)
+            ? "expired"
+            : "active";
+    }
+
+    private static bool Contiene(string? texto, string filtro)
+    {
+        return !string.IsNullOrWhiteSpace(texto) &&
+               texto.Contains(filtro, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string Texto(string? valor)
+    {
+        return string.IsNullOrWhiteSpace(valor) ? "-" : valor;
+    }
+}

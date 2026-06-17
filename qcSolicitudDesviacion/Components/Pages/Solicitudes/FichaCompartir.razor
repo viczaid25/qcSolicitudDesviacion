@@ -1,0 +1,529 @@
+﻿@page "/solicitudes/{Id:int}/compartir"
+@rendermode InteractiveServer
+
+@using Microsoft.JSInterop
+
+@inject SolicitudDesviacionService SolicitudService
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<PageTitle>Ficha de desviación aprobada</PageTitle>
+
+<div class="share-page">
+    @if (cargando)
+    {
+        <div class="empty-state">
+            Cargando ficha...
+        </div>
+    }
+    else if (solicitud is null)
+    {
+        <section class="panel-card">
+            <div class="empty-state">
+                No se encontró la solicitud.
+            </div>
+        </section>
+    }
+    else if (!EsCompartible(solicitud.EstadoSolicitudCodigo))
+    {
+        <section class="panel-card">
+            <div class="empty-state">
+                Esta solicitud aún no está aprobada. Solo las solicitudes aprobadas, con extensión aprobada o cerradas pueden compartirse.
+            </div>
+
+            <div class="share-toolbar">
+                <a class="table-btn" href="/solicitudes/@Id">Volver al detalle / Back</a>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="share-toolbar no-print">
+            <a class="table-btn" href="/solicitudes/aprobadas">
+                Aprobadas / Approved
+            </a>
+
+            <a class="table-btn" href="/solicitudes/@Id">
+                Detalle / Detail
+            </a>
+
+            <button type="button" class="table-btn" @onclick="CopiarLinkAsync">
+                Copiar enlace / Copy Link
+            </button>
+
+            <button type="button" class="table-btn" @onclick="ImprimirAsync">
+                Imprimir / Print
+            </button>
+
+            <button type="button" class="table-btn" @onclick="DescargarImagenAsync">
+                Descargar PNG / Download PNG
+            </button>
+
+            <button type="button" class="table-btn table-btn-primary" @onclick="CompartirImagenAsync">
+                Compartir imagen / Share Image
+            </button>
+        </section>
+
+        @if (!string.IsNullOrWhiteSpace(mensaje))
+        {
+            <div class="notice-box success no-print">
+                @mensaje
+            </div>
+        }
+
+        <article id="deviation-share-card" class="share-sheet">
+            <header class="share-header">
+                <div>
+                    <span class="share-kicker">Desviación aprobada / Approved Deviation</span>
+                    <h1>Solicitud de Desviación</h1>
+                    <p>Ficha para compartir en línea o imprimir.</p>
+                </div>
+
+                <div class="share-id-box">
+                    <span>ID</span>
+                    <strong>#@solicitud.Id</strong>
+                </div>
+            </header>
+
+            <section class="share-status-row">
+                <div class="share-status-item">
+                    <span>Estado / Status</span>
+                    <strong>@Texto(solicitud.EstadoSolicitud?.NombreEs)</strong>
+                </div>
+
+                <div class="share-status-item">
+                    <span>Tipo / Type</span>
+                    <strong>@Texto(solicitud.TipoDesviacion?.NombreEs)</strong>
+                </div>
+
+                <div class="share-status-item">
+                    <span>Vigencia / Validity</span>
+                    <strong>@Fecha(solicitud.FechaVigencia)</strong>
+                </div>
+
+                <div class="share-status-item">
+                    <span>Condición / Condition</span>
+                    <strong>@EstadoVigenciaTexto()</strong>
+                </div>
+            </section>
+
+            <section class="share-section">
+                <div class="share-section-title">
+                    <h2>Información general / General Information</h2>
+                </div>
+
+                <div class="share-info-grid">
+                    <div>
+                        <span>Solicitante / Applicant</span>
+                        <strong>@Texto(solicitud.NombreSolicitante)</strong>
+                    </div>
+
+                    <div>
+                        <span>Fecha / Date</span>
+                        <strong>@Fecha(solicitud.FechaSolicitud)</strong>
+                    </div>
+
+                    <div>
+                        <span>Departamento / Department</span>
+                        <strong>@Texto(solicitud.DepartamentoSolicitante)</strong>
+                    </div>
+
+                    <div>
+                        <span>Unidad negocio / Business Unit</span>
+                        <strong>@Texto(solicitud.UnidadNegocioAfectada)</strong>
+                    </div>
+
+                    <div>
+                        <span>Línea / Line</span>
+                        <strong>@Texto(solicitud.CodigoLinea)</strong>
+                    </div>
+
+                    <div>
+                        <span>Cliente(s) / Customer(s)</span>
+                        <strong>@Texto(solicitud.Clientes)</strong>
+                    </div>
+
+                    <div>
+                        <span>Número de parte / Part Number</span>
+                        <strong>@Texto(solicitud.NumeroParteAfectado)</strong>
+                    </div>
+
+                    <div>
+                        <span>Cantidad piezas / Quantity</span>
+                        <strong>@TextoNumero(solicitud.CantidadPiezas)</strong>
+                    </div>
+
+                    <div>
+                        <span>Requisito / Requirement</span>
+                        <strong>@RequisitoTexto()</strong>
+                    </div>
+
+                    <div>
+                        <span>Informar cliente / Inform Customer</span>
+                        <strong>@SiNo(solicitud.InformarCliente)</strong>
+                    </div>
+                </div>
+
+                <div class="share-csr-row">
+                    <div>
+                        <span>CSR 1</span>
+                        <strong>@Texto(solicitud.CSR1)</strong>
+                    </div>
+
+                    <div>
+                        <span>CSR 2</span>
+                        <strong>@Texto(solicitud.CSR2)</strong>
+                    </div>
+
+                    <div>
+                        <span>CSR 3</span>
+                        <strong>@Texto(solicitud.CSR3)</strong>
+                    </div>
+                </div>
+
+                <div class="share-text-box">
+                    <span>Razón / Reason</span>
+                    <p>@Texto(solicitud.RazonInformarCliente)</p>
+                </div>
+            </section>
+
+            <section class="share-section">
+                <div class="share-section-title">
+                    <h2>Descripción / Description</h2>
+                </div>
+
+                <div class="share-description-grid">
+                    <div>
+                        <span>¿Cómo debe realizarse el proceso?</span>
+                        <p>@Texto(solicitud.Descripcion?.ComoDebeRealizarseProceso)</p>
+                    </div>
+
+                    <div>
+                        <span>Controles operación actual</span>
+                        <p>@Texto(solicitud.Descripcion?.ControlesOperacionActual)</p>
+                    </div>
+
+                    <div>
+                        <span>Proceso después del cambio temporal</span>
+                        <p>@Texto(solicitud.Descripcion?.ProcesoDespuesCambioTemporal)</p>
+                    </div>
+
+                    <div>
+                        <span>Controles durante el cambio</span>
+                        <p>@Texto(solicitud.Descripcion?.ControlesDuranteCambio)</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="share-section">
+                <div class="share-section-title">
+                    <h2>Análisis de riesgo / Risk Analysis</h2>
+                </div>
+
+                @if (solicitud.AnalisisRiesgo is null)
+                {
+                    <div class="share-muted-box">
+                        No aplica para desviación estándar o no se capturó análisis de riesgo.
+                    </div>
+                }
+                else
+                {
+                    <div class="risk-table">
+                        <div class="risk-row risk-head">
+                            <span>Evaluación / Evaluation</span>
+                            <span>Severidad</span>
+                            <span>Ocurrencia</span>
+                            <span>Detección</span>
+                            <span>RPN</span>
+                        </div>
+
+                        <div class="risk-row">
+                            <span>Operación actual</span>
+                            <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
+                            <strong>@solicitud.AnalisisRiesgo.OcurrenciaActual</strong>
+                            <strong>@solicitud.AnalisisRiesgo.DeteccionActual</strong>
+                            <strong>@solicitud.AnalisisRiesgo.RpnActual</strong>
+                        </div>
+
+                        <div class="risk-row">
+                            <span>Con cambio temporal</span>
+                            <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
+                            <strong>@solicitud.AnalisisRiesgo.OcurrenciaConCambio</strong>
+                            <strong>@solicitud.AnalisisRiesgo.DeteccionConCambio</strong>
+                            <strong>@solicitud.AnalisisRiesgo.RpnConCambio</strong>
+                        </div>
+                    </div>
+                }
+            </section>
+
+            <section class="share-section">
+                <div class="share-section-title">
+                    <h2>Acciones / Actions</h2>
+                </div>
+
+                @if (!solicitud.Acciones.Any())
+                {
+                    <div class="share-muted-box">
+                        Sin acciones capturadas.
+                    </div>
+                }
+                else
+                {
+                    <div class="share-actions-list">
+                        @foreach (var accion in solicitud.Acciones.OrderBy(x => x.Id))
+                        {
+                            <div class="share-action-card">
+                                <p>@Texto(accion.DescripcionAccion)</p>
+
+                                <div class="share-action-meta">
+                                    <span>Responsable / Owner: <strong>@Texto(accion.Responsable)</strong></span>
+                                    <span>Fecha compromiso / Commitment: <strong>@Fecha(accion.FechaCompromiso)</strong></span>
+                                </div>
+
+                                @if (accion.Archivos.Any())
+                                {
+                                    <div class="share-files">
+                                        <span>Archivos / Files:</span>
+                                        @foreach (var archivo in accion.Archivos)
+                                        {
+                                            <strong>@archivo.NombreOriginal</strong>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="share-section">
+                <div class="share-section-title">
+                    <h2>Aprobadores / Approvers</h2>
+                </div>
+
+                @if (!GruposAprobacion.Any())
+                {
+                    <div class="share-muted-box">
+                        Sin aprobaciones registradas.
+                    </div>
+                }
+                else
+                {
+                    <div class="approver-groups">
+                        @foreach (var grupo in GruposAprobacion)
+                        {
+                            <div class="approver-group">
+                                <h3>@grupo.Titulo</h3>
+
+                                <div class="approver-list">
+                                    @foreach (var aprobacion in grupo.Aprobaciones)
+                                    {
+                                        <div class="approver-card">
+                                            <div class="approver-step">
+                                                @aprobacion.Orden
+                                            </div>
+
+                                            <div>
+                                                <strong>@Texto(aprobacion.RolAprobador?.NombreEs ?? aprobacion.RolAprobadorCodigo)</strong>
+                                                <span>@Texto(aprobacion.UsuarioAprobador?.NombreCompleto)</span>
+                                                <small>@FechaHora(aprobacion.FechaDecision)</small>
+
+                                                @if (!string.IsNullOrWhiteSpace(aprobacion.Comentarios))
+                                                {
+                                                    <p>@aprobacion.Comentarios</p>
+                                                }
+                                            </div>
+
+                                            <span class="approval-status @ApprovalStatusClass(aprobacion.EstadoAprobacionCodigo)">
+                                                @Texto(aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo)
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <footer class="share-footer">
+                <div>
+                    <strong>Sistema de Desviaciones</strong>
+                    <span>Documento generado: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</span>
+                </div>
+
+                <div>
+                    <span>Mitsubishi Electric Automotive</span>
+                </div>
+            </footer>
+        </article>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private QcDesvSolicitud? solicitud;
+    private bool cargando = true;
+    private string mensaje = string.Empty;
+
+    private IReadOnlyList<GrupoAprobacionFicha> GruposAprobacion
+    {
+        get
+        {
+            if (solicitud is null)
+            {
+                return new List<GrupoAprobacionFicha>();
+            }
+
+            return solicitud.Aprobaciones
+                .OrderBy(x => x.ExtensionId.HasValue ? 1 : 0)
+                .ThenBy(x => x.ExtensionId)
+                .ThenBy(x => x.Orden)
+                .GroupBy(x => x.ExtensionId)
+                .Select(x => new GrupoAprobacionFicha
+                {
+                    Titulo = NombreGrupoAprobacion(x.Key),
+                    Aprobaciones = x.ToList()
+                })
+                .ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        solicitud = await SolicitudService.ObtenerDetalleAsync(Id);
+        cargando = false;
+    }
+
+    private async Task DescargarImagenAsync()
+    {
+        mensaje = string.Empty;
+
+        await JS.InvokeVoidAsync(
+            "qcDesvShare.downloadCardAsPng",
+            "deviation-share-card",
+            $"Desviacion-{Id}.png");
+    }
+
+    private async Task CompartirImagenAsync()
+    {
+        mensaje = string.Empty;
+
+        await JS.InvokeVoidAsync(
+            "qcDesvShare.shareCardAsImage",
+            "deviation-share-card",
+            $"Desviacion-{Id}.png",
+            $"Desviación #{Id}",
+            $"Ficha de desviación aprobada #{Id}");
+    }
+
+    private async Task CopiarLinkAsync()
+    {
+        await JS.InvokeVoidAsync("qcDesvShare.copyCurrentUrl");
+        mensaje = "Enlace copiado correctamente.";
+    }
+
+    private async Task ImprimirAsync()
+    {
+        await JS.InvokeVoidAsync("qcDesvShare.printPage");
+    }
+
+    private bool EsCompartible(string estadoCodigo)
+    {
+        return estadoCodigo == QcDesvCodigos.EstadoSolicitud.Aprobada ||
+               estadoCodigo == QcDesvCodigos.EstadoSolicitud.ExtensionAprobada ||
+               estadoCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada;
+    }
+
+    private string EstadoVigenciaTexto()
+    {
+        if (solicitud is null)
+        {
+            return "-";
+        }
+
+        if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
+        {
+            return "Cerrada / Closed";
+        }
+
+        return solicitud.FechaVigencia.Date < DateTime.Today
+            ? "Vencida / Expired"
+            : "Vigente / Active";
+    }
+
+    private string RequisitoTexto()
+    {
+        if (solicitud is null)
+        {
+            return "-";
+        }
+
+        if (solicitud.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
+        {
+            return $"Otro / Other: {Texto(solicitud.RequisitoProcesoOtro)}";
+        }
+
+        return Texto(solicitud.RequisitoProceso?.NombreEs);
+    }
+
+    private string NombreGrupoAprobacion(int? extensionId)
+    {
+        if (solicitud is null || !extensionId.HasValue)
+        {
+            return "Solicitud inicial / Initial Request";
+        }
+
+        var extension = solicitud.Extensiones
+            .FirstOrDefault(x => x.Id == extensionId.Value);
+
+        var numero = extension is null
+            ? extensionId.Value.ToString()
+            : extension.NumeroExtension.ToString();
+
+        return $"Extensión #{numero} / Extension #{numero}";
+    }
+
+    private static string ApprovalStatusClass(string estadoCodigo)
+    {
+        return estadoCodigo switch
+        {
+            var x when x == QcDesvCodigos.EstadoAprobacion.Aprobado => "approved",
+            var x when x == QcDesvCodigos.EstadoAprobacion.Rechazado => "rejected",
+            var x when x == QcDesvCodigos.EstadoAprobacion.Pendiente => "pending",
+            _ => "neutral"
+        };
+    }
+
+    private static string Texto(string? valor)
+    {
+        return string.IsNullOrWhiteSpace(valor) ? "-" : valor;
+    }
+
+    private static string SiNo(bool valor)
+    {
+        return valor ? "Sí / Yes" : "No / No";
+    }
+
+    private static string Fecha(DateTime? fecha)
+    {
+        return fecha.HasValue ? fecha.Value.ToString("yyyy-MM-dd") : "-";
+    }
+
+    private static string FechaHora(DateTime? fecha)
+    {
+        return fecha.HasValue ? fecha.Value.ToString("yyyy-MM-dd HH:mm") : "-";
+    }
+
+    private static string TextoNumero(int? valor)
+    {
+        return valor.HasValue ? valor.Value.ToString("N0") : "No especificada / Not specified";
+    }
+
+    private sealed class GrupoAprobacionFicha
+    {
+        public string Titulo { get; set; } = string.Empty;
+        public List<QcDesvAprobacion> Aprobaciones { get; set; } = new();
+    }
+}

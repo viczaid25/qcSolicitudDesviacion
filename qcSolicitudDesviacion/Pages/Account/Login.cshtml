@@ -1,0 +1,222 @@
+﻿@page "/Account/Login"
+@model qcSolicitudDesviacion.Pages.Account.LoginModel
+@attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Solicitud de Desviación</title>
+
+    <link rel="stylesheet" href="~/bootstrap/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/app.css" asp-append-version="true" />
+
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(168,85,247,0.16), transparent 30%),
+                        linear-gradient(135deg, #060B29 0%, #0f172a 45%, #3a0647 100%);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 460px;
+            border: 0;
+            border-radius: 24px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            backdrop-filter: blur(8px);
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #060B29 0%, #3a0647 100%);
+            color: white;
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .login-logo {
+            height: 58px;
+            width: auto;
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .login-subtitle {
+            margin: 0.35rem 0 0;
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .form-floating > .form-control {
+            height: 58px;
+            border-radius: 14px;
+            border: 1px solid #dbe3ee;
+            background: #f8fafc;
+            box-shadow: none;
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: #3b82f6;
+            background: #fff;
+            box-shadow: 0 0 0 0.22rem rgba(59,130,246,0.14);
+        }
+
+        .form-floating > label {
+            color: #64748b;
+        }
+
+        .login-btn {
+            height: 52px;
+            border: 0;
+            border-radius: 999px;
+            font-size: 1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #060B29 0%, #1e3a8a 100%);
+            box-shadow: 0 10px 24px rgba(6,11,41,0.22);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(6,11,41,0.28);
+        }
+
+        .login-footer {
+            padding: 1rem 1.5rem 1.25rem;
+            text-align: center;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.88rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .login-hint {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: -0.35rem;
+            margin-bottom: 1.25rem;
+            text-align: center;
+        }
+
+        .validation-summary-errors ul {
+            margin-bottom: 0;
+            padding-left: 1.2rem;
+        }
+
+        .field-validation-error {
+            font-size: 0.875rem;
+            margin-top: 0.35rem;
+            display: block;
+        }
+
+        @@media (max-width: 576px) {
+            .login-header {
+                padding: 1.75rem 1.25rem 1.25rem;
+            }
+
+            .login-body {
+                padding: 1.25rem;
+            }
+
+            .login-title {
+                font-size: 1.55rem;
+            }
+
+            .login-logo {
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="~/images/logo.png"
+                     asp-append-version="true"
+                     alt="Mitsubishi Electric"
+                     class="login-logo"
+                     onerror="this.style.display='none'" />
+
+                <h1 class="login-title">Solicitud de Desviación</h1>
+                <p class="login-subtitle">Acceso con usuario de red / Active Directory</p>
+            </div>
+
+            <div class="login-body">
+                <p class="login-hint">
+                    Ingresa tus credenciales corporativas para continuar.
+                </p>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+                }
+
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Username"
+                               class="form-control"
+                               placeholder="Usuario de red"
+                               autocomplete="username" />
+                        <label asp-for="Input.Username">Usuario de red</label>
+                    </div>
+                    <span asp-validation-for="Input.Username" class="text-danger"></span>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password"
+                               class="form-control"
+                               type="password"
+                               placeholder="Contraseña"
+                               autocomplete="current-password" />
+                        <label asp-for="Input.Password">Contraseña</label>
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary login-btn">
+                            Ingresar / Sign in
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                &copy; @DateTime.Now.Year · Mitsubishi Electric Automotive · Sistema de Desviaciones
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+﻿@page "/solicitudes/{SolicitudId:int}/cerrar"
+@rendermode InteractiveServer
+
+@inject SolicitudDesviacionService SolicitudService
+@inject CierreDesviacionService CierreService
+@inject UsuarioActualService UsuarioActualService
+@inject NavigationManager Navigation
+
+<PageTitle>Cerrar desviación</PageTitle>
+
+<div class="nueva-page">
+    @if (cargando)
+    {
+        <div class="nueva-skeleton nueva-skeleton-form"></div>
+    }
+    else if (solicitud is null)
+    {
+        <section class="panel-card">
+            <div class="empty-state compact">Solicitud no encontrada.</div>
+        </section>
+    }
+    else
+    {
+        <section class="nueva-hero">
+            <div>
+                <span class="nueva-kicker">Cierre / Closure</span>
+                <h1>Cerrar desviación #@solicitud.Id</h1>
+                <p class="hero-text">
+                    Capture los datos de control para cerrar la desviación.
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <a class="hero-btn" href="/solicitudes/@solicitud.Id">Volver / Back</a>
+            </div>
+        </section>
+
+        <div class="nueva-grid">
+            <section class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Control / Control</h2>
+                        <p class="panel-subtitle">Datos requeridos para el cierre.</p>
+                    </div>
+                </div>
+
+                <EditForm Model="@model" OnValidSubmit="@GuardarAsync">
+                    <div class="stack-fields">
+                        <div>
+                            <label class="form-label">Número de lote / Lot Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroLote" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Número de case / Case Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroCase" />
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(mensaje))
+                        {
+                            <div class="notice-box error">@mensaje</div>
+                        }
+
+                        <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                            @(guardando ? "Cerrando..." : "Cerrar desviación / Close deviation")
+                        </button>
+                    </div>
+                </EditForm>
+            </section>
+
+            <aside class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Resumen / Summary</h2>
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span>Parte / Part</span>
+                        <strong>@solicitud.NumeroParteAfectado</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Solicitante / Requester</span>
+                        <strong>@solicitud.NombreSolicitante</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Estado / Status</span>
+                        <strong>@solicitud.EstadoSolicitud?.NombreEs</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Vigencia / Validity</span>
+                        <strong>@solicitud.FechaVigencia.ToString("yyyy-MM-dd")</strong>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int SolicitudId { get; set; }
+
+    private QcDesvSolicitud? solicitud;
+    private QcDesvCierreFormModel model = new();
+
+    private bool cargando = true;
+    private bool guardando;
+    private string mensaje = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
+
+        if (solicitud is not null)
+        {
+            model.SolicitudId = solicitud.Id;
+        }
+
+        cargando = false;
+    }
+
+    private async Task GuardarAsync()
+    {
+        guardando = true;
+        mensaje = string.Empty;
+
+        var resultado = await CierreService.CerrarAsync(
+            model,
+            UsuarioActualService.UsuarioId);
+
+        if (resultado.Succeeded)
+        {
+            Navigation.NavigateTo($"/solicitudes/{SolicitudId}");
+            return;
+        }
+
+        mensaje = resultado.Message;
+        guardando = false;
+    }
+}

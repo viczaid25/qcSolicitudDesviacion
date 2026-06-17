@@ -1,0 +1,102 @@
+﻿@page "/aprobaciones/pendientes"
+@rendermode InteractiveServer
+
+@inject AprobacionService AprobacionService
+@inject UsuarioActualService UsuarioActualService
+
+<PageTitle>Aprobaciones pendientes</PageTitle>
+
+<div class="nueva-page">
+    <section class="nueva-hero">
+        <div>
+            <span class="nueva-kicker">Workflow / Approval Flow</span>
+            <h1>Aprobaciones pendientes / Pending Approvals</h1>
+            <p class="hero-text">
+                Solicitudes que requieren revisión de acuerdo con tus roles asignados.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a class="hero-btn" href="/solicitudes">Solicitudes / Requests</a>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-head">
+            <div>
+                <h2>Mis pendientes / My pending approvals</h2>
+                <p class="panel-subtitle">Usuario temporal de prueba: ID @UsuarioActualService.UsuarioId</p>
+            </div>
+            <span class="panel-badge">@pendientes.Count pendientes</span>
+        </div>
+
+        @if (cargando)
+        {
+            <div class="nueva-skeleton nueva-skeleton-table"></div>
+        }
+        else if (!pendientes.Any())
+        {
+            <div class="empty-state compact">
+                <div class="empty-title">Sin pendientes / No pending approvals</div>
+                <p class="empty-text">No tienes aprobaciones pendientes en este momento.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="procesos-table">
+                    <thead>
+                        <tr>
+                            <th>Solicitud / Request</th>
+                            <th>Parte / Part</th>
+                            <th>Paso / Step</th>
+                            <th>Tipo flujo / Flow</th>
+                            <th>Fecha asignación / Assigned Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in pendientes)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="cell-title">#@item.SolicitudId</div>
+                                    <div class="cell-subtitle">@item.Solicitud?.NombreSolicitante</div>
+                                </td>
+                                <td>
+                                    <div class="cell-title">@item.Solicitud?.NumeroParteAfectado</div>
+                                    <div class="cell-subtitle">@item.Solicitud?.Clientes</div>
+                                </td>
+                                <td>
+                                    <span class="status-pill">@item.RolAprobador?.NombreEs</span>
+                                </td>
+                                <td>
+                                    <span class="type-pill">@item.TipoFlujoCodigo</span>
+                                </td>
+                                <td>@item.FechaAsignacion.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="text-end">
+                                    <a class="table-btn table-btn-primary" href="/aprobaciones/revisar/@item.Id">
+                                        Revisar / Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private bool cargando = true;
+    private List<QcDesvAprobacion> pendientes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        pendientes = await AprobacionService.ObtenerPendientesPorUsuarioAsync(
+            UsuarioActualService.UsuarioId);
+
+        cargando = false;
+    }
+}

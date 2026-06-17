@@ -1,0 +1,139 @@
+﻿@page "/solicitudes"
+@rendermode InteractiveServer
+
+@inject SolicitudDesviacionService SolicitudService
+
+<PageTitle>Solicitudes de desviación</PageTitle>
+
+<div class="nueva-page">
+    <section class="nueva-hero">
+        <div>
+            <span class="nueva-kicker">qcSolicitudDesviacion</span>
+            <h1>Solicitudes de desviación / Deviation Requests</h1>
+            <div class="hero-meta">
+                <span class="meta-chip">Control de proceso / Process Control</span>
+                <span class="meta-chip">Aprobaciones / Approvals</span>
+                <span class="meta-chip">Extensiones / Extensions</span>
+            </div>
+            <p class="hero-text">
+                Consulta, revisa y da seguimiento a las solicitudes de desviación registradas.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a class="hero-btn primary" href="/solicitudes/crear">
+                Nueva solicitud / New request
+            </a>
+            <a class="hero-btn" href="/aprobaciones/pendientes">
+                Aprobaciones / Approvals
+            </a>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-head">
+            <div>
+                <h2>Listado de solicitudes / Request list</h2>
+                <p class="panel-subtitle">Solicitudes capturadas en el sistema.</p>
+            </div>
+            <span class="panel-badge">@SolicitudesFiltradas.Count() registros</span>
+        </div>
+
+        <div class="toolbar-actions mb-3">
+            <input class="form-control search-input"
+                   placeholder="Buscar por ID, solicitante, parte, cliente o estado..."
+                   @bind="filtro"
+                   @bind:event="oninput" />
+        </div>
+
+        @if (cargando)
+        {
+            <div class="nueva-loading">
+                <div class="nueva-skeleton nueva-skeleton-table"></div>
+            </div>
+        }
+        else if (!SolicitudesFiltradas.Any())
+        {
+            <div class="empty-state compact">
+                <div class="empty-title">Sin solicitudes / No requests</div>
+                <p class="empty-text">No se encontraron solicitudes con los filtros actuales.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="procesos-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante / Requester</th>
+                            <th>Parte / Part</th>
+                            <th>Tipo / Type</th>
+                            <th>Estado / Status</th>
+                            <th>Vigencia / Validity</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in SolicitudesFiltradas)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="cell-title">#@item.SolicitudId</div>
+                                    <div class="cell-subtitle">@item.FechaSolicitud.ToString("yyyy-MM-dd")</div>
+                                </td>
+                                <td>
+                                    <div class="cell-title">@item.NombreSolicitante</div>
+                                    <div class="cell-subtitle">@item.DepartamentoSolicitante</div>
+                                </td>
+                                <td>
+                                    <div class="cell-title">@item.NumeroParteAfectado</div>
+                                    <div class="cell-subtitle">@item.Clientes</div>
+                                </td>
+                                <td>
+                                    <span class="type-pill @(item.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica ? "critical" : "standard")">
+                                        @item.TipoDesviacionEs / @item.TipoDesviacionEn
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-pill">@item.EstadoSolicitudEs</span>
+                                </td>
+                                <td>
+                                    <div class="cell-title">@item.FechaVigencia.ToString("yyyy-MM-dd")</div>
+                                    <div class="cell-subtitle">Extensiones: @item.NumeroExtensionActual</div>
+                                </td>
+                                <td class="text-end">
+                                    <a class="table-btn table-btn-primary" href="/solicitudes/@item.SolicitudId">
+                                        Ver / View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private bool cargando = true;
+    private string filtro = string.Empty;
+    private List<QcDesvSolicitudResumen> solicitudes = new();
+
+    private IEnumerable<QcDesvSolicitudResumen> SolicitudesFiltradas =>
+        string.IsNullOrWhiteSpace(filtro)
+            ? solicitudes
+            : solicitudes.Where(x =>
+                x.SolicitudId.ToString().Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                x.NombreSolicitante.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                x.NumeroParteAfectado.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                x.Clientes.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                x.EstadoSolicitudEs.Contains(filtro, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        solicitudes = await SolicitudService.ObtenerResumenAsync();
+        cargando = false;
+    }
+}

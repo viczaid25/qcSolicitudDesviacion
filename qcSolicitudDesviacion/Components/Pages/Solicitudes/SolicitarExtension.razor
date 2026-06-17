@@ -1,0 +1,152 @@
+﻿@page "/solicitudes/{SolicitudId:int}/extension"
+@rendermode InteractiveServer
+
+@inject SolicitudDesviacionService SolicitudService
+@inject ExtensionService ExtensionService
+@inject UsuarioActualService UsuarioActualService
+@inject NavigationManager Navigation
+
+<PageTitle>Solicitar extensión</PageTitle>
+
+<div class="nueva-page">
+    @if (cargando)
+    {
+        <div class="nueva-skeleton nueva-skeleton-form"></div>
+    }
+    else if (solicitud is null)
+    {
+        <section class="panel-card">
+            <div class="empty-state compact">Solicitud no encontrada.</div>
+        </section>
+    }
+    else
+    {
+        <section class="nueva-hero">
+            <div>
+                <span class="nueva-kicker">Extensión / Extension</span>
+                <h1>Solicitar extensión de desviación #@solicitud.Id</h1>
+                <p class="hero-text">
+                    Puedes solicitar máximo 2 extensiones y la vigencia no puede exceder 6 meses desde la creación.
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <a class="hero-btn" href="/solicitudes/@solicitud.Id">Volver / Back</a>
+            </div>
+        </section>
+
+        <div class="nueva-grid">
+            <section class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Datos de extensión / Extension Data</h2>
+                        <p class="panel-subtitle">Capture la nueva fecha y la razón.</p>
+                    </div>
+                </div>
+
+                <EditForm Model="@model" OnValidSubmit="@GuardarAsync">
+                    <div class="stack-fields">
+                        <div>
+                            <label class="form-label">Nueva fecha de vigencia / New Validity Date</label>
+                            <InputDate class="form-control" @bind-Value="model.NuevaFechaVigencia" />
+                            <div class="field-help">
+                                Fecha máxima permitida: @FechaMaxima.ToString("yyyy-MM-dd")
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Razón de la extensión / Extension Reason</label>
+                            <InputTextArea class="form-control" rows="5" @bind-Value="model.RazonExtension" />
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(mensaje))
+                        {
+                            <div class="notice-box error">@mensaje</div>
+                        }
+
+                        <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                            @(guardando ? "Enviando..." : "Solicitar extensión / Request extension")
+                        </button>
+                    </div>
+                </EditForm>
+            </section>
+
+            <aside class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Resumen / Summary</h2>
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span>Vigencia actual / Current validity</span>
+                        <strong>@solicitud.FechaVigencia.ToString("yyyy-MM-dd")</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Extensiones usadas / Used extensions</span>
+                        <strong>@solicitud.NumeroExtensionActual de 2</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Fecha creación / Created date</span>
+                        <strong>@solicitud.FechaCreacion.ToString("yyyy-MM-dd")</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Máximo permitido / Max allowed</span>
+                        <strong>@FechaMaxima.ToString("yyyy-MM-dd")</strong>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int SolicitudId { get; set; }
+
+    private QcDesvSolicitud? solicitud;
+    private QcDesvExtensionFormModel model = new();
+
+    private bool cargando = true;
+    private bool guardando;
+    private string mensaje = string.Empty;
+
+    private DateTime FechaMaxima =>
+        solicitud?.FechaCreacion.Date.AddMonths(6) ?? DateTime.Today;
+
+    protected override async Task OnInitializedAsync()
+    {
+        solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
+
+        if (solicitud is not null)
+        {
+            model.SolicitudId = solicitud.Id;
+            model.NuevaFechaVigencia = solicitud.FechaVigencia.Date.AddDays(1);
+        }
+
+        cargando = false;
+    }
+
+    private async Task GuardarAsync()
+    {
+        guardando = true;
+        mensaje = string.Empty;
+
+        var resultado = await ExtensionService.SolicitarExtensionAsync(
+            model,
+            UsuarioActualService.UsuarioId);
+
+        if (resultado.Succeeded)
+        {
+            Navigation.NavigateTo($"/solicitudes/{SolicitudId}");
+            return;
+        }
+
+        mensaje = resultado.Message;
+        guardando = false;
+    }
+}

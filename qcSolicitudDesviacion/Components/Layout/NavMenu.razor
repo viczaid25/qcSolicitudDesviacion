@@ -1,0 +1,114 @@
+﻿@inject UsuarioActualService UsuarioActualService
+@inject NavigationManager Navigation
+
+<div class="nav-menu-root">
+    <input type="checkbox" id="qc-nav-toggle" title="Navigation menu" class="nav-toggle" />
+
+    <div class="top-row navbar navbar-dark">
+        <div class="container-fluid">
+            <div class="brand-wrap">
+                <div class="brand-mark">DS</div>
+
+                <a class="navbar-brand" href="">
+                    <span>Solicitud</span>
+                    <span>Desviación</span>
+                </a>
+            </div>
+
+            <label for="qc-nav-toggle" class="navbar-toggler">
+                <span></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="nav-scrollable">
+        <div class="nav-shell">
+            <nav class="qc-nav">
+                <div class="nav-section-title">Principal / Main</div>
+
+                <div class="nav-item">
+                    <NavLink class="qc-nav-link" href="" Match="NavLinkMatch.All" title="Inicio">
+                        <span class="bi bi-house-door-fill-nav-menu nav-icon" aria-hidden="true"></span>
+                        <span class="nav-text">
+                            <span class="nav-main-text">Inicio</span>
+                            <span class="nav-sub-text">Home</span>
+                        </span>
+                    </NavLink>
+                </div>
+
+                <div class="nav-section-title">Desviaciones / Deviations</div>
+
+                <div class="nav-item">
+                    <NavLink class="qc-nav-link" href="solicitudes" title="Solicitudes">
+                        <span class="bi bi-list-nested-nav-menu nav-icon" aria-hidden="true"></span>
+                        <span class="nav-text">
+                            <span class="nav-main-text">Solicitudes</span>
+                            <span class="nav-sub-text">Requests</span>
+                        </span>
+                    </NavLink>
+                </div>
+
+                <div class="nav-item">
+                    <NavLink class="qc-nav-link" href="solicitudes/crear" title="Nueva desviación">
+                        <span class="bi bi-plus-square-fill-nav-menu nav-icon" aria-hidden="true"></span>
+                        <span class="nav-text">
+                            <span class="nav-main-text">Nueva desviación</span>
+                            <span class="nav-sub-text">New Deviation</span>
+                        </span>
+                    </NavLink>
+                </div>
+
+                <div class="nav-item">
+                    <NavLink class="qc-nav-link" href="solicitudes/aprobadas" title="Desviaciones aprobadas">
+                        <span class="bi bi-check2-square-nav-menu nav-icon" aria-hidden="true"></span>
+                        <span class="nav-text">
+                            <span class="nav-main-text">Aprobadas</span>
+                            <span class="nav-sub-text">Approved</span>
+                        </span>
+                    </NavLink>
+                </div>
+
+                <div class="nav-section-title">Flujo / Workflow</div>
+
+                <div class="nav-item">
+                    <NavLink class="qc-nav-link" href="aprobaciones/pendientes" title="Aprobaciones">
+                        <span class="bi bi-check2-square-nav-menu nav-icon" aria-hidden="true"></span>
+                        <span class="nav-text">
+                            <span class="nav-main-text">Aprobaciones</span>
+                            <span class="nav-sub-text">Approvals</span>
+                        </span>
+                    </NavLink>
+                </div>
+            </nav>
+
+            <div class="nav-user-box">
+                <div class="nav-user-label">Sesión activa / Active Session</div>
+                <div class="nav-user-name">@nombreUsuario</div>
+                <div class="nav-user-note">Solicitud de Desviación</div>
+
+                <button type="button" class="nav-logout-btn" @onclick="Salir">
+                    Salir / Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string nombreUsuario = "Usuario";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuario = await UsuarioActualService.ObtenerUsuarioAsync();
+
+        if (usuario is not null)
+        {
+            nombreUsuario = usuario.NombreCompleto;
+        }
+    }
+
+    private void Salir()
+    {
+        Navigation.NavigateTo("/Account/Logout", forceLoad: true);
+    }
+}

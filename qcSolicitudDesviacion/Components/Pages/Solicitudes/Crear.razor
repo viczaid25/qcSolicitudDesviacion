@@ -1,0 +1,534 @@
+﻿@page "/solicitudes/crear"
+@rendermode InteractiveServer
+
+@inject SolicitudDesviacionService SolicitudService
+@inject CatalogoService CatalogoService
+@inject ArchivoService ArchivoService
+@inject UsuarioActualService UsuarioActualService
+@inject NavigationManager Navigation
+
+<PageTitle>Nueva solicitud de desviación</PageTitle>
+
+<div class="nueva-page">
+    <section class="nueva-hero">
+        <div>
+            <span class="nueva-kicker">Nueva desviación / New deviation</span>
+            <h1>Solicitud de desviación / Deviation Request</h1>
+            <p class="hero-text">
+                Captura la información requerida para iniciar el flujo de revisión y aprobación.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a class="hero-btn" href="/solicitudes">Volver / Back</a>
+        </div>
+    </section>
+
+    @if (cargando)
+    {
+        <div class="nueva-loading">
+            <div class="nueva-skeleton nueva-skeleton-form"></div>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="@model" OnValidSubmit="@GuardarAsync">
+            <div class="main-stack">
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Información general / General Information</h2>
+                            <p class="panel-subtitle">Datos principales de la solicitud.</p>
+                        </div>
+                        <span class="panel-badge">Paso 1 / Step 1</span>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label class="form-label">Nombre del solicitante / Applicant Name</label>
+                            <input class="form-control readonly-control"
+                                   value="@model.NombreSolicitante"
+                                   readonly />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Fecha / Date</label>
+                            <input type="date"
+                                   class="form-control readonly-control"
+                                   value="@model.FechaSolicitud.ToString("yyyy-MM-dd")"
+                                   readonly />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Departamento solicitante / Requesting Department</label>
+                            <input class="form-control readonly-control"
+                                   value="@model.DepartamentoSolicitante"
+                                   readonly />
+                            <div class="field-help">
+                                Departamento obtenido desde meax_all_user.
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Unidad de negocio afectada / Affected Business Unit</label>
+                            <InputText class="form-control" @bind-Value="model.UnidadNegocioAfectada" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Código de la línea / Line Code</label>
+                            <InputText class="form-control" @bind-Value="model.CodigoLinea" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Tipo de desviación / Deviation Type</label>
+                            <InputSelect class="form-select" @bind-Value="model.TipoDesviacionCodigo">
+                                @foreach (var tipo in tiposDesviacion)
+                                {
+                                    <option value="@tipo.Codigo">@tipo.NombreEs / @tipo.NombreEn</option>
+                                }
+                            </InputSelect>
+                            <div class="field-help">
+                                Si seleccionas Estándar, se omitirá el análisis de riesgo.
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Tiempo de vigencia / Validity Period</label>
+                            <InputDate class="form-control" @bind-Value="model.FechaVigencia" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Cantidad de piezas / Quantity of Pieces</label>
+                            <InputNumber class="form-control" @bind-Value="model.CantidadPiezas" />
+                            <div class="field-help">
+                                Campo opcional. Si se captura, debe ser mayor a 0.
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Número de parte afectado / Affected Part Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroParteAfectado" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Requisitos del proceso / Process Requirement</label>
+                            <InputSelect class="form-select" @bind-Value="model.RequisitoProcesoCodigo">
+                                <option value="">Seleccione / Select</option>
+                                @foreach (var requisito in requisitosProceso)
+                                {
+                                    <option value="@requisito.Codigo">@requisito.NombreEs / @requisito.NombreEn</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        @if (model.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
+                        {
+                            <div>
+                                <label class="form-label">Especifique otro / Specify other</label>
+                                <InputText class="form-control" @bind-Value="model.RequisitoProcesoOtro" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <div class="client-csr-card">
+                        <div class="client-csr-head">
+                            <div>
+                                <h3>Cliente y CSR / Customer and CSR</h3>
+                                <p>Capture el cliente y agregue CSR adicionales solo cuando aplique.</p>
+                            </div>
+
+                            <div class="csr-actions">
+                                @if (csrCamposVisibles > 1)
+                                {
+                                    <button type="button" class="table-btn" @onclick="QuitarCsr">
+                                        Quitar CSR / Remove
+                                    </button>
+                                }
+
+                                <button type="button"
+                                        class="table-btn table-btn-primary"
+                                        @onclick="AgregarCsr"
+                                        disabled="@(csrCamposVisibles >= MaxCsr)">
+                                    Agregar CSR / Add CSR
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-grid two">
+                            <div>
+                                <label class="form-label">Cliente(s) / Customer(s)</label>
+                                <InputText class="form-control" @bind-Value="model.Clientes" />
+                            </div>
+
+                            <div>
+                                <label class="form-label">CSR 1</label>
+                                <InputText class="form-control" @bind-Value="model.CSR1" />
+                            </div>
+                        </div>
+
+                        @if (csrCamposVisibles >= 2)
+                        {
+                            <div class="form-grid two mt-3">
+                                <div>
+                                    <label class="form-label">CSR 2</label>
+                                    <InputText class="form-control" @bind-Value="model.CSR2" />
+                                </div>
+
+                                @if (csrCamposVisibles >= 3)
+                                {
+                                    <div>
+                                        <label class="form-label">CSR 3</label>
+                                        <InputText class="form-control" @bind-Value="model.CSR3" />
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (csrCamposVisibles >= MaxCsr)
+                        {
+                            <div class="field-help mt-2">
+                                Máximo 3 CSR disponibles con la estructura actual de base de datos.
+                            </div>
+                        }
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label class="form-label">¿Es necesario informar al cliente? / Inform customer?</label>
+                            <InputSelect class="form-select" @bind-Value="model.InformarCliente">
+                                <option value="false">No / No</option>
+                                <option value="true">Sí / Yes</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Razón / Reason</label>
+                        <InputTextArea class="form-control" rows="3" @bind-Value="model.RazonInformarCliente" />
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Descripción de la desviación / Deviation Description</h2>
+                            <p class="panel-subtitle">Describe el proceso actual y el cambio temporal.</p>
+                        </div>
+                        <span class="panel-badge">Paso 2 / Step 2</span>
+                    </div>
+
+                    <div class="stack-fields">
+                        <div>
+                            <label class="form-label">¿Cómo debe realizarse el proceso? / How should the process be performed?</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="model.ComoDebeRealizarseProceso" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">¿Qué controles se siguen durante la operación actual? / Current operation controls</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="model.ControlesOperacionActual" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">¿Cómo se ejecutará el proceso después del cambio temporal? / Process after temporary change</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="model.ProcesoDespuesCambioTemporal" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">¿Qué controles deben implementarse durante el cambio? / Controls during change</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="model.ControlesDuranteCambio" />
+                        </div>
+                    </div>
+                </section>
+
+                @if (EsCritica)
+                {
+                    <section class="panel-card">
+                        <div class="panel-head">
+                            <div>
+                                <h2>Análisis de riesgo / Risk Analysis</h2>
+                                <p class="panel-subtitle">Aplicable solo para desviación crítica.</p>
+                            </div>
+                            <span class="panel-badge danger">Crítica / Critical</span>
+                        </div>
+
+                        <div class="notice-box">
+                            Capture valores de AMEF entre 1 y 10.
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <label class="form-label">
+                            Operación actual conforme al AMEF / Current operation according to FMEA
+                        </label>
+
+                        <div class="form-grid three">
+                            <div>
+                                <label class="form-label">Severidad / Severity</label>
+                                <InputNumber class="form-control" @bind-Value="model.SeveridadActual" min="1" max="10" />
+                            </div>
+
+                            <div>
+                                <label class="form-label">Ocurrencia / Occurrence</label>
+                                <InputNumber class="form-control" @bind-Value="model.OcurrenciaActual" min="1" max="10" />
+                            </div>
+
+                            <div>
+                                <label class="form-label">Detección / Detection</label>
+                                <InputNumber class="form-control" @bind-Value="model.DeteccionActual" min="1" max="10" />
+                            </div>
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <label class="form-label">
+                            Considerando el cambio / Considering the change
+                        </label>
+
+                        <div class="form-grid two">
+                            <div>
+                                <label class="form-label">Ocurrencia con cambio / Occurrence with Change</label>
+                                <InputNumber class="form-control" @bind-Value="model.OcurrenciaConCambio" min="1" max="10" />
+                            </div>
+
+                            <div>
+                                <label class="form-label">Detección con cambio / Detection with Change</label>
+                                <InputNumber class="form-control" @bind-Value="model.DeteccionConCambio" min="1" max="10" />
+                            </div>
+                        </div>
+                    </section>
+                }
+
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Acciones / Actions</h2>
+                            <p class="panel-subtitle">
+                                Describe las acciones y adjunta evidencia cuando aplique.
+                            </p>
+                        </div>
+                        <span class="panel-badge">Paso 3 / Step 3</span>
+                    </div>
+
+                    <div class="stack-fields">
+                        <div>
+                            <label class="form-label">Descripción de acciones / Action Description</label>
+                            <InputTextArea class="form-control" rows="4" @bind-Value="model.DescripcionAccion" />
+                            <div class="field-help">
+                                Si captura una descripción de acciones, deberá adjuntar al menos un archivo.
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Responsable / Owner</label>
+                            <InputText class="form-control" @bind-Value="model.ResponsableAccion" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">
+                                Archivos adjuntos / Attachments
+                                @if (AccionRequiereAdjunto)
+                                {
+                                    <span class="required-mark">*</span>
+                                }
+                            </label>
+
+                            <InputFile class="form-control file-input" OnChange="@SeleccionarArchivos" multiple />
+
+                            <div class="field-help">
+                                Tamaño máximo por archivo: 20 MB.
+                            </div>
+
+                            @if (AccionRequiereAdjunto && archivosSeleccionados.Count == 0)
+                            {
+                                <div class="field-warning">
+                                    Debe adjuntar al menos un archivo si capturó descripción de acciones.
+                                </div>
+                            }
+
+                            @if (archivosSeleccionados.Count > 0)
+                            {
+                                <div class="file-list">
+                                    @foreach (var archivo in archivosSeleccionados)
+                                    {
+                                        <span>@archivo.Name</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-card submit-panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Enviar solicitud / Submit Request</h2>
+                            <p class="panel-subtitle">
+                                Al enviar, la solicitud pasará al flujo de aprobación iniciando con QMS.
+                            </p>
+                        </div>
+                        <span class="panel-badge">Final / Submit</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(mensaje))
+                    {
+                        <div class="notice-box @(exito ? "success" : "error")">
+                            @mensaje
+                        </div>
+                    }
+
+                    <div class="submit-panel-inner">
+                        <a class="table-btn" href="/solicitudes">
+                            Cancelar / Cancel
+                        </a>
+
+                        <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                            @(guardando ? "Guardando..." : "Crear y enviar / Create and submit")
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private const int MaxCsr = 3;
+
+    private QcDesvSolicitudFormModel model = new();
+    private List<QcDesvCatTipoDesviacion> tiposDesviacion = new();
+    private List<QcDesvCatRequisitoProceso> requisitosProceso = new();
+    private List<IBrowserFile> archivosSeleccionados = new();
+
+    private int csrCamposVisibles = 1;
+
+    private bool cargando = true;
+    private bool guardando;
+    private bool exito;
+    private string mensaje = string.Empty;
+
+    private bool EsCritica => model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica;
+
+    private bool AccionRequiereAdjunto =>
+        !string.IsNullOrWhiteSpace(model.DescripcionAccion);
+
+    protected override async Task OnInitializedAsync()
+    {
+        tiposDesviacion = await CatalogoService.ObtenerTiposDesviacionAsync();
+        requisitosProceso = await CatalogoService.ObtenerRequisitosProcesoAsync();
+
+        var usuario = await UsuarioActualService.ObtenerUsuarioAsync();
+        var departamentoMeax = await UsuarioActualService.ObtenerDepartamentoMeaxUsuarioAutenticadoAsync();
+
+        if (usuario is not null)
+        {
+            model.UsuarioSolicitanteId = usuario.Id;
+            model.NombreSolicitante = usuario.NombreCompleto;
+            model.DepartamentoSolicitante = departamentoMeax ?? usuario.Departamento ?? string.Empty;
+            model.UnidadNegocioAfectada = usuario.UnidadNegocio ?? string.Empty;
+        }
+
+        model.FechaSolicitud = DateTime.Today;
+        model.FechaVigencia = DateTime.Today;
+
+        if (tiposDesviacion.Any(x => x.Codigo == QcDesvCodigos.TipoDesviacion.Critica))
+        {
+            model.TipoDesviacionCodigo = QcDesvCodigos.TipoDesviacion.Critica;
+        }
+
+        cargando = false;
+    }
+
+    private void AgregarCsr()
+    {
+        if (csrCamposVisibles < MaxCsr)
+        {
+            csrCamposVisibles++;
+        }
+    }
+
+    private void QuitarCsr()
+    {
+        if (csrCamposVisibles <= 1)
+        {
+            return;
+        }
+
+        if (csrCamposVisibles == 3)
+        {
+            model.CSR3 = string.Empty;
+        }
+        else if (csrCamposVisibles == 2)
+        {
+            model.CSR2 = string.Empty;
+        }
+
+        csrCamposVisibles--;
+    }
+
+    private void SeleccionarArchivos(InputFileChangeEventArgs e)
+    {
+        archivosSeleccionados = e.GetMultipleFiles(10).ToList();
+    }
+
+    private async Task GuardarAsync()
+    {
+        guardando = true;
+        mensaje = string.Empty;
+        exito = false;
+
+        if (AccionRequiereAdjunto && archivosSeleccionados.Count == 0)
+        {
+            mensaje = "Debe adjuntar al menos un archivo si capturó descripción de acciones.";
+            guardando = false;
+            return;
+        }
+
+        var usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
+
+        model.UsuarioSolicitanteId = usuarioActualId;
+        model.FechaSolicitud = DateTime.Today;
+
+        var departamentoMeax = await UsuarioActualService.ObtenerDepartamentoMeaxUsuarioAutenticadoAsync();
+
+        if (!string.IsNullOrWhiteSpace(departamentoMeax))
+        {
+            model.DepartamentoSolicitante = departamentoMeax;
+        }
+
+        var resultado = await SolicitudService.CrearYEnviarAsync(
+            model,
+            usuarioActualId);
+
+        if (!resultado.Succeeded || resultado.Data <= 0)
+        {
+            mensaje = resultado.Message;
+            guardando = false;
+            return;
+        }
+
+        foreach (var archivo in archivosSeleccionados)
+        {
+            var archivoResultado = await ArchivoService.SubirArchivoSolicitudAsync(
+                resultado.Data,
+                archivo,
+                usuarioActualId);
+
+            if (!archivoResultado.Succeeded)
+            {
+                mensaje = $"La solicitud fue creada, pero un archivo no pudo subirse: {archivoResultado.Message}";
+                exito = false;
+                guardando = false;
+                return;
+            }
+        }
+
+        exito = true;
+        mensaje = "Solicitud creada correctamente.";
+
+        Navigation.NavigateTo($"/solicitudes/{resultado.Data}");
+    }
+}

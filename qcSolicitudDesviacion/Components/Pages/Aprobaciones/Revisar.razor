@@ -1,0 +1,222 @@
+﻿@page "/aprobaciones/revisar/{AprobacionId:int}"
+@rendermode InteractiveServer
+
+@inject AprobacionService AprobacionService
+@inject UsuarioActualService UsuarioActualService
+@inject NavigationManager Navigation
+
+<PageTitle>Revisar aprobación</PageTitle>
+
+<div class="nueva-page">
+    @if (cargando)
+    {
+        <div class="nueva-skeleton nueva-skeleton-form"></div>
+    }
+    else if (aprobacion is null || aprobacion.Solicitud is null)
+    {
+        <section class="panel-card">
+            <div class="empty-state compact">
+                <div class="empty-title">Aprobación no encontrada / Approval not found</div>
+                <a class="table-btn table-btn-primary mt-3" href="/aprobaciones/pendientes">Volver / Back</a>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="nueva-hero">
+            <div>
+                <span class="nueva-kicker">@aprobacion.RolAprobador?.NombreEs / @aprobacion.RolAprobador?.NombreEn</span>
+                <h1>Revisar solicitud #@aprobacion.SolicitudId</h1>
+                <div class="hero-meta">
+                    <span class="meta-chip">@aprobacion.Solicitud.TipoDesviacion?.NombreEs</span>
+                    <span class="meta-chip">@aprobacion.TipoFlujoCodigo</span>
+                    <span class="meta-chip">@aprobacion.Solicitud.EstadoSolicitud?.NombreEs</span>
+                </div>
+                <p class="hero-text">
+                    Parte: @aprobacion.Solicitud.NumeroParteAfectado | Cliente(s): @aprobacion.Solicitud.Clientes
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <a class="hero-btn" href="/aprobaciones/pendientes">Volver / Back</a>
+                <a class="hero-btn" href="/solicitudes/@aprobacion.SolicitudId">Detalle / Detail</a>
+            </div>
+        </section>
+
+        <div class="nueva-grid">
+            <main class="main-stack">
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Resumen / Summary</h2>
+                        </div>
+                    </div>
+
+                    <div class="summary-grid two">
+                        <div class="summary-item">
+                            <span>Solicitante / Requester</span>
+                            <strong>@aprobacion.Solicitud.NombreSolicitante</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Departamento / Department</span>
+                            <strong>@aprobacion.Solicitud.DepartamentoSolicitante</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Unidad / Unit</span>
+                            <strong>@aprobacion.Solicitud.UnidadNegocioAfectada</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Vigencia / Validity</span>
+                            <strong>@aprobacion.Solicitud.FechaVigencia.ToString("yyyy-MM-dd")</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Descripción / Description</h2>
+                        </div>
+                    </div>
+
+                    @if (aprobacion.Solicitud.Descripcion is not null)
+                    {
+                        <div class="detail-stack">
+                            <div class="detail-box">
+                                <span>Proceso / Process</span>
+                                <p>@aprobacion.Solicitud.Descripcion.ComoDebeRealizarseProceso</p>
+                            </div>
+
+                            <div class="detail-box">
+                                <span>Controles actuales / Current controls</span>
+                                <p>@aprobacion.Solicitud.Descripcion.ControlesOperacionActual</p>
+                            </div>
+
+                            <div class="detail-box">
+                                <span>Cambio temporal / Temporary change</span>
+                                <p>@aprobacion.Solicitud.Descripcion.ProcesoDespuesCambioTemporal</p>
+                            </div>
+
+                            <div class="detail-box">
+                                <span>Controles con cambio / Controls with change</span>
+                                <p>@aprobacion.Solicitud.Descripcion.ControlesDuranteCambio</p>
+                            </div>
+                        </div>
+                    }
+                </section>
+
+                @if (aprobacion.Solicitud.AnalisisRiesgo is not null)
+                {
+                    <section class="panel-card">
+                        <div class="panel-head">
+                            <div>
+                                <h2>Análisis de riesgo / Risk Analysis</h2>
+                            </div>
+                        </div>
+
+                        <div class="summary-grid three">
+                            <div class="summary-item">
+                                <span>Severidad</span>
+                                <strong>@aprobacion.Solicitud.AnalisisRiesgo.SeveridadActual</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Ocurrencia</span>
+                                <strong>@aprobacion.Solicitud.AnalisisRiesgo.OcurrenciaActual</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Detección</span>
+                                <strong>@aprobacion.Solicitud.AnalisisRiesgo.DeteccionActual</strong>
+                            </div>
+                        </div>
+                    </section>
+                }
+            </main>
+
+            <aside class="side-stack">
+                <section class="panel-card sticky-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Decisión / Decision</h2>
+                            <p class="panel-subtitle">Aprobar o rechazar el paso actual.</p>
+                        </div>
+                    </div>
+
+                    <label class="form-label">Comentarios / Comments</label>
+                    <textarea class="form-control" rows="6" @bind="comentarios"></textarea>
+
+                    @if (!string.IsNullOrWhiteSpace(mensaje))
+                    {
+                        <div class="notice-box error">@mensaje</div>
+                    }
+
+                    <div class="action-buttons">
+                        <button class="table-btn table-btn-primary" disabled="@procesando" @onclick="AprobarAsync">
+                            Aprobar / Approve
+                        </button>
+
+                        <button class="table-btn danger" disabled="@procesando" @onclick="RechazarAsync">
+                            Rechazar / Reject
+                        </button>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int AprobacionId { get; set; }
+
+    private QcDesvAprobacion? aprobacion;
+    private bool cargando = true;
+    private bool procesando;
+    private string comentarios = string.Empty;
+    private string mensaje = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        aprobacion = await AprobacionService.ObtenerDetalleAprobacionAsync(AprobacionId);
+        cargando = false;
+    }
+
+    private async Task AprobarAsync()
+    {
+        procesando = true;
+        mensaje = string.Empty;
+
+        var resultado = await AprobacionService.AprobarAsync(
+            AprobacionId,
+            UsuarioActualService.UsuarioId,
+            comentarios);
+
+        if (resultado.Succeeded)
+        {
+            Navigation.NavigateTo("/aprobaciones/pendientes");
+            return;
+        }
+
+        mensaje = resultado.Message;
+        procesando = false;
+    }
+
+    private async Task RechazarAsync()
+    {
+        procesando = true;
+        mensaje = string.Empty;
+
+        var resultado = await AprobacionService.RechazarAsync(
+            AprobacionId,
+            UsuarioActualService.UsuarioId,
+            comentarios);
+
+        if (resultado.Succeeded)
+        {
+            Navigation.NavigateTo("/aprobaciones/pendientes");
+            return;
+        }
+
+        mensaje = resultado.Message;
+        procesando = false;
+    }
+}
