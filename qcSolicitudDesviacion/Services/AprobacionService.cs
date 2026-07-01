@@ -25,20 +25,22 @@ public class AprobacionService
             .Select(x => x.RolCodigo)
             .ToListAsync(cancellationToken);
 
-        if (rolesUsuario.Count == 0)
-        {
-            return new List<QcDesvAprobacion>();
-        }
-
         return await context.QcDesvAprobaciones
             .AsNoTracking()
             .Include(x => x.Solicitud)
             .Include(x => x.Extension)
             .Include(x => x.RolAprobador)
+            .Include(x => x.UsuarioAprobador)
             .Where(x =>
                 x.EsPasoActual &&
                 x.EstadoAprobacionCodigo == QcDesvCodigos.EstadoAprobacion.Pendiente &&
-                rolesUsuario.Contains(x.RolAprobadorCodigo))
+                (
+                    x.UsuarioAprobadorId == usuarioId ||
+                    (
+                        !x.UsuarioAprobadorId.HasValue &&
+                        rolesUsuario.Contains(x.RolAprobadorCodigo)
+                    )
+                ))
             .OrderBy(x => x.FechaAsignacion)
             .ToListAsync(cancellationToken);
     }
@@ -71,15 +73,13 @@ public class AprobacionService
             return ServiceResult.Failure("Esta aprobación ya fue procesada.");
         }
 
-        var tieneRol = await UsuarioTieneRolAsync(
-            context,
-            usuarioActualId,
-            aprobacion.RolAprobadorCodigo,
-            cancellationToken);
-
-        if (!tieneRol)
+        if (!await UsuarioPuedeResponderAprobacionAsync(
+                context,
+                aprobacion,
+                usuarioActualId,
+                cancellationToken))
         {
-            return ServiceResult.Failure("El usuario no tiene el rol requerido para aprobar este paso.");
+            return ServiceResult.Failure("No tiene permisos para aprobar esta solicitud.");
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -87,7 +87,6 @@ public class AprobacionService
         try
         {
             var solicitud = aprobacion.Solicitud!;
-
             var estadoAnterior = solicitud.EstadoSolicitudCodigo;
 
             aprobacion.EstadoAprobacionCodigo = QcDesvCodigos.EstadoAprobacion.Aprobado;
@@ -159,7 +158,10 @@ public class AprobacionService
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return ServiceResult.Failure($"Error al aprobar: {ex.Message}");
+
+            var detalle = ex.InnerException?.Message ?? ex.Message;
+
+            return ServiceResult.Failure($"Error al aprobar: {detalle}");
         }
     }
 
@@ -196,15 +198,13 @@ public class AprobacionService
             return ServiceResult.Failure("Esta aprobación ya fue procesada.");
         }
 
-        var tieneRol = await UsuarioTieneRolAsync(
-            context,
-            usuarioActualId,
-            aprobacion.RolAprobadorCodigo,
-            cancellationToken);
-
-        if (!tieneRol)
+        if (!await UsuarioPuedeResponderAprobacionAsync(
+                context,
+                aprobacion,
+                usuarioActualId,
+                cancellationToken))
         {
-            return ServiceResult.Failure("El usuario no tiene el rol requerido para rechazar este paso.");
+            return ServiceResult.Failure("No tiene permisos para rechazar esta solicitud.");
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -249,13 +249,16 @@ public class AprobacionService
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return ServiceResult.Failure($"Error al rechazar: {ex.Message}");
+
+            var detalle = ex.InnerException?.Message ?? ex.Message;
+
+            return ServiceResult.Failure($"Error al rechazar: {detalle}");
         }
     }
 
     public async Task<QcDesvAprobacion?> ObtenerDetalleAprobacionAsync(
-    int aprobacionId,
-    CancellationToken cancellationToken = default)
+        int aprobacionId,
+        CancellationToken cancellationToken = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -263,6 +266,7 @@ public class AprobacionService
             .AsNoTracking()
             .Include(x => x.RolAprobador)
             .Include(x => x.EstadoAprobacion)
+            .Include(x => x.UsuarioAprobador)
             .Include(x => x.Extension)
             .Include(x => x.Solicitud)
                 .ThenInclude(x => x!.TipoDesviacion)
@@ -281,6 +285,24 @@ public class AprobacionService
             .FirstOrDefaultAsync(x => x.Id == aprobacionId, cancellationToken);
     }
 
+    private static async Task<bool> UsuarioPuedeResponderAprobacionAsync(
+        ApplicationDbContext context,
+        QcDesvAprobacion aprobacion,
+        int usuarioId,
+        CancellationToken cancellationToken)
+    {
+        if (aprobacion.UsuarioAprobadorId.HasValue)
+        {
+            return aprobacion.UsuarioAprobadorId.Value == usuarioId;
+        }
+
+        return await UsuarioTieneRolAsync(
+            context,
+            usuarioId,
+            aprobacion.RolAprobadorCodigo,
+            cancellationToken);
+    }
+
     private static async Task<bool> UsuarioTieneRolAsync(
         ApplicationDbContext context,
         int usuarioId,
@@ -288,6 +310,9 @@ public class AprobacionService
         CancellationToken cancellationToken)
     {
         return await context.QcDesvUsuarioRoles
-            .AnyAsync(x => x.UsuarioId == usuarioId && x.RolCodigo == rolCodigo, cancellationToken);
+            .AnyAsync(x =>
+                    x.UsuarioId == usuarioId &&
+                    x.RolCodigo == rolCodigo,
+                cancellationToken);
     }
 }

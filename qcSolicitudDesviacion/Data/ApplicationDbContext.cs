@@ -32,6 +32,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<QcDesvExtension> QcDesvExtensiones => Set<QcDesvExtension>();
     public DbSet<QcDesvAprobacion> QcDesvAprobaciones => Set<QcDesvAprobacion>();
     public DbSet<QcDesvHistorial> QcDesvHistoriales => Set<QcDesvHistorial>();
+    public DbSet<QcDesvSolicitudCsr> QcDesvSolicitudCsrs => Set<QcDesvSolicitudCsr>();
 
     public DbSet<QcDesvSolicitudResumen> QcDesvSolicitudesResumen => Set<QcDesvSolicitudResumen>();
 
@@ -50,6 +51,7 @@ public class ApplicationDbContext : DbContext
         ConfigurarAprobaciones(modelBuilder);
         ConfigurarHistorial(modelBuilder);
         ConfigurarVistas(modelBuilder);
+        ConfigurarCsrs(modelBuilder);
     }
 
     private static void ConfigurarCatalogos(ModelBuilder modelBuilder)
@@ -659,6 +661,34 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.EstadoSolicitudCodigo).HasMaxLength(50).IsUnicode(false);
             entity.Property(e => e.EstadoSolicitudEs).HasMaxLength(150);
             entity.Property(e => e.EstadoSolicitudEn).HasMaxLength(150);
+        });
+    }
+
+    private static void ConfigurarCsrs(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<QcDesvSolicitudCsr>(entity =>
+        {
+            entity.ToTable("qcDesvSolicitudCsr");
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Numero)
+                .IsRequired();
+
+            entity.Property(e => e.ValorCsr)
+                .HasMaxLength(250)
+                .IsRequired();
+
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("SYSDATETIME()");
+
+            entity.HasIndex(e => new { e.SolicitudId, e.Numero })
+                .IsUnique()
+                .HasDatabaseName("UQ_qcDesvSolicitudCsr_Solicitud_Numero");
+
+            entity.HasOne(e => e.Solicitud)
+                .WithMany(e => e.Csrs)
+                .HasForeignKey(e => e.SolicitudId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

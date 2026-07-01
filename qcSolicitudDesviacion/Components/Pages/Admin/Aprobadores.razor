@@ -1,0 +1,539 @@
+﻿@page "/admin/aprobadores"
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components
+@using qcSolicitudDesviacion.ViewModels
+
+@inject AdminAprobadoresService AdminAprobadoresService
+@inject UsuarioActualService UsuarioActualService
+
+<PageTitle>Administrar aprobadores</PageTitle>
+
+<div class="approver-admin-page">
+    <section class="nueva-hero">
+        <div>
+            <span class="nueva-kicker">Administración / Administration</span>
+            <h1>Aprobadores / Approvers</h1>
+            <p class="hero-text">
+                Asigne o retire roles de aprobación a los usuarios registrados en el sistema.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a class="hero-btn" href="/">Inicio / Home</a>
+        </div>
+    </section>
+
+    @if (cargando)
+    {
+        <section class="panel-card">
+            <div class="nueva-skeleton nueva-skeleton-form"></div>
+        </section>
+    }
+    else if (!autorizado)
+    {
+        <section class="panel-card access-card">
+            <div class="access-icon">!</div>
+            <h2>Acceso restringido</h2>
+            <p>
+                Solo los usuarios con rol <strong>ADMIN</strong> pueden administrar aprobadores.
+            </p>
+
+            <div class="notice-box">
+                Tu usuario actual es ID: <strong>@usuarioActualId</strong>.
+                Asigna el rol ADMIN por SQL para el primer administrador.
+            </div>
+        </section>
+    }
+    else
+    {
+        @if (!string.IsNullOrWhiteSpace(mensaje))
+        {
+            <div class="notice-box @(exito ? "success" : "error")">
+                @mensaje
+            </div>
+        }
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2>Agregar usuario desde MEAX / Add MEAX User</h2>
+                    <p class="panel-subtitle">
+                        Busque usuarios existentes en dbo.meax_all_user y agréguelos al sistema para asignarles roles aprobadores.
+                    </p>
+                </div>
+                <span class="panel-badge">meax_all_user</span>
+            </div>
+
+            <div class="search-row">
+                <input class="form-control"
+                       placeholder="Buscar por login, nombre, correo, departamento o puesto..."
+                       @bind="busquedaMeax"
+                       @bind:event="oninput" />
+
+                <button type="button"
+                        class="table-btn table-btn-primary"
+                        disabled="@buscandoMeax"
+                        @onclick="BuscarUsuariosMeaxAsync">
+                    @(buscandoMeax ? "Buscando..." : "Buscar MEAX")
+                </button>
+
+                <button type="button"
+                        class="table-btn"
+                        @onclick="LimpiarBusquedaMeax">
+                    Limpiar
+                </button>
+            </div>
+
+            @if (usuariosMeax.Count > 0)
+            {
+                <div class="meax-results">
+                    @foreach (var usuarioMeax in usuariosMeax)
+                    {
+                        <article class="meax-user-card">
+                            <div>
+                                <div class="user-name">@usuarioMeax.Nombre</div>
+                                <div class="user-meta">
+                                    @usuarioMeax.PcLoginId
+                                    @if (!string.IsNullOrWhiteSpace(usuarioMeax.Email))
+                                    {
+                                        <span>• @usuarioMeax.Email</span>
+                                    }
+                                </div>
+                                <div class="user-meta">
+                                    @MostrarTexto(usuarioMeax.Departamento, "Sin departamento")
+                                    <span>•</span>
+                                    @MostrarTexto(usuarioMeax.Puesto, "Sin puesto")
+                                    <span>•</span>
+                                    @MostrarTexto(usuarioMeax.Dep2, "Sin dep_2")
+                                </div>
+                            </div>
+
+                            <button type="button"
+                                    class="table-btn table-btn-primary"
+                                    disabled="@guardando"
+                                    @onclick="() => AgregarUsuarioMeaxAsync(usuarioMeax)">
+                                Agregar / Add
+                            </button>
+                        </article>
+                    }
+                </div>
+            }
+            else if (!string.IsNullOrWhiteSpace(busquedaMeax))
+            {
+                <div class="empty-state">
+                    No hay resultados. Capture al menos 2 caracteres y presione Buscar MEAX.
+                </div>
+            }
+        </section>
+
+        <div class="admin-workspace">
+            <section class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Usuarios / Users</h2>
+                        <p class="panel-subtitle">
+                            Seleccione un usuario para administrar sus roles de aprobación.
+                        </p>
+                    </div>
+                    <span class="panel-badge">@usuarios.Count usuarios</span>
+                </div>
+
+                <div class="search-row">
+                    <input class="form-control"
+                           placeholder="Buscar por nombre, usuario, correo o departamento..."
+                           @bind="busqueda"
+                           @bind:event="oninput" />
+
+                    <button type="button"
+                            class="table-btn table-btn-primary"
+                            @onclick="BuscarAsync">
+                        Buscar
+                    </button>
+
+                    <button type="button"
+                            class="table-btn"
+                            @onclick="LimpiarBusquedaAsync">
+                        Limpiar
+                    </button>
+                </div>
+
+                <div class="users-list">
+                    @if (usuarios.Count == 0)
+                    {
+                        <div class="empty-state">
+                            No se encontraron usuarios.
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var usuario in usuarios)
+                        {
+                            <article class="user-row @(usuarioSeleccionado?.UsuarioId == usuario.UsuarioId ? "selected" : "")">
+                                <div class="user-main">
+                                    <div class="user-name">@usuario.NombreCompleto</div>
+                                    <div class="user-meta">
+                                        @usuario.UserName
+                                        @if (!string.IsNullOrWhiteSpace(usuario.Email))
+                                        {
+                                            <span>• @usuario.Email</span>
+                                        }
+                                    </div>
+                                    <div class="user-meta">
+                                        @MostrarTexto(usuario.Departamento, "Sin departamento")
+                                        <span>•</span>
+                                        @MostrarTexto(usuario.UnidadNegocio, "Sin unidad")
+                                    </div>
+
+                                    <div class="role-chip-list">
+                                        @if (usuario.Roles.Count == 0)
+                                        {
+                                            <span class="role-chip muted">Sin roles</span>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var rol in usuario.Roles)
+                                            {
+                                                <span class="role-chip">@NombreRol(rol)</span>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="user-actions">
+                                    <span class="status-pill @(usuario.Activo ? "ok" : "off")">
+                                        @(usuario.Activo ? "Activo" : "Inactivo")
+                                    </span>
+
+                                    <button type="button"
+                                            class="table-btn table-btn-primary"
+                                            @onclick="() => SeleccionarUsuario(usuario)">
+                                        Administrar
+                                    </button>
+                                </div>
+                            </article>
+                        }
+                    }
+                </div>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>Roles del usuario / User Roles</h2>
+                        <p class="panel-subtitle">
+                            Marque los roles que este usuario podrá aprobar.
+                        </p>
+                    </div>
+                    <span class="panel-badge">Workflow</span>
+                </div>
+
+                @if (usuarioSeleccionado is null)
+                {
+                    <div class="empty-state">
+                        Seleccione un usuario de la lista para administrar sus roles.
+                    </div>
+                }
+                else
+                {
+                    <div class="selected-user-card">
+                        <div>
+                            <h3>@usuarioSeleccionado.NombreCompleto</h3>
+                            <p>@usuarioSeleccionado.UserName</p>
+                        </div>
+
+                        <span class="status-pill @(usuarioSeleccionado.Activo ? "ok" : "off")">
+                            @(usuarioSeleccionado.Activo ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    @foreach (var grupo in roles.GroupBy(x => x.Grupo))
+                    {
+                        <div class="role-group">
+                            <h3>@grupo.Key</h3>
+
+                            <div class="role-check-list">
+                                @foreach (var rol in grupo.OrderBy(x => x.Orden))
+                                {
+                                    <label class="role-check">
+                                        <input type="checkbox"
+                                               checked="@RolSeleccionado(rol.Codigo)"
+                                               @onchange="e => CambiarRol(rol.Codigo, e)" />
+
+                                        <span>
+                                            <strong>@rol.NombreEs</strong>
+                                            <small>@rol.NombreEn</small>
+                                        </span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="admin-actions">
+                        <button type="button"
+                                class="table-btn table-btn-primary"
+                                disabled="@guardando"
+                                @onclick="GuardarRolesAsync">
+                            @(guardando ? "Guardando..." : "Guardar roles")
+                        </button>
+
+                        <button type="button"
+                                class="table-btn"
+                                disabled="@guardando"
+                                @onclick="CambiarEstadoUsuarioAsync">
+                            @(usuarioSeleccionado.Activo ? "Desactivar usuario" : "Activar usuario")
+                        </button>
+                    </div>
+                }
+            </section>
+        </div>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2>Resumen por rol / Role Summary</h2>
+                    <p class="panel-subtitle">
+                        Usuarios asignados actualmente a cada etapa del flujo.
+                    </p>
+                </div>
+            </div>
+
+            <div class="role-summary-grid">
+                @foreach (var rol in roles.OrderBy(x => x.Orden))
+                {
+                    <article class="role-summary-card">
+                        <div class="role-summary-head">
+                            <span class="role-order">@rol.Orden</span>
+                            <div>
+                                <h3>@rol.NombreEs</h3>
+                                <p>@rol.Grupo</p>
+                            </div>
+                        </div>
+
+                        @if (rol.Usuarios.Count == 0)
+                        {
+                            <div class="role-empty">
+                                Sin usuarios asignados.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="role-user-list">
+                                @foreach (var usuario in rol.Usuarios)
+                                {
+                                    <span class="role-user @(usuario.Activo ? "" : "inactive")">
+                                        @usuario.NombreCompleto
+                                    </span>
+                                }
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        </section>
+    }
+</div>
+
+@code {
+    private int usuarioActualId;
+    private bool autorizado;
+    private bool cargando = true;
+    private bool guardando;
+    private bool exito;
+    private string mensaje = string.Empty;
+    private string busqueda = string.Empty;
+    private string busquedaMeax = string.Empty;
+    private bool buscandoMeax;
+    private List<AdminMeaxUsuarioVm> usuariosMeax = new();
+
+    private List<AdminAprobadorUsuarioVm> usuarios = new();
+    private List<AdminAprobadorRolVm> roles = new();
+
+    private AdminAprobadorUsuarioVm? usuarioSeleccionado;
+    private HashSet<string> rolesSeleccionados = new(StringComparer.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
+        autorizado = await AdminAprobadoresService.UsuarioEsAdminAsync(usuarioActualId);
+
+        if (autorizado)
+        {
+            await CargarAsync();
+        }
+
+        cargando = false;
+    }
+
+    private async Task CargarAsync()
+    {
+        var datos = await AdminAprobadoresService.ObtenerDatosAsync(busqueda);
+
+        usuarios = datos.Usuarios;
+        roles = datos.Roles;
+
+        if (usuarioSeleccionado is not null)
+        {
+            var usuarioActualizado = usuarios
+                .FirstOrDefault(x => x.UsuarioId == usuarioSeleccionado.UsuarioId);
+
+            if (usuarioActualizado is not null)
+            {
+                SeleccionarUsuario(usuarioActualizado);
+            }
+        }
+    }
+
+    private async Task BuscarAsync()
+    {
+        mensaje = string.Empty;
+        await CargarAsync();
+    }
+
+    private async Task LimpiarBusquedaAsync()
+    {
+        busqueda = string.Empty;
+        mensaje = string.Empty;
+        await CargarAsync();
+    }
+
+    private void SeleccionarUsuario(AdminAprobadorUsuarioVm usuario)
+    {
+        usuarioSeleccionado = usuario;
+
+        var rolesAdministrables = roles
+            .Select(x => x.Codigo)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        rolesSeleccionados = usuario.Roles
+            .Where(x => rolesAdministrables.Contains(x))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private bool RolSeleccionado(string rolCodigo)
+    {
+        return rolesSeleccionados.Contains(rolCodigo);
+    }
+
+    private void CambiarRol(string rolCodigo, ChangeEventArgs e)
+    {
+        var seleccionado = e.Value is bool valor && valor;
+
+        if (seleccionado)
+        {
+            rolesSeleccionados.Add(rolCodigo);
+        }
+        else
+        {
+            rolesSeleccionados.Remove(rolCodigo);
+        }
+    }
+
+    private async Task GuardarRolesAsync()
+    {
+        if (usuarioSeleccionado is null)
+        {
+            return;
+        }
+
+        guardando = true;
+        mensaje = string.Empty;
+        exito = false;
+
+        var resultado = await AdminAprobadoresService.ActualizarRolesUsuarioAsync(
+            usuarioSeleccionado.UsuarioId,
+            rolesSeleccionados.ToList(),
+            usuarioActualId);
+
+        exito = resultado.Succeeded;
+        mensaje = resultado.Message;
+
+        await CargarAsync();
+
+        guardando = false;
+    }
+
+    private async Task CambiarEstadoUsuarioAsync()
+    {
+        if (usuarioSeleccionado is null)
+        {
+            return;
+        }
+
+        guardando = true;
+        mensaje = string.Empty;
+        exito = false;
+
+        var nuevoEstado = !usuarioSeleccionado.Activo;
+
+        var resultado = await AdminAprobadoresService.CambiarActivoUsuarioAsync(
+            usuarioSeleccionado.UsuarioId,
+            nuevoEstado,
+            usuarioActualId);
+
+        exito = resultado.Succeeded;
+        mensaje = resultado.Message;
+
+        await CargarAsync();
+
+        guardando = false;
+    }
+
+    private string NombreRol(string codigo)
+    {
+        return roles.FirstOrDefault(x => x.Codigo == codigo)?.NombreEs ?? codigo;
+    }
+
+    private static string MostrarTexto(string? valor, string textoDefault)
+    {
+        return string.IsNullOrWhiteSpace(valor) ? textoDefault : valor;
+    }
+
+    private async Task BuscarUsuariosMeaxAsync()
+    {
+        mensaje = string.Empty;
+        exito = false;
+        buscandoMeax = true;
+
+        usuariosMeax = await AdminAprobadoresService.BuscarUsuariosMeaxAsync(busquedaMeax);
+
+        buscandoMeax = false;
+    }
+
+    private void LimpiarBusquedaMeax()
+    {
+        busquedaMeax = string.Empty;
+        usuariosMeax.Clear();
+    }
+
+    private async Task AgregarUsuarioMeaxAsync(AdminMeaxUsuarioVm usuarioMeax)
+    {
+        guardando = true;
+        mensaje = string.Empty;
+        exito = false;
+
+        var resultado = await AdminAprobadoresService.AgregarUsuarioDesdeMeaxAsync(
+            usuarioMeax.PcLoginId,
+            usuarioActualId);
+
+        exito = resultado.Succeeded;
+        mensaje = resultado.Message;
+
+        await CargarAsync();
+
+        if (resultado.Succeeded && resultado.Data > 0)
+        {
+            var usuarioAgregado = usuarios.FirstOrDefault(x => x.UsuarioId == resultado.Data);
+
+            if (usuarioAgregado is not null)
+            {
+                SeleccionarUsuario(usuarioAgregado);
+            }
+        }
+
+        guardando = false;
+    }
+}

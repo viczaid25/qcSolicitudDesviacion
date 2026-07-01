@@ -11,6 +11,16 @@ public class SolicitudDesviacionService
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
     private readonly QcDesvWorkflowService _workflowService;
 
+    private static readonly string[] RolesAprobacionSolicitud =
+    {
+        QcDesvCodigos.Rol.Qms,
+        QcDesvCodigos.Rol.CoordApqp,
+        QcDesvCodigos.Rol.CoordQc,
+        QcDesvCodigos.Rol.ManagerQc,
+        QcDesvCodigos.Rol.ManagerProdIng,
+        QcDesvCodigos.Rol.AdvisorQc
+    };
+
     public SolicitudDesviacionService(
         IDbContextFactory<ApplicationDbContext> contextFactory,
         QcDesvWorkflowService workflowService)
@@ -24,6 +34,9 @@ public class SolicitudDesviacionService
         int usuarioActualId,
         CancellationToken cancellationToken = default)
     {
+        var csrs = ObtenerCsrsNormalizados(model);
+        SincronizarCsrsCompatibilidad(model, csrs);
+
         var errores = ValidarSolicitud(model);
 
         if (errores.Count > 0)
@@ -52,6 +65,18 @@ public class SolicitudDesviacionService
         if (!solicitanteExiste)
         {
             return ServiceResult<int>.Failure("El usuario solicitante no existe o no está activo.");
+        }
+
+        var aprobadoresSeleccionadosPorRol = ObtenerAprobadoresSeleccionadosPorRol(model);
+
+        var validacionAprobadores = await ValidarAprobadoresSeleccionadosAsync(
+            context,
+            aprobadoresSeleccionadosPorRol,
+            cancellationToken);
+
+        if (!validacionAprobadores.Succeeded)
+        {
+            return ServiceResult<int>.Failure(validacionAprobadores.Message);
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -85,7 +110,7 @@ public class SolicitudDesviacionService
                 CSR3 = model.CSR3?.Trim(),
 
                 InformarCliente = model.InformarCliente,
-                RazonInformarCliente = model.RazonInformarCliente.Trim(),
+                RazonInformarCliente = model.RazonInformarCliente?.Trim() ?? string.Empty,
 
                 EstadoSolicitudCodigo = QcDesvCodigos.EstadoSolicitud.Borrador,
                 NumeroExtensionActual = 0,
@@ -96,6 +121,8 @@ public class SolicitudDesviacionService
 
             context.QcDesvSolicitudes.Add(solicitud);
             await context.SaveChangesAsync(cancellationToken);
+
+            AgregarCsrsSolicitud(context, solicitud.Id, csrs);
 
             var descripcion = new QcDesvDescripcion
             {
@@ -152,7 +179,8 @@ public class SolicitudDesviacionService
                 solicitud.Id,
                 extensionId: null,
                 tipoFlujoCodigo: QcDesvCodigos.TipoFlujo.Solicitud,
-                cancellationToken);
+                aprobadoresSeleccionadosPorRol: aprobadoresSeleccionadosPorRol,
+                cancellationToken: cancellationToken);
 
             if (!workflowResult.Succeeded)
             {
@@ -181,7 +209,10 @@ public class SolicitudDesviacionService
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return ServiceResult<int>.Failure($"Error al crear la solicitud: {ex.Message}");
+
+            var detalle = ex.InnerException?.Message ?? ex.Message;
+
+            return ServiceResult<int>.Failure($"Error al crear la solicitud: {detalle}");
         }
     }
 
@@ -197,8 +228,8 @@ public class SolicitudDesviacionService
     }
 
     public async Task<QcDesvSolicitud?> ObtenerDetalleAsync(
-    int solicitudId,
-    CancellationToken cancellationToken = default)
+        int solicitudId,
+        CancellationToken cancellationToken = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -207,6 +238,7 @@ public class SolicitudDesviacionService
             .Include(x => x.TipoDesviacion)
             .Include(x => x.RequisitoProceso)
             .Include(x => x.EstadoSolicitud)
+            .Include(x => x.Csrs)
             .Include(x => x.Descripcion)
             .Include(x => x.AnalisisRiesgo)
             .Include(x => x.Acciones)
@@ -225,14 +257,15 @@ public class SolicitudDesviacionService
     }
 
     public async Task<ServiceResult<QcDesvSolicitudFormModel>> ObtenerParaEditarAsync(
-    int solicitudId,
-    int usuarioActualId,
-    CancellationToken cancellationToken = default)
+        int solicitudId,
+        int usuarioActualId,
+        CancellationToken cancellationToken = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var solicitud = await context.QcDesvSolicitudes
             .AsNoTracking()
+            .Include(x => x.Csrs)
             .Include(x => x.Descripcion)
             .Include(x => x.AnalisisRiesgo)
             .Include(x => x.Acciones)
@@ -256,6 +289,8 @@ public class SolicitudDesviacionService
         var accion = solicitud.Acciones
             .OrderBy(x => x.Id)
             .FirstOrDefault();
+
+        var csrs = ObtenerCsrsDesdeSolicitud(solicitud);
 
         var model = new QcDesvSolicitudFormModel
         {
@@ -282,6 +317,7 @@ public class SolicitudDesviacionService
             CSR1 = solicitud.CSR1,
             CSR2 = solicitud.CSR2,
             CSR3 = solicitud.CSR3,
+            Csrs = csrs.Count == 0 ? new List<string> { string.Empty } : csrs,
 
             InformarCliente = solicitud.InformarCliente,
             RazonInformarCliente = solicitud.RazonInformarCliente,
@@ -316,6 +352,9 @@ public class SolicitudDesviacionService
             return ServiceResult<int>.Failure("La solicitud es obligatoria.");
         }
 
+        var csrs = ObtenerCsrsNormalizados(model);
+        SincronizarCsrsCompatibilidad(model, csrs);
+
         var errores = ValidarSolicitud(model);
 
         if (errores.Count > 0)
@@ -326,9 +365,11 @@ public class SolicitudDesviacionService
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var solicitud = await context.QcDesvSolicitudes
+            .Include(x => x.Csrs)
             .Include(x => x.Descripcion)
             .Include(x => x.AnalisisRiesgo)
             .Include(x => x.Acciones)
+                .ThenInclude(x => x.Archivos)
             .FirstOrDefaultAsync(x => x.Id == model.SolicitudId, cancellationToken);
 
         if (solicitud is null)
@@ -376,10 +417,14 @@ public class SolicitudDesviacionService
             solicitud.CSR3 = model.CSR3?.Trim();
 
             solicitud.InformarCliente = model.InformarCliente;
-            solicitud.RazonInformarCliente = model.RazonInformarCliente.Trim();
+            solicitud.RazonInformarCliente = model.RazonInformarCliente?.Trim() ?? string.Empty;
 
             solicitud.ModificadoPorUsuarioId = usuarioActualId;
             solicitud.FechaModificacion = DateTime.Now;
+
+            context.QcDesvSolicitudCsrs.RemoveRange(solicitud.Csrs);
+
+            AgregarCsrsSolicitud(context, solicitud.Id, csrs);
 
             if (solicitud.Descripcion is null)
             {
@@ -434,25 +479,32 @@ public class SolicitudDesviacionService
                 .OrderBy(x => x.Id)
                 .FirstOrDefault();
 
-            if (accion is null)
+            if (!string.IsNullOrWhiteSpace(model.DescripcionAccion))
             {
-                accion = new QcDesvAccion
+                if (accion is null)
                 {
-                    SolicitudId = solicitud.Id,
-                    CreadoPorUsuarioId = usuarioActualId,
-                    FechaCreacion = DateTime.Now
-                };
+                    accion = new QcDesvAccion
+                    {
+                        SolicitudId = solicitud.Id,
+                        CreadoPorUsuarioId = usuarioActualId,
+                        FechaCreacion = DateTime.Now
+                    };
 
-                context.QcDesvAcciones.Add(accion);
+                    context.QcDesvAcciones.Add(accion);
+                }
+
+                accion.DescripcionAccion = model.DescripcionAccion.Trim();
+                accion.Responsable = string.IsNullOrWhiteSpace(model.ResponsableAccion)
+                    ? null
+                    : model.ResponsableAccion.Trim();
+                accion.FechaCompromiso = model.FechaCompromisoAccion?.Date;
+                accion.ModificadoPorUsuarioId = usuarioActualId;
+                accion.FechaModificacion = DateTime.Now;
             }
-
-            accion.DescripcionAccion = model.DescripcionAccion.Trim();
-            accion.Responsable = string.IsNullOrWhiteSpace(model.ResponsableAccion)
-                ? null
-                : model.ResponsableAccion.Trim();
-            accion.FechaCompromiso = model.FechaCompromisoAccion?.Date;
-            accion.ModificadoPorUsuarioId = usuarioActualId;
-            accion.FechaModificacion = DateTime.Now;
+            else if (accion is not null && !accion.Archivos.Any())
+            {
+                context.QcDesvAcciones.Remove(accion);
+            }
 
             var aprobacionesAnteriores = await context.QcDesvAprobaciones
                 .Where(x => x.SolicitudId == solicitud.Id && x.ExtensionId == null)
@@ -467,7 +519,7 @@ public class SolicitudDesviacionService
                 solicitud.Id,
                 extensionId: null,
                 tipoFlujoCodigo: QcDesvCodigos.TipoFlujo.Solicitud,
-                cancellationToken);
+                cancellationToken: cancellationToken);
 
             if (!workflowResult.Succeeded)
             {
@@ -496,14 +548,11 @@ public class SolicitudDesviacionService
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return ServiceResult<int>.Failure($"Error al actualizar la solicitud: {ex.Message}");
-        }
-    }
 
-    private static bool PuedeEditarSolicitud(string estadoSolicitudCodigo)
-    {
-        return estadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Borrador ||
-               estadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Rechazada;
+            var detalle = ex.InnerException?.Message ?? ex.Message;
+
+            return ServiceResult<int>.Failure($"Error al actualizar la solicitud: {detalle}");
+        }
     }
 
     public async Task<ServiceResult> CancelarAsync(
@@ -554,6 +603,12 @@ public class SolicitudDesviacionService
         return ServiceResult.Success("Solicitud cancelada correctamente.");
     }
 
+    private static bool PuedeEditarSolicitud(string estadoSolicitudCodigo)
+    {
+        return estadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Borrador ||
+               estadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Rechazada;
+    }
+
     private static List<string> ValidarSolicitud(QcDesvSolicitudFormModel model)
     {
         var errores = new List<string>();
@@ -586,30 +641,27 @@ public class SolicitudDesviacionService
             errores.Add("La fecha de vigencia no puede ser menor a la fecha de solicitud.");
 
         if (model.CantidadPiezas.HasValue && model.CantidadPiezas.Value <= 0)
-        {
             errores.Add("La cantidad de piezas debe ser mayor a 0.");
-        }
 
         if (string.IsNullOrWhiteSpace(model.NumeroParteAfectado))
             errores.Add("El número de parte afectado es obligatorio.");
 
         if (string.IsNullOrWhiteSpace(model.RequisitoProcesoCodigo))
-            errores.Add("El requisito del proceso es obligatorio.");
+            errores.Add("La categoría 6M es obligatoria.");
 
         if (model.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro &&
             string.IsNullOrWhiteSpace(model.RequisitoProcesoOtro))
         {
-            errores.Add("Debe especificar el requisito del proceso cuando selecciona Otro.");
+            errores.Add("Debe especificar la categoría 6M cuando selecciona Otro.");
         }
 
-        if (string.IsNullOrWhiteSpace(model.CSR1))
-            errores.Add("El CSR 1 es obligatorio.");
+        var csrs = ObtenerCsrsNormalizados(model);
 
-        if (string.IsNullOrWhiteSpace(model.CSR2))
-            errores.Add("El CSR 2 es obligatorio.");
+        if (csrs.Count == 0)
+            errores.Add("Debe capturar al menos un CSR.");
 
-        if (string.IsNullOrWhiteSpace(model.CSR3))
-            errores.Add("El CSR 3 es obligatorio.");
+        if (csrs.Any(x => x.Length > 250))
+            errores.Add("Cada CSR debe tener máximo 250 caracteres.");
 
         if (model.InformarCliente && string.IsNullOrWhiteSpace(model.RazonInformarCliente))
             errores.Add("Debe capturar la razón para informar al cliente.");
@@ -644,13 +696,163 @@ public class SolicitudDesviacionService
                 errores.Add("La detección con cambio debe estar entre 1 y 10.");
         }
 
-        
-
         return errores;
     }
 
     private static bool ValorAmefInvalido(int? valor)
     {
         return !valor.HasValue || valor.Value < 1 || valor.Value > 10;
+    }
+
+    private static List<string> ObtenerCsrsNormalizados(QcDesvSolicitudFormModel model)
+    {
+        var csrs = model.Csrs
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .ToList();
+
+        if (csrs.Count == 0)
+        {
+            csrs = new[] { model.CSR1, model.CSR2, model.CSR3 }
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x!.Trim())
+                .ToList();
+        }
+
+        return csrs;
+    }
+
+    private static List<string> ObtenerCsrsDesdeSolicitud(QcDesvSolicitud solicitud)
+    {
+        var csrs = solicitud.Csrs
+            .OrderBy(x => x.Numero)
+            .Select(x => x.ValorCsr)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+
+        if (csrs.Count == 0)
+        {
+            csrs = new[] { solicitud.CSR1, solicitud.CSR2, solicitud.CSR3 }
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x!.Trim())
+                .ToList();
+        }
+
+        return csrs;
+    }
+
+    private static void SincronizarCsrsCompatibilidad(
+        QcDesvSolicitudFormModel model,
+        List<string> csrs)
+    {
+        model.CSR1 = ObtenerCsrCompatibilidad(csrs, 0);
+        model.CSR2 = ObtenerCsrCompatibilidad(csrs, 1);
+        model.CSR3 = ObtenerCsrCompatibilidad(csrs, 2);
+    }
+
+    private static string? ObtenerCsrCompatibilidad(List<string> csrs, int index)
+    {
+        if (index < 0 || index >= csrs.Count)
+        {
+            return null;
+        }
+
+        var valor = csrs[index];
+
+        return valor.Length <= 50
+            ? valor
+            : valor[..50];
+    }
+
+    private static Dictionary<string, int?> ObtenerAprobadoresSeleccionadosPorRol(
+        QcDesvSolicitudFormModel model)
+    {
+        return model.AprobadoresSeleccionados
+            .Where(x => !string.IsNullOrWhiteSpace(x.RolCodigo))
+            .GroupBy(x => x.RolCodigo.Trim().ToUpperInvariant())
+            .ToDictionary(
+                x => x.Key,
+                x => x.First().UsuarioAprobadorId,
+                StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static async Task<ServiceResult> ValidarAprobadoresSeleccionadosAsync(
+        ApplicationDbContext context,
+        Dictionary<string, int?> aprobadoresSeleccionadosPorRol,
+        CancellationToken cancellationToken)
+    {
+        foreach (var rolCodigo in RolesAprobacionSolicitud)
+        {
+            if (!aprobadoresSeleccionadosPorRol.TryGetValue(rolCodigo, out var usuarioId) ||
+                !usuarioId.HasValue ||
+                usuarioId.Value <= 0)
+            {
+                return ServiceResult.Failure(
+                    $"Debe seleccionar un aprobador para el rol {rolCodigo}.");
+            }
+        }
+
+        var usuariosIds = aprobadoresSeleccionadosPorRol
+            .Values
+            .Where(x => x.HasValue && x.Value > 0)
+            .Select(x => x!.Value)
+            .Distinct()
+            .ToList();
+
+        var usuariosActivos = await context.QcDesvUsuarios
+            .AsNoTracking()
+            .Where(x => usuariosIds.Contains(x.Id) && x.Activo)
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var usuarioId in usuariosIds)
+        {
+            if (!usuariosActivos.Contains(usuarioId))
+            {
+                return ServiceResult.Failure(
+                    "Uno de los aprobadores seleccionados no existe o está inactivo.");
+            }
+        }
+
+        var asignaciones = await context.QcDesvUsuarioRoles
+            .AsNoTracking()
+            .Where(x =>
+                usuariosIds.Contains(x.UsuarioId) &&
+                RolesAprobacionSolicitud.Contains(x.RolCodigo))
+            .ToListAsync(cancellationToken);
+
+        foreach (var rolCodigo in RolesAprobacionSolicitud)
+        {
+            var usuarioId = aprobadoresSeleccionadosPorRol[rolCodigo]!.Value;
+
+            var usuarioTieneRol = asignaciones.Any(x =>
+                x.UsuarioId == usuarioId &&
+                x.RolCodigo == rolCodigo);
+
+            if (!usuarioTieneRol)
+            {
+                return ServiceResult.Failure(
+                    $"El usuario seleccionado para {rolCodigo} no tiene ese rol asignado.");
+            }
+        }
+
+        return ServiceResult.Success();
+    }
+
+    private static void AgregarCsrsSolicitud(
+        ApplicationDbContext context,
+        int solicitudId,
+        List<string> csrs)
+    {
+        for (var i = 0; i < csrs.Count; i++)
+        {
+            context.QcDesvSolicitudCsrs.Add(new QcDesvSolicitudCsr
+            {
+                SolicitudId = solicitudId,
+                Numero = i + 1,
+                ValorCsr = csrs[i],
+                FechaCreacion = DateTime.Now
+            });
+        }
     }
 }

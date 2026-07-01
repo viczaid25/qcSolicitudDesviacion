@@ -28,7 +28,7 @@
     align-items: flex-start;
     gap: 1rem;
     padding: 2rem;
-    background: linear-gradient(135deg, #060b29 0%, #3a0647 100%);
+    background: var(--color-primary-gradient, linear-gradient(135deg, #060B29 0%, #1c3375 100%));
     color: #fff;
 }
 

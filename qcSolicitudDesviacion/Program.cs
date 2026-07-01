@@ -48,6 +48,7 @@ builder.Services.AddScoped<CierreDesviacionService>();
 builder.Services.AddScoped<ArchivoService>();
 builder.Services.AddScoped<UsuarioActualService>();
 builder.Services.AddScoped<CatalogoService>();
+builder.Services.AddScoped<AdminAprobadoresService>();
 
 var app = builder.Build();
 

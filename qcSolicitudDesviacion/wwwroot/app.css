@@ -5,6 +5,7 @@
     --color-primary: #060B29;
     --color-primary-hover: #1e3a8a;
     --color-accent-vibrant: #3b82f6;
+    --color-primary-gradient: linear-gradient(135deg, #060B29 0%, #1c3375 100%);
     --color-secondary: #0f172a;
     --text: #1e293b;
     --text-muted: #64748b;
@@ -15,10 +16,12 @@
     --placeholder: #94a3b8;
     --sidebar-w: 260px;
     --navbar-h: 64px;
-    --radius: 12px;
-    --radius-sm: 8px;
+    --radius: 16px;
+    --radius-sm: 10px;
     --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-primary: 0 10px 15px -3px rgba(6, 11, 41, 0.3);
     --focus: 0 0 0 4px rgba(6, 11, 41, 0.15);
 }
 
@@ -227,7 +230,7 @@ h1:focus {
     }
 
 /* ====================
-   Responsive (Móviles)
+   Responsive (Mï¿½viles)
    ==================== */
 @media (max-width: 767.98px) {
     .page {
@@ -240,14 +243,14 @@ h1:focus {
         z-index: 1050;
     }
 
-        /* En móvil, el sidebar colapsa y solo muestra la barra superior del logo */
+        /* En mï¿½vil, el sidebar colapsa y solo muestra la barra superior del logo */
         .sidebar .top-row {
             justify-content: space-between;
         }
 
 
     .top-row:not(.sidebar .top-row) {
-        display: none; /* Oculta el top-row blanco en móvil */
+        display: none; /* Oculta el top-row blanco en mï¿½vil */
     }
 }
 

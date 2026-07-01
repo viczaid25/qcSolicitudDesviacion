@@ -12,6 +12,7 @@ public class QcDesvWorkflowService
         int solicitudId,
         int? extensionId,
         string tipoFlujoCodigo,
+        Dictionary<string, int?>? aprobadoresSeleccionadosPorRol = null,
         CancellationToken cancellationToken = default)
     {
         if (tipoFlujoCodigo == QcDesvCodigos.TipoFlujo.Solicitud && extensionId.HasValue)
@@ -45,6 +46,9 @@ public class QcDesvWorkflowService
                 TipoFlujoCodigo = tipoFlujoCodigo,
                 Orden = flujo.Orden,
                 RolAprobadorCodigo = flujo.RolCodigo,
+                UsuarioAprobadorId = ObtenerUsuarioAprobadorAsignado(
+                    flujo.RolCodigo,
+                    aprobadoresSeleccionadosPorRol),
                 EstadoAprobacionCodigo = QcDesvCodigos.EstadoAprobacion.Pendiente,
                 EsPasoActual = flujo.Orden == primerOrden,
                 FechaAsignacion = DateTime.Now
@@ -56,5 +60,26 @@ public class QcDesvWorkflowService
         var primerEstado = flujos.First().EstadoSolicitudCodigo;
 
         return ServiceResult<string>.Success(primerEstado);
+    }
+
+    private static int? ObtenerUsuarioAprobadorAsignado(
+        string rolCodigo,
+        Dictionary<string, int?>? aprobadoresSeleccionadosPorRol)
+    {
+        if (string.IsNullOrWhiteSpace(rolCodigo) ||
+            aprobadoresSeleccionadosPorRol is null ||
+            aprobadoresSeleccionadosPorRol.Count == 0)
+        {
+            return null;
+        }
+
+        if (!aprobadoresSeleccionadosPorRol.TryGetValue(rolCodigo, out var usuarioId))
+        {
+            return null;
+        }
+
+        return usuarioId.HasValue && usuarioId.Value > 0
+            ? usuarioId.Value
+            : null;
     }
 }

@@ -23,7 +23,7 @@ public class QcDesvSolicitudFormModel
 
     public string RequisitoProcesoCodigo { get; set; } = string.Empty;
     public string? RequisitoProcesoOtro { get; set; }
-
+    public List<string> Csrs { get; set; } = new() { string.Empty };
     public string? CSR1 { get; set; }
     public string? CSR2 { get; set; }
     public string? CSR3 { get; set; }
@@ -46,4 +46,6 @@ public class QcDesvSolicitudFormModel
     public string DescripcionAccion { get; set; } = string.Empty;
     public string? ResponsableAccion { get; set; }
     public DateTime? FechaCompromisoAccion { get; set; }
+
+    public List<QcDesvAprobadorSeleccionadoFormModel> AprobadoresSeleccionados { get; set; } = new();
 }

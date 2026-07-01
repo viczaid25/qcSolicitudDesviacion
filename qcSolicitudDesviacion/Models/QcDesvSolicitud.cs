@@ -59,4 +59,5 @@ public class QcDesvSolicitud
     public ICollection<QcDesvExtension> Extensiones { get; set; } = new List<QcDesvExtension>();
     public ICollection<QcDesvAprobacion> Aprobaciones { get; set; } = new List<QcDesvAprobacion>();
     public ICollection<QcDesvHistorial> Historiales { get; set; } = new List<QcDesvHistorial>();
+    public ICollection<QcDesvSolicitudCsr> Csrs { get; set; } = new List<QcDesvSolicitudCsr>();
 }

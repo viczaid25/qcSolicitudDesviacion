@@ -2,7 +2,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #12002f 0%, #24005a 45%, #3a0647 100%);
+    background: var(--color-primary-gradient, linear-gradient(135deg, #060B29 0%, #1c3375 100%));
     color: #fff;
 }
 
@@ -179,8 +179,8 @@
                 height: 26px;
                 transform: translateY(-50%);
                 border-radius: 0 6px 6px 0;
-                background: #6366f1;
-                box-shadow: 0 0 12px rgba(99,102,241,0.65);
+                background: var(--color-accent-vibrant, #3b82f6);
+                box-shadow: 0 0 12px rgba(59,130,246,0.65);
             }
 
 .nav-icon {
