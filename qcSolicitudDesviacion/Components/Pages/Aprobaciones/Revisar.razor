@@ -173,9 +173,11 @@
     private bool procesando;
     private string comentarios = string.Empty;
     private string mensaje = string.Empty;
+    private int usuarioActualId;
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         aprobacion = await AprobacionService.ObtenerDetalleAprobacionAsync(AprobacionId);
         cargando = false;
     }
@@ -187,7 +189,7 @@
 
         var resultado = await AprobacionService.AprobarAsync(
             AprobacionId,
-            UsuarioActualService.UsuarioId,
+            usuarioActualId,
             comentarios);
 
         if (resultado.Succeeded)
@@ -207,7 +209,7 @@
 
         var resultado = await AprobacionService.RechazarAsync(
             AprobacionId,
-            UsuarioActualService.UsuarioId,
+            usuarioActualId,
             comentarios);
 
         if (resultado.Succeeded)

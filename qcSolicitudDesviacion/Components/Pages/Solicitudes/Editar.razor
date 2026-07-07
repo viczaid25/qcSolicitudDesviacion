@@ -290,17 +290,19 @@
     private bool guardando;
     private string mensaje = string.Empty;
     private string mensajeInicial = string.Empty;
+    private int usuarioActualId;
 
     private bool EsCritica => model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica;
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         tiposDesviacion = await CatalogoService.ObtenerTiposDesviacionAsync();
         requisitosProceso = await CatalogoService.ObtenerRequisitosProcesoAsync();
 
         var resultado = await SolicitudService.ObtenerParaEditarAsync(
             SolicitudId,
-            UsuarioActualService.UsuarioId);
+            usuarioActualId);
 
         if (!resultado.Succeeded || resultado.Data is null)
         {
@@ -321,7 +323,7 @@
 
         var resultado = await SolicitudService.ActualizarYReenviarAsync(
             model,
-            UsuarioActualService.UsuarioId);
+            usuarioActualId);
 
         if (resultado.Succeeded)
         {

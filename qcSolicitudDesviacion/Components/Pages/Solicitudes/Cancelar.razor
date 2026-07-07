@@ -97,9 +97,11 @@
     private bool procesando;
     private string comentario = string.Empty;
     private string mensaje = string.Empty;
+    private int usuarioActualId;
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
         cargando = false;
     }
@@ -111,7 +113,7 @@
 
         var resultado = await SolicitudService.CancelarAsync(
             SolicitudId,
-            UsuarioActualService.UsuarioId,
+            usuarioActualId,
             comentario);
 
         if (resultado.Succeeded)

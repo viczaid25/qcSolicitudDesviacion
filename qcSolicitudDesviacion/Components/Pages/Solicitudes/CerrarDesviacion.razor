@@ -111,9 +111,11 @@
     private bool cargando = true;
     private bool guardando;
     private string mensaje = string.Empty;
+    private int usuarioActualId;
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
 
         if (solicitud is not null)
@@ -131,7 +133,7 @@
 
         var resultado = await CierreService.CerrarAsync(
             model,
-            UsuarioActualService.UsuarioId);
+            usuarioActualId);
 
         if (resultado.Succeeded)
         {

@@ -1,0 +1,41 @@
+@inject UsuarioActualService UsuarioActualService
+@inject NavigationManager Navigation
+
+<header class="top-bar">
+    <div class="top-bar-inner">
+        <div class="top-bar-title">
+            <span class="top-bar-title-main">Solicitud de Desviación</span>
+            <span class="top-bar-title-sub">Quality Deviation Request</span>
+        </div>
+
+        <div class="top-bar-user">
+            <div class="top-bar-user-info">
+                <div class="top-bar-user-label">Sesión activa / Active Session</div>
+                <div class="top-bar-user-name">@nombreUsuario</div>
+            </div>
+
+            <button type="button" class="top-bar-logout-btn" @onclick="Salir">
+                Salir / Logout
+            </button>
+        </div>
+    </div>
+</header>
+
+@code {
+    private string nombreUsuario = "Usuario";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuario = await UsuarioActualService.ObtenerUsuarioAsync();
+
+        if (usuario is not null)
+        {
+            nombreUsuario = usuario.NombreCompleto;
+        }
+    }
+
+    private void Salir()
+    {
+        Navigation.NavigateTo("/Account/Logout", forceLoad: true);
+    }
+}

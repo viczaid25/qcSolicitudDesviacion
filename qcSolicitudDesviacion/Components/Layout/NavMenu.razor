@@ -1,20 +1,8 @@
-﻿@inject UsuarioActualService UsuarioActualService
-@inject NavigationManager Navigation
-
-<div class="nav-menu-root">
+﻿<div class="nav-menu-root">
     <input type="checkbox" id="qc-nav-toggle" title="Navigation menu" class="nav-toggle" />
 
     <div class="top-row navbar navbar-dark">
         <div class="container-fluid">
-            <div class="brand-wrap">
-                <div class="brand-mark">DS</div>
-
-                <a class="navbar-brand" href="">
-                    <span>Solicitud</span>
-                    <span>Desviación</span>
-                </a>
-            </div>
-
             <label for="qc-nav-toggle" class="navbar-toggler">
                 <span></span>
             </label>
@@ -90,35 +78,6 @@
                     </NavLink>
                 </div>
             </nav>
-
-            <div class="nav-user-box">
-                <div class="nav-user-label">Sesión activa / Active Session</div>
-                <div class="nav-user-name">@nombreUsuario</div>
-                <div class="nav-user-note">Solicitud de Desviación</div>
-
-                <button type="button" class="nav-logout-btn" @onclick="Salir">
-                    Salir / Logout
-                </button>
-            </div>
         </div>
     </div>
 </div>
-
-@code {
-    private string nombreUsuario = "Usuario";
-
-    protected override async Task OnInitializedAsync()
-    {
-        var usuario = await UsuarioActualService.ObtenerUsuarioAsync();
-
-        if (usuario is not null)
-        {
-            nombreUsuario = usuario.NombreCompleto;
-        }
-    }
-
-    private void Salir()
-    {
-        Navigation.NavigateTo("/Account/Logout", forceLoad: true);
-    }
-}

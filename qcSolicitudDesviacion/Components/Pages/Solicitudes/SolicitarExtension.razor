@@ -114,12 +114,14 @@
     private bool cargando = true;
     private bool guardando;
     private string mensaje = string.Empty;
+    private int usuarioActualId;
 
     private DateTime FechaMaxima =>
         solicitud?.FechaCreacion.Date.AddMonths(6) ?? DateTime.Today;
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
 
         if (solicitud is not null)
@@ -138,7 +140,7 @@
 
         var resultado = await ExtensionService.SolicitarExtensionAsync(
             model,
-            UsuarioActualService.UsuarioId);
+            usuarioActualId);
 
         if (resultado.Succeeded)
         {

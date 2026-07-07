@@ -615,6 +615,7 @@
 
     private QcDesvSolicitud? solicitud;
     private bool cargando = true;
+    private int usuarioActualId;
 
     private bool PuedeSolicitarExtension =>
         solicitud is not null &&
@@ -633,7 +634,7 @@
 
     private bool EsSolicitanteActual =>
         solicitud is not null &&
-        solicitud.UsuarioSolicitanteId == UsuarioActualService.UsuarioId;
+        solicitud.UsuarioSolicitanteId == usuarioActualId;
 
     private bool PuedeEditar =>
         EsSolicitanteActual &&
@@ -698,6 +699,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
         cargando = false;
     }

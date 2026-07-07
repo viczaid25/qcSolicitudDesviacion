@@ -6,6 +6,13 @@
     background: #f8fafc;
 }
 
+.body-row {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
 main {
     flex: 1;
     min-width: 0;
@@ -30,16 +37,16 @@ main {
 }
 
 @media (min-width: 641px) {
-    .page {
+    .body-row {
         flex-direction: row;
     }
 
     .sidebar {
         width: 280px;
         min-width: 280px;
-        height: 100vh;
+        height: calc(100vh - 4.5rem);
         position: sticky;
-        top: 0;
+        top: 4.5rem;
         overflow: hidden;
     }
 

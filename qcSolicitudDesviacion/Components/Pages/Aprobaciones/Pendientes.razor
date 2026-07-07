@@ -25,7 +25,7 @@
         <div class="panel-head">
             <div>
                 <h2>Mis pendientes / My pending approvals</h2>
-                <p class="panel-subtitle">Usuario temporal de prueba: ID @UsuarioActualService.UsuarioId</p>
+                <p class="panel-subtitle">Usuario: ID @usuarioActualId</p>
             </div>
             <span class="panel-badge">@pendientes.Count pendientes</span>
         </div>
@@ -91,11 +91,14 @@
 @code {
     private bool cargando = true;
     private List<QcDesvAprobacion> pendientes = new();
+    private int usuarioActualId;
 
     protected override async Task OnInitializedAsync()
     {
+        usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
+
         pendientes = await AprobacionService.ObtenerPendientesPorUsuarioAsync(
-            UsuarioActualService.UsuarioId);
+            usuarioActualId);
 
         cargando = false;
     }
