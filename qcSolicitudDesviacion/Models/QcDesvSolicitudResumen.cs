@@ -4,6 +4,8 @@ public class QcDesvSolicitudResumen
 {
     public int SolicitudId { get; set; }
 
+    public int UsuarioSolicitanteId { get; set; }
+
     public string NombreSolicitante { get; set; } = string.Empty;
     public DateTime FechaSolicitud { get; set; }
 

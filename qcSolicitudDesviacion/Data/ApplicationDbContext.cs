@@ -260,6 +260,7 @@ public class ApplicationDbContext : DbContext
                 .IsRequired();
 
             entity.Property(e => e.NumeroExtensionActual).HasDefaultValue((byte)0);
+            entity.Property(e => e.NotificacionVencidaEnviada).HasDefaultValue(false);
 
             entity.Property(e => e.FechaCreacion).HasDefaultValueSql("SYSDATETIME()");
             entity.Property(e => e.RowVersion).IsRowVersion();

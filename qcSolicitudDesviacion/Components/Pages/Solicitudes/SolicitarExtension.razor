@@ -4,6 +4,7 @@
 @inject SolicitudDesviacionService SolicitudService
 @inject ExtensionService ExtensionService
 @inject UsuarioActualService UsuarioActualService
+@inject AdminAprobadoresService AdminAprobadoresService
 @inject NavigationManager Navigation
 
 <PageTitle>Solicitar extensión</PageTitle>
@@ -36,40 +37,102 @@
         </section>
 
         <div class="nueva-grid">
-            <section class="panel-card">
-                <div class="panel-head">
-                    <div>
-                        <h2>Datos de extensión / Extension Data</h2>
-                        <p class="panel-subtitle">Capture la nueva fecha y la razón.</p>
-                    </div>
-                </div>
-
+            <div class="main-stack">
                 <EditForm Model="@model" OnValidSubmit="@GuardarAsync">
-                    <div class="stack-fields">
-                        <div>
-                            <label class="form-label">Nueva fecha de vigencia / New Validity Date</label>
-                            <InputDate class="form-control" @bind-Value="model.NuevaFechaVigencia" />
-                            <div class="field-help">
-                                Fecha máxima permitida: @FechaMaxima.ToString("yyyy-MM-dd")
+                    <section class="panel-card">
+                        <div class="panel-head">
+                            <div>
+                                <h2>Datos de extensión / Extension Data</h2>
+                                <p class="panel-subtitle">Capture la nueva fecha y la razón.</p>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="form-label">Razón de la extensión / Extension Reason</label>
-                            <InputTextArea class="form-control" rows="5" @bind-Value="model.RazonExtension" />
+                        <div class="stack-fields">
+                            <div>
+                                <label class="form-label">Nueva fecha de vigencia / New Validity Date</label>
+                                <InputDate class="form-control" @bind-Value="model.NuevaFechaVigencia" />
+                                <div class="field-help">
+                                    Fecha máxima permitida: @FechaMaxima.ToString("yyyy-MM-dd")
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Razón de la extensión / Extension Reason</label>
+                                <InputTextArea class="form-control" rows="5" @bind-Value="model.RazonExtension" />
+                            </div>
                         </div>
+                    </section>
+
+                    <section class="panel-card">
+                        <div class="panel-head">
+                            <div>
+                                <h2>Aprobadores / Approvers</h2>
+                                <p class="panel-subtitle">
+                                    Seleccione el usuario responsable de aprobar cada etapa del flujo de extensión.
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (rolesAprobadores.Count == 0)
+                        {
+                            <div class="notice-box error">
+                                No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="approver-flow-list">
+                                @foreach (var rol in rolesAprobadores.OrderBy(x => x.Orden))
+                                {
+                                    <article class="approver-flow-card">
+                                        <div class="approver-step">
+                                            @rol.Orden
+                                        </div>
+
+                                        <div class="approver-info">
+                                            <h3>@rol.NombreEs</h3>
+                                            <p>@rol.NombreEn</p>
+
+                                            @if (rol.Usuarios.Count == 0)
+                                            {
+                                                <div class="field-warning">
+                                                    No hay usuarios activos con este rol.
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <InputSelect TValue="int?"
+                                                             class="form-select"
+                                                             @bind-Value="rol.UsuarioSeleccionadoId">
+                                                    <option value="">Seleccione aprobador / Select approver</option>
+
+                                                    @foreach (var usuario in rol.Usuarios)
+                                                    {
+                                                        <option value="@usuario.UsuarioId">
+                                                            @usuario.NombreCompleto (@usuario.UserName)
+                                                        </option>
+                                                    }
+                                                </InputSelect>
+                                            }
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        }
 
                         @if (!string.IsNullOrWhiteSpace(mensaje))
                         {
                             <div class="notice-box error">@mensaje</div>
                         }
 
-                        <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
-                            @(guardando ? "Enviando..." : "Solicitar extensión / Request extension")
-                        </button>
-                    </div>
+                        <div class="submit-panel-inner">
+                            <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                                @(guardando ? "Enviando..." : "Solicitar extensión / Request extension")
+                            </button>
+                        </div>
+                    </section>
                 </EditForm>
-            </section>
+            </div>
 
             <aside class="panel-card">
                 <div class="panel-head">
@@ -110,6 +173,7 @@
 
     private QcDesvSolicitud? solicitud;
     private QcDesvExtensionFormModel model = new();
+    private List<QcDesvAprobadorRolCrearVm> rolesAprobadores = new();
 
     private bool cargando = true;
     private bool guardando;
@@ -123,20 +187,103 @@
     {
         usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         solicitud = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
+        rolesAprobadores = await AdminAprobadoresService.ObtenerAprobadoresParaExtensionAsync();
 
         if (solicitud is not null)
         {
             model.SolicitudId = solicitud.Id;
             model.NuevaFechaVigencia = solicitud.FechaVigencia.Date.AddDays(1);
+
+            PrecargarAprobadoresPrevios();
         }
 
         cargando = false;
+    }
+
+    private void PrecargarAprobadoresPrevios()
+    {
+        if (solicitud is null)
+        {
+            return;
+        }
+
+        var ultimosAprobadoresPorRol = solicitud.Aprobaciones
+            .Where(x => x.UsuarioAprobadorId.HasValue && x.UsuarioAprobadorId.Value > 0)
+            .GroupBy(x => x.RolAprobadorCodigo)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(x => x.FechaAsignacion).First().UsuarioAprobadorId!.Value);
+
+        foreach (var rol in rolesAprobadores)
+        {
+            if (!ultimosAprobadoresPorRol.TryGetValue(rol.RolCodigo, out var usuarioId))
+            {
+                continue;
+            }
+
+            if (rol.Usuarios.Any(u => u.UsuarioId == usuarioId))
+            {
+                rol.UsuarioSeleccionadoId = usuarioId;
+            }
+        }
+    }
+
+    private void PrepararAprobadoresAntesDeGuardar()
+    {
+        model.AprobadoresSeleccionados = rolesAprobadores
+            .Select(x => new QcDesvAprobadorSeleccionadoFormModel
+            {
+                RolCodigo = x.RolCodigo,
+                UsuarioAprobadorId = x.UsuarioSeleccionadoId
+            })
+            .ToList();
+    }
+
+    private bool ValidarAprobadoresSeleccionados()
+    {
+        if (rolesAprobadores.Count == 0)
+        {
+            mensaje = "No hay aprobadores configurados. Primero configure usuarios en Administración > Aprobadores.";
+            return false;
+        }
+
+        var rolesSinUsuarios = rolesAprobadores
+            .Where(x => x.Usuarios.Count == 0)
+            .Select(x => x.NombreEs)
+            .ToList();
+
+        if (rolesSinUsuarios.Count > 0)
+        {
+            mensaje = $"Hay roles sin usuarios configurados: {string.Join(", ", rolesSinUsuarios)}.";
+            return false;
+        }
+
+        var rolesFaltantes = rolesAprobadores
+            .Where(x => !x.UsuarioSeleccionadoId.HasValue || x.UsuarioSeleccionadoId.Value <= 0)
+            .Select(x => x.NombreEs)
+            .ToList();
+
+        if (rolesFaltantes.Count > 0)
+        {
+            mensaje = $"Debe seleccionar aprobador para: {string.Join(", ", rolesFaltantes)}.";
+            return false;
+        }
+
+        return true;
     }
 
     private async Task GuardarAsync()
     {
         guardando = true;
         mensaje = string.Empty;
+
+        PrepararAprobadoresAntesDeGuardar();
+
+        if (!ValidarAprobadoresSeleccionados())
+        {
+            guardando = false;
+            return;
+        }
 
         var resultado = await ExtensionService.SolicitarExtensionAsync(
             model,

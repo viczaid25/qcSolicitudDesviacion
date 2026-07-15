@@ -60,6 +60,12 @@
     gap: 1rem;
 }
 
+.main-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .panel-card {
     padding: 1.25rem;
     border-radius: 24px;
@@ -100,7 +106,8 @@
     margin-bottom: 0.35rem;
 }
 
-.form-control {
+.form-control,
+.form-select {
     min-height: 48px;
     border-radius: 14px;
     border: 1px solid #dbe3ee;
@@ -113,6 +120,82 @@
     color: #64748b;
     font-size: 0.84rem;
 }
+
+.field-warning {
+    margin-top: 0.5rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 14px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.approver-flow-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.approver-flow-card {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+    padding: 1rem;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    transition: 0.16s ease;
+}
+
+    .approver-flow-card:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 14px 30px rgba(37, 99, 235, 0.09);
+    }
+
+.approver-step {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #0f172a;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 950;
+    line-height: 1;
+}
+
+.approver-info h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 0.98rem;
+    font-weight: 950;
+}
+
+.approver-info p {
+    margin: 0.2rem 0 0.65rem;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.approver-info .form-select {
+    max-width: 520px;
+}
+
+.submit-panel-inner {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+    .submit-panel-inner .table-btn {
+        min-width: 190px;
+    }
 
 .summary-grid {
     display: grid;
@@ -206,6 +289,18 @@
     .hero-actions,
     .hero-btn,
     .table-btn {
+        width: 100%;
+    }
+
+    .approver-flow-card {
+        grid-template-columns: 38px minmax(0, 1fr);
+    }
+
+    .approver-info .form-select {
+        max-width: none;
+    }
+
+    .submit-panel-inner .table-btn {
         width: 100%;
     }
 }

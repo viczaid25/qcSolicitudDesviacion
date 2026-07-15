@@ -10,6 +10,7 @@ public class SolicitudDesviacionService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
     private readonly QcDesvWorkflowService _workflowService;
+    private readonly EmailNotificationService _emailService;
 
     private static readonly string[] RolesAprobacionSolicitud =
     {
@@ -23,10 +24,12 @@ public class SolicitudDesviacionService
 
     public SolicitudDesviacionService(
         IDbContextFactory<ApplicationDbContext> contextFactory,
-        QcDesvWorkflowService workflowService)
+        QcDesvWorkflowService workflowService,
+        EmailNotificationService emailService)
     {
         _contextFactory = contextFactory;
         _workflowService = workflowService;
+        _emailService = emailService;
     }
 
     public async Task<ServiceResult<int>> CrearYEnviarAsync(
@@ -203,6 +206,19 @@ public class SolicitudDesviacionService
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+
+            var primeraAprobacion = await context.QcDesvAprobaciones
+                .AsNoTracking()
+                .Where(x =>
+                    x.SolicitudId == solicitud.Id &&
+                    x.ExtensionId == null &&
+                    x.EsPasoActual)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (primeraAprobacion is not null)
+            {
+                await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
+            }
 
             return ServiceResult<int>.Success(solicitud.Id, "Solicitud creada y enviada correctamente.");
         }

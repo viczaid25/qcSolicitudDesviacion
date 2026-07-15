@@ -33,6 +33,7 @@ public class QcDesvSolicitud
 
     public string EstadoSolicitudCodigo { get; set; } = QcDesvCodigos.EstadoSolicitud.Borrador;
     public byte NumeroExtensionActual { get; set; }
+    public bool NotificacionVencidaEnviada { get; set; }
 
     public int CreadoPorUsuarioId { get; set; }
     public DateTime FechaCreacion { get; set; }

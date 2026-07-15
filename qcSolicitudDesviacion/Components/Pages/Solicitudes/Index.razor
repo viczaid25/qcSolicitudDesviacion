@@ -2,21 +2,22 @@
 @rendermode InteractiveServer
 
 @inject SolicitudDesviacionService SolicitudService
+@inject UsuarioActualService UsuarioActualService
 
-<PageTitle>Solicitudes de desviación</PageTitle>
+<PageTitle>Mis solicitudes</PageTitle>
 
 <div class="nueva-page">
     <section class="nueva-hero">
         <div>
             <span class="nueva-kicker">qcSolicitudDesviacion</span>
-            <h1>Solicitudes de desviación / Deviation Requests</h1>
+            <h1>Mis solicitudes / My Requests</h1>
             <div class="hero-meta">
                 <span class="meta-chip">Control de proceso / Process Control</span>
                 <span class="meta-chip">Aprobaciones / Approvals</span>
                 <span class="meta-chip">Extensiones / Extensions</span>
             </div>
             <p class="hero-text">
-                Consulta, revisa y da seguimiento a las solicitudes de desviación registradas.
+                Consulta, revisa y da seguimiento a las solicitudes de desviación que has registrado.
             </p>
         </div>
 
@@ -33,15 +34,15 @@
     <section class="panel-card">
         <div class="panel-head">
             <div>
-                <h2>Listado de solicitudes / Request list</h2>
-                <p class="panel-subtitle">Solicitudes capturadas en el sistema.</p>
+                <h2>Listado de mis solicitudes / My request list</h2>
+                <p class="panel-subtitle">Solicitudes registradas por ti en el sistema.</p>
             </div>
             <span class="panel-badge">@SolicitudesFiltradas.Count() registros</span>
         </div>
 
         <div class="toolbar-actions mb-3">
             <input class="form-control search-input"
-                   placeholder="Buscar por ID, solicitante, parte, cliente o estado..."
+                   placeholder="Buscar por ID, línea, BU, cliente o estado..."
                    @bind="filtro"
                    @bind:event="oninput" />
         </div>
@@ -67,7 +68,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Solicitante / Requester</th>
-                            <th>Parte / Part</th>
+                            <th>Línea / Line</th>
+                            <th>Unidad de negocio / BU</th>
+                            <th>6M</th>
                             <th>Tipo / Type</th>
                             <th>Estado / Status</th>
                             <th>Vigencia / Validity</th>
@@ -87,8 +90,13 @@
                                     <div class="cell-subtitle">@item.DepartamentoSolicitante</div>
                                 </td>
                                 <td>
-                                    <div class="cell-title">@item.NumeroParteAfectado</div>
-                                    <div class="cell-subtitle">@item.Clientes</div>
+                                    <div class="cell-title">@item.CodigoLinea</div>
+                                </td>
+                                <td>
+                                    <div class="cell-title">@item.UnidadNegocioAfectada</div>
+                                </td>
+                                <td>
+                                    <div class="cell-title">@item.RequisitoProcesoEs</div>
                                 </td>
                                 <td>
                                     <span class="type-pill @(item.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica ? "critical" : "standard")">
@@ -126,14 +134,20 @@
             ? solicitudes
             : solicitudes.Where(x =>
                 x.SolicitudId.ToString().Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
-                x.NombreSolicitante.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
-                x.NumeroParteAfectado.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                x.CodigoLinea.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                x.UnidadNegocioAfectada.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
                 x.Clientes.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
                 x.EstadoSolicitudEs.Contains(filtro, StringComparison.OrdinalIgnoreCase));
 
     protected override async Task OnInitializedAsync()
     {
-        solicitudes = await SolicitudService.ObtenerResumenAsync();
+        var usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
+        var resumen = await SolicitudService.ObtenerResumenAsync();
+
+        solicitudes = resumen
+            .Where(x => x.UsuarioSolicitanteId == usuarioActualId)
+            .ToList();
+
         cargando = false;
     }
 }

@@ -321,13 +321,22 @@ public class AdminAprobadoresService
         return ServiceResult.Success("Roles de aprobador actualizados correctamente.");
     }
 
-    public async Task<List<QcDesvAprobadorRolCrearVm>> ObtenerAprobadoresParaSolicitudAsync(
-    CancellationToken cancellationToken = default)
+    public Task<List<QcDesvAprobadorRolCrearVm>> ObtenerAprobadoresParaSolicitudAsync(
+        CancellationToken cancellationToken = default) =>
+        ObtenerAprobadoresPorRolesAsync(RolesSolicitud, cancellationToken);
+
+    public Task<List<QcDesvAprobadorRolCrearVm>> ObtenerAprobadoresParaExtensionAsync(
+        CancellationToken cancellationToken = default) =>
+        ObtenerAprobadoresPorRolesAsync(RolesAprobadores, cancellationToken);
+
+    private async Task<List<QcDesvAprobadorRolCrearVm>> ObtenerAprobadoresPorRolesAsync(
+        string[] rolesFiltro,
+        CancellationToken cancellationToken)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var roles = ObtenerRolesAdministrables()
-            .Where(x => RolesSolicitud.Contains(x.Codigo))
+            .Where(x => rolesFiltro.Contains(x.Codigo))
             .OrderBy(x => x.Orden)
             .ToList();
 

@@ -2,7 +2,9 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    height: 100vh;
     min-height: 100vh;
+    overflow: hidden;
     background: #f8fafc;
 }
 
@@ -10,12 +12,15 @@
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0;
     min-width: 0;
 }
 
 main {
     flex: 1;
+    min-height: 0;
     min-width: 0;
+    overflow: auto;
     background: #f8fafc;
 }
 
@@ -44,9 +49,7 @@ main {
     .sidebar {
         width: 280px;
         min-width: 280px;
-        height: calc(100vh - 4.5rem);
-        position: sticky;
-        top: 4.5rem;
+        height: 100%;
         overflow: hidden;
     }
 

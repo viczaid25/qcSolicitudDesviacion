@@ -39,29 +39,33 @@
     else
     {
         <section class="share-toolbar no-print">
-            <a class="table-btn" href="/solicitudes/aprobadas">
-                Aprobadas / Approved
-            </a>
+            <div class="toolbar-group">
+                <a class="table-btn" href="/solicitudes/aprobadas">
+                    Aprobadas / Approved
+                </a>
 
-            <a class="table-btn" href="/solicitudes/@Id">
-                Detalle / Detail
-            </a>
+                <a class="table-btn" href="/solicitudes/@Id">
+                    Detalle / Detail
+                </a>
+            </div>
 
-            <button type="button" class="table-btn" @onclick="CopiarLinkAsync">
-                Copiar enlace / Copy Link
-            </button>
+            <div class="toolbar-group">
+                <button type="button" class="table-btn" @onclick="CopiarLinkAsync">
+                    Copiar enlace / Copy Link
+                </button>
 
-            <button type="button" class="table-btn" @onclick="ImprimirAsync">
-                Imprimir / Print
-            </button>
+                <button type="button" class="table-btn" @onclick="ImprimirAsync">
+                    Imprimir / Print
+                </button>
 
-            <button type="button" class="table-btn" @onclick="DescargarImagenAsync">
-                Descargar PNG / Download PNG
-            </button>
+                <button type="button" class="table-btn" @onclick="DescargarImagenAsync">
+                    Descargar PNG / Download PNG
+                </button>
 
-            <button type="button" class="table-btn table-btn-primary" @onclick="CompartirImagenAsync">
-                Compartir imagen / Share Image
-            </button>
+                <button type="button" class="table-btn table-btn-primary" @onclick="CompartirImagenAsync">
+                    Compartir imagen / Share Image
+                </button>
+            </div>
         </section>
 
         @if (!string.IsNullOrWhiteSpace(mensaje))
@@ -319,24 +323,23 @@
                                     @foreach (var aprobacion in grupo.Aprobaciones)
                                     {
                                         <div class="approver-card">
-                                            <div class="approver-step">
-                                                @aprobacion.Orden
+                                            <div class="approver-card-head">
+                                                <span class="approver-step">@aprobacion.Orden</span>
+                                                <strong>@Texto(aprobacion.RolAprobador?.NombreEs ?? aprobacion.RolAprobadorCodigo)</strong>
+                                                <span class="approval-status @ApprovalStatusClass(aprobacion.EstadoAprobacionCodigo)">
+                                                    @Texto(aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo)
+                                                </span>
                                             </div>
 
-                                            <div>
-                                                <strong>@Texto(aprobacion.RolAprobador?.NombreEs ?? aprobacion.RolAprobadorCodigo)</strong>
+                                            <div class="approver-card-body">
                                                 <span>@Texto(aprobacion.UsuarioAprobador?.NombreCompleto)</span>
                                                 <small>@FechaHora(aprobacion.FechaDecision)</small>
-
-                                                @if (!string.IsNullOrWhiteSpace(aprobacion.Comentarios))
-                                                {
-                                                    <p>@aprobacion.Comentarios</p>
-                                                }
                                             </div>
 
-                                            <span class="approval-status @ApprovalStatusClass(aprobacion.EstadoAprobacionCodigo)">
-                                                @Texto(aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo)
-                                            </span>
+                                            @if (!string.IsNullOrWhiteSpace(aprobacion.Comentarios))
+                                            {
+                                                <p>@aprobacion.Comentarios</p>
+                                            }
                                         </div>
                                     }
                                 </div>

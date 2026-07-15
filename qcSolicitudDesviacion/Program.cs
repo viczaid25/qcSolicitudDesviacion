@@ -21,6 +21,9 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 builder.Services.Configure<ActiveDirectoryOptions>(
     builder.Configuration.GetSection("ActiveDirectory"));
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
 builder.Services.AddScoped<ActiveDirectoryService>();
 
 builder.Services.AddHttpContextAccessor();
@@ -49,6 +52,8 @@ builder.Services.AddScoped<ArchivoService>();
 builder.Services.AddScoped<UsuarioActualService>();
 builder.Services.AddScoped<CatalogoService>();
 builder.Services.AddScoped<AdminAprobadoresService>();
+builder.Services.AddScoped<EmailNotificationService>();
+builder.Services.AddHostedService<DeviationExpirationNotificationService>();
 
 var app = builder.Build();
 

@@ -8,10 +8,14 @@ namespace qcSolicitudDesviacion.Services;
 public class AprobacionService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly EmailNotificationService _emailService;
 
-    public AprobacionService(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AprobacionService(
+        IDbContextFactory<ApplicationDbContext> contextFactory,
+        EmailNotificationService emailService)
     {
         _contextFactory = contextFactory;
+        _emailService = emailService;
     }
 
     public async Task<List<QcDesvAprobacion>> ObtenerPendientesPorUsuarioAsync(
@@ -132,6 +136,7 @@ public class AprobacionService
                     solicitud.FechaVigencia = extension.NuevaFechaVigencia.Date;
                     solicitud.NumeroExtensionActual = extension.NumeroExtension;
                     solicitud.EstadoSolicitudCodigo = QcDesvCodigos.EstadoSolicitud.ExtensionAprobada;
+                    solicitud.NotificacionVencidaEnviada = false;
                 }
             }
 
@@ -152,6 +157,15 @@ public class AprobacionService
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+
+            if (siguienteAprobacion is not null)
+            {
+                await _emailService.NotificarPasoEmitidoAsync(siguienteAprobacion.Id, cancellationToken);
+            }
+            else if (aprobacion.TipoFlujoCodigo == QcDesvCodigos.TipoFlujo.Solicitud)
+            {
+                await _emailService.NotificarAprobacionFinalAsync(solicitud.Id, cancellationToken);
+            }
 
             return ServiceResult.Success("Aprobación registrada correctamente.");
         }
@@ -181,6 +195,7 @@ public class AprobacionService
         var aprobacion = await context.QcDesvAprobaciones
             .Include(x => x.Solicitud)
             .Include(x => x.Extension)
+            .Include(x => x.RolAprobador)
             .FirstOrDefaultAsync(x => x.Id == aprobacionId, cancellationToken);
 
         if (aprobacion is null)
@@ -243,6 +258,9 @@ public class AprobacionService
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+
+            var posicion = aprobacion.RolAprobador?.NombreEn ?? aprobacion.RolAprobadorCodigo;
+            await _emailService.NotificarRechazoAsync(solicitud.Id, posicion, cancellationToken);
 
             return ServiceResult.Success("Solicitud rechazada correctamente.");
         }

@@ -38,6 +38,36 @@ html, body {
 }
 
 /* =================
+   Scrollbars discretos
+   ================= */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(15, 23, 42, 0.22) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: rgba(15, 23, 42, 0.22);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(15, 23, 42, 0.38);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* =================
    Layout Blazor
    ================= */
 .page {

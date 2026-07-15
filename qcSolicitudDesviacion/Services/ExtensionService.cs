@@ -10,13 +10,28 @@ public class ExtensionService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
     private readonly QcDesvWorkflowService _workflowService;
+    private readonly EmailNotificationService _emailService;
+
+    private static readonly string[] RolesAprobacionExtension =
+    {
+        QcDesvCodigos.Rol.Qms,
+        QcDesvCodigos.Rol.CoordApqp,
+        QcDesvCodigos.Rol.CoordQc,
+        QcDesvCodigos.Rol.ManagerQc,
+        QcDesvCodigos.Rol.ManagerProdIng,
+        QcDesvCodigos.Rol.AdvisorQc,
+        QcDesvCodigos.Rol.DgmQc,
+        QcDesvCodigos.Rol.DgmProdIng
+    };
 
     public ExtensionService(
         IDbContextFactory<ApplicationDbContext> contextFactory,
-        QcDesvWorkflowService workflowService)
+        QcDesvWorkflowService workflowService,
+        EmailNotificationService emailService)
     {
         _contextFactory = contextFactory;
         _workflowService = workflowService;
+        _emailService = emailService;
     }
 
     public async Task<ServiceResult<int>> SolicitarExtensionAsync(
@@ -89,6 +104,18 @@ public class ExtensionService
                 $"La nueva fecha de vigencia no puede exceder 6 meses desde la creación. Fecha máxima permitida: {fechaMaximaPermitida:yyyy-MM-dd}.");
         }
 
+        var aprobadoresSeleccionadosPorRol = ObtenerAprobadoresSeleccionadosPorRol(model);
+
+        var validacionAprobadores = await ValidarAprobadoresSeleccionadosAsync(
+            context,
+            aprobadoresSeleccionadosPorRol,
+            cancellationToken);
+
+        if (!validacionAprobadores.Succeeded)
+        {
+            return ServiceResult<int>.Failure(validacionAprobadores.Message);
+        }
+
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
         try
@@ -116,6 +143,7 @@ public class ExtensionService
                 solicitud.Id,
                 extension.Id,
                 QcDesvCodigos.TipoFlujo.Extension,
+                aprobadoresSeleccionadosPorRol: aprobadoresSeleccionadosPorRol,
                 cancellationToken: cancellationToken);
 
             if (!workflowResult.Succeeded)
@@ -143,6 +171,19 @@ public class ExtensionService
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
+            var primeraAprobacion = await context.QcDesvAprobaciones
+                .AsNoTracking()
+                .Where(x =>
+                    x.SolicitudId == solicitud.Id &&
+                    x.ExtensionId == extension.Id &&
+                    x.EsPasoActual)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (primeraAprobacion is not null)
+            {
+                await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
+            }
+
             return ServiceResult<int>.Success(extension.Id, "Extensión solicitada correctamente.");
         }
         catch (Exception ex)
@@ -150,5 +191,80 @@ public class ExtensionService
             await transaction.RollbackAsync(cancellationToken);
             return ServiceResult<int>.Failure($"Error al solicitar extensión: {ex.Message}");
         }
+    }
+
+    private static Dictionary<string, int?> ObtenerAprobadoresSeleccionadosPorRol(
+        QcDesvExtensionFormModel model)
+    {
+        return model.AprobadoresSeleccionados
+            .Where(x => !string.IsNullOrWhiteSpace(x.RolCodigo))
+            .GroupBy(x => x.RolCodigo.Trim().ToUpperInvariant())
+            .ToDictionary(
+                x => x.Key,
+                x => x.First().UsuarioAprobadorId,
+                StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static async Task<ServiceResult> ValidarAprobadoresSeleccionadosAsync(
+        ApplicationDbContext context,
+        Dictionary<string, int?> aprobadoresSeleccionadosPorRol,
+        CancellationToken cancellationToken)
+    {
+        foreach (var rolCodigo in RolesAprobacionExtension)
+        {
+            if (!aprobadoresSeleccionadosPorRol.TryGetValue(rolCodigo, out var usuarioId) ||
+                !usuarioId.HasValue ||
+                usuarioId.Value <= 0)
+            {
+                return ServiceResult.Failure(
+                    $"Debe seleccionar un aprobador para el rol {rolCodigo}.");
+            }
+        }
+
+        var usuariosIds = aprobadoresSeleccionadosPorRol
+            .Values
+            .Where(x => x.HasValue && x.Value > 0)
+            .Select(x => x!.Value)
+            .Distinct()
+            .ToList();
+
+        var usuariosActivos = await context.QcDesvUsuarios
+            .AsNoTracking()
+            .Where(x => usuariosIds.Contains(x.Id) && x.Activo)
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var usuarioId in usuariosIds)
+        {
+            if (!usuariosActivos.Contains(usuarioId))
+            {
+                return ServiceResult.Failure(
+                    "Uno de los aprobadores seleccionados no existe o está inactivo.");
+            }
+        }
+
+        var asignaciones = await context.QcDesvUsuarioRoles
+            .AsNoTracking()
+            .Where(x =>
+                usuariosIds.Contains(x.UsuarioId) &&
+                RolesAprobacionExtension.Contains(x.RolCodigo))
+            .ToListAsync(cancellationToken);
+
+        foreach (var rolCodigo in RolesAprobacionExtension)
+        {
+            var usuarioId = aprobadoresSeleccionadosPorRol[rolCodigo]!.Value;
+
+            var usuarioTieneRol = asignaciones.Any(x =>
+                x.UsuarioId == usuarioId &&
+                x.RolCodigo == rolCodigo);
+
+            if (!usuarioTieneRol)
+            {
+                return ServiceResult.Failure(
+                    $"El usuario seleccionado para {rolCodigo} no tiene ese rol asignado.");
+            }
+        }
+
+        return ServiceResult.Success();
     }
 }

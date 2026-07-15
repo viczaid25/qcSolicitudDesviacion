@@ -343,7 +343,8 @@
     position: sticky;
     top: 1rem;
     max-height: calc(100vh - 2rem);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .info-grid {
