@@ -31,7 +31,7 @@
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="/solicitudes/@solicitud.Id">Volver / Back</a>
+                <a class="hero-btn" href="solicitudes/@solicitud.Id">Volver / Back</a>
             </div>
         </section>
 
@@ -47,13 +47,23 @@
                 <EditForm Model="@model" OnValidSubmit="@GuardarAsync">
                     <div class="stack-fields">
                         <div>
-                            <label class="form-label">Número de lote / Lot Number</label>
-                            <InputText class="form-control" @bind-Value="model.NumeroLote" />
+                            <label class="form-label">Lote de inicio / Start Lot Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroLoteInicio" />
                         </div>
 
                         <div>
-                            <label class="form-label">Número de case / Case Number</label>
-                            <InputText class="form-control" @bind-Value="model.NumeroCase" />
+                            <label class="form-label">Case de inicio / Start Case Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroCaseInicio" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Lote final / Final Lot Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroLoteFinal" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Case final / Final Case Number</label>
+                            <InputText class="form-control" @bind-Value="model.NumeroCaseFinal" />
                         </div>
 
                         @if (!string.IsNullOrWhiteSpace(mensaje))
@@ -137,7 +147,7 @@
 
         if (resultado.Succeeded)
         {
-            Navigation.NavigateTo($"/solicitudes/{SolicitudId}");
+            Navigation.NavigateTo($"solicitudes/{SolicitudId}");
             return;
         }
 

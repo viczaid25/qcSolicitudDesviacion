@@ -21,7 +21,7 @@
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="/solicitudes">Volver / Back</a>
+            <a class="hero-btn" href="solicitudes">Volver / Back</a>
         </div>
     </section>
 
@@ -127,12 +127,17 @@
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputSelect class="form-select" @bind-Value="model.TipoDesviacionCodigo">
+                            <div class="tipo-desviacion-options">
                                 @foreach (var tipo in tiposDesviacion)
                                 {
-                                    <option value="@tipo.Codigo">@tipo.NombreEs / @tipo.NombreEn</option>
+                                    <button type="button"
+                                            class="tipo-desviacion-btn @(tipo.Codigo == QcDesvCodigos.TipoDesviacion.Critica ? "critica" : "estandar") @(model.TipoDesviacionCodigo == tipo.Codigo ? "selected" : "")"
+                                            @onclick="() => SeleccionarTipoDesviacion(tipo.Codigo)">
+                                        <span class="tipo-desviacion-nombre">@tipo.NombreEs</span>
+                                        <span class="tipo-desviacion-nombre-en">@tipo.NombreEn</span>
+                                    </button>
                                 }
-                            </InputSelect>
+                            </div>
 
                             <div class="field-help">
                                 Si seleccionas Estándar, se omitirá el análisis de riesgo.
@@ -655,7 +660,7 @@
                     }
 
                     <div class="submit-panel-inner">
-                        <a class="table-btn" href="/solicitudes">
+                        <a class="table-btn" href="solicitudes">
                             Cancelar / Cancel
                         </a>
 
@@ -666,6 +671,78 @@
                 </section>
             </div>
         </EditForm>
+
+        @if (mostrarModalCriterios)
+        {
+            <div class="modal-overlay" @onclick="CerrarModalCriterios">
+                <div class="modal-card" @onclick:stopPropagation="true">
+                    <div class="modal-head">
+                        <div>
+                            <h3>
+                                ¿Qué impacto tiene la falta de cumplimiento identificada durante la revisión del proceso?
+                            </h3>
+                            <p class="modal-subtitle">
+                                <em>What impact does the non-compliance identified during the process review have?</em>
+                            </p>
+                        </div>
+
+                        <button type="button" class="modal-close" @onclick="CerrarModalCriterios" aria-label="Cerrar">
+                            &times;
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if (model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica)
+                        {
+                            <span class="modal-impact-badge critica">Impacto alto / High impact</span>
+
+                            <ul>
+                                <li>
+                                    No hay evidencia de la adhesión en la conformidad de un requisito comprometido
+                                    con cliente (AMEF, plan de control, instrucción de trabajo, diagrama de flujo,
+                                    norma de empaque)
+                                </li>
+                                <li>Riesgo mayor para el producto final</li>
+                            </ul>
+
+                            <p class="modal-en">
+                                <em>
+                                    There is no evidence of adherence to compliance with a customer-committed
+                                    requirement (FMEA, control plan, work instruction, process flow diagram,
+                                    packaging standard). Major risk to the final product.
+                                </em>
+                            </p>
+                        }
+                        else
+                        {
+                            <span class="modal-impact-badge estandar">Bajo impacto / Low impact</span>
+
+                            <ul>
+                                <li>
+                                    No hay evidencia de la adhesión en la conformidad de un requisito no
+                                    comprometido con cliente (procedimientos, equipos de medición)
+                                </li>
+                                <li>Sin riesgo apreciable para el producto final</li>
+                            </ul>
+
+                            <p class="modal-en">
+                                <em>
+                                    There is no evidence of adherence to compliance with a requirement not
+                                    committed to the customer (procedures, measuring equipment). No appreciable
+                                    risk to the final product.
+                                </em>
+                            </p>
+                        }
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="table-btn table-btn-primary" @onclick="CerrarModalCriterios">
+                            Entendido / Got it
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
     }
 </div>
 
@@ -732,6 +809,7 @@
     private bool cargando = true;
     private bool guardando;
     private bool exito;
+    private bool mostrarModalCriterios;
     private string mensaje = string.Empty;
 
     private string FechaSolicitudTexto => model.FechaSolicitud.ToString("yyyy-MM-dd");
@@ -787,12 +865,22 @@
             }
         }
 
-        if (tiposDesviacion.Any(x => x.Codigo == QcDesvCodigos.TipoDesviacion.Critica))
-        {
-            model.TipoDesviacionCodigo = QcDesvCodigos.TipoDesviacion.Critica;
-        }
+        // Sin preselección: el usuario debe elegir explícitamente Crítica o
+        // Estándar para ver el mensaje de criterios correspondiente.
+        model.TipoDesviacionCodigo = string.Empty;
 
         cargando = false;
+    }
+
+    private void SeleccionarTipoDesviacion(string codigo)
+    {
+        model.TipoDesviacionCodigo = codigo;
+        mostrarModalCriterios = true;
+    }
+
+    private void CerrarModalCriterios()
+    {
+        mostrarModalCriterios = false;
     }
 
     private void AgregarCsr()
@@ -1005,6 +1093,6 @@
         exito = true;
         mensaje = "Solicitud creada correctamente.";
 
-        Navigation.NavigateTo($"/solicitudes/{resultado.Data}");
+        Navigation.NavigateTo($"solicitudes/{resultado.Data}");
     }
 }

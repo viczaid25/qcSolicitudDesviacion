@@ -280,7 +280,7 @@ public class AprobacionService
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        return await context.QcDesvAprobaciones
+        var aprobacion = await context.QcDesvAprobaciones
             .AsNoTracking()
             .Include(x => x.RolAprobador)
             .Include(x => x.EstadoAprobacion)
@@ -298,9 +298,32 @@ public class AprobacionService
                 .ThenInclude(x => x!.AnalisisRiesgo)
             .Include(x => x.Solicitud)
                 .ThenInclude(x => x!.Acciones)
+                    .ThenInclude(x => x.Archivos)
             .Include(x => x.Solicitud)
                 .ThenInclude(x => x!.Archivos)
+            .Include(x => x.Solicitud)
+                .ThenInclude(x => x!.Extensiones)
+            .Include(x => x.Solicitud)
+                .ThenInclude(x => x!.Control)
+            .Include(x => x.Solicitud)
+                .ThenInclude(x => x!.Historiales)
             .FirstOrDefaultAsync(x => x.Id == aprobacionId, cancellationToken);
+
+        // Las aprobaciones de la solicitud no se pueden Include() desde este
+        // mismo root (Aprobacion -> Solicitud -> Aprobaciones) porque EF Core
+        // detecta un ciclo en queries sin tracking. Se cargan aparte.
+        if (aprobacion?.Solicitud is not null)
+        {
+            aprobacion.Solicitud.Aprobaciones = await context.QcDesvAprobaciones
+                .AsNoTracking()
+                .Where(x => x.SolicitudId == aprobacion.SolicitudId)
+                .Include(x => x.RolAprobador)
+                .Include(x => x.EstadoAprobacion)
+                .Include(x => x.UsuarioAprobador)
+                .ToListAsync(cancellationToken);
+        }
+
+        return aprobacion;
     }
 
     private static async Task<bool> UsuarioPuedeResponderAprobacionAsync(

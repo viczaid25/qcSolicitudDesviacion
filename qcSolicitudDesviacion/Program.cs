@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using qcSolicitudDesviacion.Auth;
 using qcSolicitudDesviacion.Components;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Services;
@@ -18,31 +19,37 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.Configure<ActiveDirectoryOptions>(
-    builder.Configuration.GetSection("ActiveDirectory"));
-
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
-
-builder.Services.AddScoped<ActiveDirectoryService>();
 
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/Login";
-        options.Cookie.Name = "qcSolicitudDesviacion.Auth";
-        options.Cookie.Path = "/";
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
-        options.SlidingExpiration = true;
-    });
+// Doble candado: el login de desarrollo solo existe si el entorno es
+// Development Y Auth:DevLogin es true (en IIS el entorno es Production,
+// así que el modo dev es imposible ahí aunque el flag se copie por error).
+var devLoginActivo = builder.Environment.IsDevelopment()
+    && builder.Configuration.GetValue<bool>("Auth:DevLogin");
 
-builder.Services.AddAuthorization();
+builder.Services.AddSingleton(new AuthMode(devLoginActivo));
 
+if (devLoginActivo)
+{
+    builder.Services.AddDevAuth();
+}
+else
+{
+    builder.Services.AddHubAuth(builder.Configuration);
+}
+
+// Toda la app requiere usuario autenticado, salvo [AllowAnonymous] explícito.
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
+
+builder.Services.AddScoped<UsuarioProvisioningService>();
 builder.Services.AddScoped<QcDesvWorkflowService>();
 builder.Services.AddScoped<SolicitudDesviacionService>();
 builder.Services.AddScoped<AprobacionService>();
@@ -68,6 +75,14 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseAuthentication();
+
+if (!devLoginActivo)
+{
+    // Convierte el token SSO recibido por query (?meax_token=) en cookie de
+    // sesión local y limpia la URL.
+    app.UseHubSsoTokenBridge();
+}
+
 app.UseAuthorization();
 
 app.UseAntiforgery();

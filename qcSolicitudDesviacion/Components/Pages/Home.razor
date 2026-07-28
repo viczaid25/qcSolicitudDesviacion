@@ -25,11 +25,11 @@
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn primary" href="/solicitudes/crear">
+            <a class="hero-btn primary" href="solicitudes/crear">
                 Nueva desviación / New Deviation
             </a>
 
-            <a class="hero-btn" href="/desviaciones">
+            <a class="hero-btn" href="desviaciones">
                 Ver desviaciones / View Deviations
             </a>
         </div>
@@ -47,25 +47,25 @@
     else
     {
         <section class="stats-grid">
-            <a class="stat-card" href="/desviaciones">
+            <a class="stat-card" href="desviaciones">
                 <span>Total solicitudes / Total Requests</span>
                 <strong>@totalSolicitudes</strong>
                 <p>Solicitudes registradas en el sistema.</p>
             </a>
 
-            <a class="stat-card stat-vigente" href="/desviaciones">
+            <a class="stat-card stat-vigente" href="desviaciones">
                 <span>Vigentes / Active</span>
                 <strong>@solicitudesVigentes</strong>
                 <p>Solicitudes abiertas dentro de su fecha de vigencia.</p>
             </a>
 
-            <a class="stat-card stat-vencida" href="/desviaciones">
+            <a class="stat-card stat-vencida" href="desviaciones">
                 <span>Vencidas / Expired</span>
                 <strong>@solicitudesVencidas</strong>
                 <p>Solicitudes abiertas con fecha de vigencia vencida.</p>
             </a>
 
-            <a class="stat-card stat-cerrada" href="/desviaciones">
+            <a class="stat-card stat-cerrada" href="desviaciones">
                 <span>Cerradas / Closed</span>
                 <strong>@solicitudesCerradas</strong>
                 <p>Desviaciones cerradas con datos de control.</p>
@@ -79,7 +79,7 @@
                     <p class="panel-subtitle">Últimas desviaciones registradas.</p>
                 </div>
 
-                <a class="panel-link" href="/desviaciones">
+                <a class="panel-link" href="desviaciones">
                     Ver todas / View all
                 </a>
             </div>
@@ -95,7 +95,7 @@
                 <div class="recent-list">
                     @foreach (var item in solicitudesRecientes)
                     {
-                        <a class="recent-item" href="/solicitudes/@item.SolicitudId">
+                        <a class="recent-item" href="solicitudes/@item.SolicitudId">
                             <div>
                                 <strong>#@item.SolicitudId - @item.NumeroParteAfectado</strong>
                                 <span>@item.NombreSolicitante | @item.Clientes</span>

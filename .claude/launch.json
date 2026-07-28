@@ -20,6 +20,18 @@
       "port": 5184
     },
     {
+      "name": "finFinanceRequest-prod-local",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project", "C:/Users/dm45207/source/repos/finFinanceRequest - Copy/finFinanceRequest/finFinanceRequest.csproj",
+        "--no-launch-profile",
+        "--environment", "Production",
+        "--urls", "http://localhost:5200"
+      ],
+      "port": 5200
+    },
+    {
       "name": "prcPurchaseRequisition",
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/prcPurchaseRequisition - Copy/prcPurchaseRequisition/prcPurchaseRequisition.csproj", "--urls", "http://localhost:5185"],
@@ -30,6 +42,18 @@
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/ShippingRequestSystem/ShippingRequestSystem/ShippingRequestSystem.csproj", "--urls", "http://localhost:5231"],
       "port": 5231
+    },
+    {
+      "name": "solicitudMovimientosPcs",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/solicitudMovimientosPcs/solicitudMovimientosPcs/solicitudMovimientosPcs.csproj", "--urls", "http://localhost:5243"],
+      "port": 5243
+    },
+    {
+      "name": "kpisystem",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/KpiSystem/KpiSystem/KpiSystem.csproj", "--urls", "http://localhost:5250"],
+      "port": 5250
     }
   ]
 }

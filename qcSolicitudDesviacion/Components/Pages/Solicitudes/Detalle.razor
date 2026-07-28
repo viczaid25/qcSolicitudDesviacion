@@ -20,7 +20,7 @@
             <div class="empty-state compact">
                 <div class="empty-title">Solicitud no encontrada / Request not found</div>
                 <p class="empty-text">No existe una solicitud con el ID indicado.</p>
-                <a class="table-btn table-btn-primary mt-3" href="/desviaciones">Volver / Back</a>
+                <a class="table-btn table-btn-primary mt-3" href="desviaciones">Volver / Back</a>
             </div>
         </section>
     }
@@ -44,32 +44,32 @@
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="/desviaciones">Volver / Back</a>
+                <a class="hero-btn" href="desviaciones">Volver / Back</a>
 
                 @if (PuedeEditar)
                 {
-                    <a class="hero-btn" href="/solicitudes/@solicitud.Id/editar">
+                    <a class="hero-btn" href="solicitudes/@solicitud.Id/editar">
                         Editar / Edit
                     </a>
                 }
 
                 @if (PuedeCancelar)
                 {
-                    <a class="hero-btn danger" href="/solicitudes/@solicitud.Id/cancelar">
+                    <a class="hero-btn danger" href="solicitudes/@solicitud.Id/cancelar">
                         Cancelar / Cancel
                     </a>
                 }
 
                 @if (PuedeSolicitarExtension)
                 {
-                    <a class="hero-btn" href="/solicitudes/@solicitud.Id/extension">
+                    <a class="hero-btn" href="solicitudes/@solicitud.Id/extension">
                         Extensión / Extension
                     </a>
                 }
 
                 @if (PuedeCerrar)
                 {
-                    <a class="hero-btn primary" href="/solicitudes/@solicitud.Id/cerrar">
+                    <a class="hero-btn primary" href="solicitudes/@solicitud.Id/cerrar">
                         Cerrar / Close
                     </a>
                 }
@@ -373,7 +373,7 @@
                                         <div class="inline-files">
                                             @foreach (var archivo in accion.Archivos)
                                             {
-                                                <a href="@archivo.RutaRelativa" target="_blank">@archivo.NombreOriginal</a>
+                                                <a href="@archivo.RutaRelativa.TrimStart('/')" target="_blank">@archivo.NombreOriginal</a>
                                             }
                                         </div>
                                     }
@@ -448,13 +448,23 @@
                     {
                         <div class="summary-grid three">
                             <div class="summary-item">
-                                <span>Número de lote / Lot Number</span>
-                                <strong>@solicitud.Control.NumeroLote</strong>
+                                <span>Lote de inicio / Start Lot</span>
+                                <strong>@Texto(solicitud.Control.NumeroLoteInicio)</strong>
                             </div>
 
                             <div class="summary-item">
-                                <span>Número de case / Case Number</span>
-                                <strong>@solicitud.Control.NumeroCase</strong>
+                                <span>Case de inicio / Start Case</span>
+                                <strong>@Texto(solicitud.Control.NumeroCaseInicio)</strong>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Lote final / Final Lot</span>
+                                <strong>@Texto(solicitud.Control.NumeroLoteFinal)</strong>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Case final / Final Case</span>
+                                <strong>@Texto(solicitud.Control.NumeroCaseFinal)</strong>
                             </div>
 
                             <div class="summary-item">
@@ -551,7 +561,7 @@
                         <div class="file-list compact-files">
                             @foreach (var archivo in solicitud.Archivos.OrderByDescending(x => x.FechaSubida))
                             {
-                                <a href="@archivo.RutaRelativa" target="_blank">
+                                <a href="@archivo.RutaRelativa.TrimStart('/')" target="_blank">
                                     <strong>@archivo.NombreOriginal</strong>
                                     <span>@FormatDateTime(archivo.FechaSubida)</span>
                                 </a>

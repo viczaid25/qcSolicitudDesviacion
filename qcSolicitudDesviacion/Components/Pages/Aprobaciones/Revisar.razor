@@ -1,4 +1,4 @@
-﻿@page "/aprobaciones/revisar/{AprobacionId:int}"
+@page "/aprobaciones/revisar/{AprobacionId:int}"
 @rendermode InteractiveServer
 
 @inject AprobacionService AprobacionService
@@ -17,29 +17,32 @@
         <section class="panel-card">
             <div class="empty-state compact">
                 <div class="empty-title">Aprobación no encontrada / Approval not found</div>
-                <a class="table-btn table-btn-primary mt-3" href="/aprobaciones/pendientes">Volver / Back</a>
+                <a class="table-btn table-btn-primary mt-3" href="aprobaciones/pendientes">Volver / Back</a>
             </div>
         </section>
     }
     else
     {
+        var solicitud = aprobacion.Solicitud;
+
         <section class="nueva-hero">
             <div>
                 <span class="nueva-kicker">@aprobacion.RolAprobador?.NombreEs / @aprobacion.RolAprobador?.NombreEn</span>
                 <h1>Revisar solicitud #@aprobacion.SolicitudId</h1>
                 <div class="hero-meta">
-                    <span class="meta-chip">@aprobacion.Solicitud.TipoDesviacion?.NombreEs</span>
+                    <span class="meta-chip">@solicitud.TipoDesviacion?.NombreEs</span>
                     <span class="meta-chip">@aprobacion.TipoFlujoCodigo</span>
-                    <span class="meta-chip">@aprobacion.Solicitud.EstadoSolicitud?.NombreEs</span>
+                    <span class="meta-chip">@solicitud.EstadoSolicitud?.NombreEs</span>
+                    <span class="meta-chip">Vigencia: @FormatDate(solicitud.FechaVigencia)</span>
                 </div>
                 <p class="hero-text">
-                    Parte: @aprobacion.Solicitud.NumeroParteAfectado | Cliente(s): @aprobacion.Solicitud.Clientes
+                    Parte: @solicitud.NumeroParteAfectado | Cliente(s): @solicitud.Clientes
                 </p>
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="/aprobaciones/pendientes">Volver / Back</a>
-                <a class="hero-btn" href="/solicitudes/@aprobacion.SolicitudId">Detalle / Detail</a>
+                <a class="hero-btn" href="aprobaciones/pendientes">Volver / Back</a>
+                <a class="hero-btn" href="solicitudes/@aprobacion.SolicitudId">Detalle / Detail</a>
             </div>
         </section>
 
@@ -48,92 +51,403 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Resumen / Summary</h2>
+                            <h2>Información general / General Information</h2>
+                            <p class="panel-subtitle">Datos completos de la solicitud de desviación.</p>
+                        </div>
+                        <span class="panel-badge">Solicitud #@solicitud.Id</span>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="summary-item">
+                            <span>ID de desviación / Deviation ID</span>
+                            <strong>#@solicitud.Id</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Fecha de solicitud / Request Date</span>
+                            <strong>@FormatDate(solicitud.FechaSolicitud)</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Solicitante / Requester</span>
+                            <strong>@solicitud.NombreSolicitante</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Departamento / Department</span>
+                            <strong>@solicitud.DepartamentoSolicitante</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Unidad de negocio afectada / Affected Business Unit</span>
+                            <strong>@solicitud.UnidadNegocioAfectada</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Código de línea / Line Code</span>
+                            <strong>@solicitud.CodigoLinea</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Cliente(s) / Customer(s)</span>
+                            <strong>@solicitud.Clientes</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Tipo de desviación / Deviation Type</span>
+                            <strong>@solicitud.TipoDesviacion?.NombreEs / @solicitud.TipoDesviacion?.NombreEn</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Estado / Status</span>
+                            <strong>@solicitud.EstadoSolicitud?.NombreEs / @solicitud.EstadoSolicitud?.NombreEn</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Tiempo de vigencia / Validity Period</span>
+                            <strong>@FormatDate(solicitud.FechaVigencia)</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Cantidad de piezas / Quantity of Pieces</span>
+                            <strong>@solicitud.CantidadPiezas</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Número de parte afectado / Affected Part Number</span>
+                            <strong>@solicitud.NumeroParteAfectado</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Requisito del proceso / Process Requirement</span>
+                            <strong>@solicitud.RequisitoProceso?.NombreEs / @solicitud.RequisitoProceso?.NombreEn</strong>
+                        </div>
+
+                        @if (solicitud.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
+                        {
+                            <div class="summary-item">
+                                <span>Otro requisito / Other Requirement</span>
+                                <strong>@Texto(solicitud.RequisitoProcesoOtro)</strong>
+                            </div>
+                        }
+
+                        <div class="summary-item">
+                            <span>Extensiones usadas / Used Extensions</span>
+                            <strong>@solicitud.NumeroExtensionActual de 2</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Fecha de creación / Created Date</span>
+                            <strong>@FormatDateTime(solicitud.FechaCreacion)</strong>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>Última modificación / Last Modified</span>
+                            <strong>@FormatDateTime(solicitud.FechaModificacion)</strong>
                         </div>
                     </div>
 
-                    <div class="summary-grid two">
+                    <div class="section-divider"></div>
+
+                    <div class="info-grid csr-grid">
                         <div class="summary-item">
-                            <span>Solicitante / Requester</span>
-                            <strong>@aprobacion.Solicitud.NombreSolicitante</strong>
+                            <span>CSR 1</span>
+                            <strong>@Texto(solicitud.CSR1)</strong>
                         </div>
+
                         <div class="summary-item">
-                            <span>Departamento / Department</span>
-                            <strong>@aprobacion.Solicitud.DepartamentoSolicitante</strong>
+                            <span>CSR 2</span>
+                            <strong>@Texto(solicitud.CSR2)</strong>
                         </div>
+
                         <div class="summary-item">
-                            <span>Unidad / Unit</span>
-                            <strong>@aprobacion.Solicitud.UnidadNegocioAfectada</strong>
+                            <span>CSR 3</span>
+                            <strong>@Texto(solicitud.CSR3)</strong>
                         </div>
+
                         <div class="summary-item">
-                            <span>Vigencia / Validity</span>
-                            <strong>@aprobacion.Solicitud.FechaVigencia.ToString("yyyy-MM-dd")</strong>
+                            <span>Informar al cliente / Inform Customer</span>
+                            <strong>@SiNo(solicitud.InformarCliente)</strong>
                         </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <div class="detail-box">
+                        <span>Razón / Reason</span>
+                        <p>@Texto(solicitud.RazonInformarCliente)</p>
                     </div>
                 </section>
 
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Descripción / Description</h2>
+                            <h2>Descripción de la desviación / Deviation Description</h2>
+                            <p class="panel-subtitle">Comparativo entre el proceso actual y el proceso con cambio temporal.</p>
                         </div>
                     </div>
 
-                    @if (aprobacion.Solicitud.Descripcion is not null)
+                    @if (solicitud.Descripcion is not null)
                     {
                         <div class="detail-stack">
                             <div class="detail-box">
-                                <span>Proceso / Process</span>
-                                <p>@aprobacion.Solicitud.Descripcion.ComoDebeRealizarseProceso</p>
+                                <span>¿Cómo debe realizarse el proceso? / How should the process be performed?</span>
+                                <p>@Texto(solicitud.Descripcion.ComoDebeRealizarseProceso)</p>
                             </div>
 
                             <div class="detail-box">
-                                <span>Controles actuales / Current controls</span>
-                                <p>@aprobacion.Solicitud.Descripcion.ControlesOperacionActual</p>
+                                <span>¿Qué controles se siguen durante la operación actual? / Current operation controls</span>
+                                <p>@Texto(solicitud.Descripcion.ControlesOperacionActual)</p>
                             </div>
 
                             <div class="detail-box">
-                                <span>Cambio temporal / Temporary change</span>
-                                <p>@aprobacion.Solicitud.Descripcion.ProcesoDespuesCambioTemporal</p>
+                                <span>¿Cómo se ejecutará el proceso después de implementar el cambio temporal? / Process after temporary change</span>
+                                <p>@Texto(solicitud.Descripcion.ProcesoDespuesCambioTemporal)</p>
                             </div>
 
                             <div class="detail-box">
-                                <span>Controles con cambio / Controls with change</span>
-                                <p>@aprobacion.Solicitud.Descripcion.ControlesDuranteCambio</p>
+                                <span>¿Qué controles deben implementarse durante la operación con cambio? / Controls during change</span>
+                                <p>@Texto(solicitud.Descripcion.ControlesDuranteCambio)</p>
                             </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state compact">Sin descripción registrada.</div>
+                    }
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Análisis de riesgo / Risk Analysis</h2>
+                            <p class="panel-subtitle">Aplica únicamente para desviaciones críticas.</p>
+                        </div>
+
+                        @if (solicitud.AnalisisRiesgo is not null)
+                        {
+                            <span class="panel-badge danger">Crítica / Critical</span>
+                        }
+                        else
+                        {
+                            <span class="panel-badge">No aplica / N/A</span>
+                        }
+                    </div>
+
+                    @if (solicitud.AnalisisRiesgo is not null)
+                    {
+                        <div class="risk-comparison">
+                            <div class="risk-block">
+                                <h3>Operación actual / Current Operation</h3>
+
+                                <div class="summary-grid three">
+                                    <div class="summary-item">
+                                        <span>Severidad / Severity</span>
+                                        <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
+                                    </div>
+
+                                    <div class="summary-item">
+                                        <span>Ocurrencia / Occurrence</span>
+                                        <strong>@solicitud.AnalisisRiesgo.OcurrenciaActual</strong>
+                                    </div>
+
+                                    <div class="summary-item">
+                                        <span>Detección / Detection</span>
+                                        <strong>@solicitud.AnalisisRiesgo.DeteccionActual</strong>
+                                    </div>
+
+                                    <div class="summary-item rpn-item">
+                                        <span>RPN actual / Current RPN</span>
+                                        <strong>@solicitud.AnalisisRiesgo.RpnActual</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="risk-block">
+                                <h3>Con cambio temporal / With Temporary Change</h3>
+
+                                <div class="summary-grid three">
+                                    <div class="summary-item">
+                                        <span>Severidad / Severity</span>
+                                        <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
+                                    </div>
+
+                                    <div class="summary-item">
+                                        <span>Ocurrencia con cambio / Occurrence with Change</span>
+                                        <strong>@solicitud.AnalisisRiesgo.OcurrenciaConCambio</strong>
+                                    </div>
+
+                                    <div class="summary-item">
+                                        <span>Detección con cambio / Detection with Change</span>
+                                        <strong>@solicitud.AnalisisRiesgo.DeteccionConCambio</strong>
+                                    </div>
+
+                                    <div class="summary-item rpn-item">
+                                        <span>RPN con cambio / RPN with Change</span>
+                                        <strong>@solicitud.AnalisisRiesgo.RpnConCambio</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state compact">
+                            Esta solicitud es estándar o no tiene análisis de riesgo registrado.
                         </div>
                     }
                 </section>
 
-                @if (aprobacion.Solicitud.AnalisisRiesgo is not null)
-                {
-                    <section class="panel-card">
-                        <div class="panel-head">
-                            <div>
-                                <h2>Análisis de riesgo / Risk Analysis</h2>
-                            </div>
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Acciones / Actions</h2>
+                            <p class="panel-subtitle">Acciones propuestas o registradas para la desviación.</p>
                         </div>
+                        <span class="panel-badge">@solicitud.Acciones.Count acción(es)</span>
+                    </div>
 
+                    @if (!solicitud.Acciones.Any())
+                    {
+                        <div class="empty-state compact">Sin acciones registradas.</div>
+                    }
+                    else
+                    {
+                        <div class="action-list">
+                            @foreach (var accion in solicitud.Acciones.OrderBy(x => x.Id))
+                            {
+                                <article class="action-card">
+                                    <div class="action-card-head">
+                                        <div>
+                                            <span>Acción / Action</span>
+                                            <strong>Acción #@accion.Id</strong>
+                                        </div>
+
+                                        @if (accion.FechaCompromiso.HasValue)
+                                        {
+                                            <span class="date-chip">
+                                                Compromiso: @FormatDate(accion.FechaCompromiso)
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <p>@Texto(accion.DescripcionAccion)</p>
+
+                                    <div class="action-meta">
+                                        <span><strong>Responsable:</strong> @Texto(accion.Responsable)</span>
+                                        <span><strong>Creada:</strong> @FormatDateTime(accion.FechaCreacion)</span>
+                                    </div>
+
+                                    @if (accion.Archivos.Any())
+                                    {
+                                        <div class="inline-files">
+                                            @foreach (var archivo in accion.Archivos)
+                                            {
+                                                <a href="@archivo.RutaRelativa.TrimStart('/')" target="_blank">@archivo.NombreOriginal</a>
+                                            }
+                                        </div>
+                                    }
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Extensiones / Extensions</h2>
+                            <p class="panel-subtitle">Historial de extensiones solicitadas para la desviación.</p>
+                        </div>
+                        <span class="panel-badge">@solicitud.Extensiones.Count extensión(es)</span>
+                    </div>
+
+                    @if (!solicitud.Extensiones.Any())
+                    {
+                        <div class="empty-state compact">Sin extensiones registradas.</div>
+                    }
+                    else
+                    {
+                        <div class="table-wrap">
+                            <table class="mini-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Vigencia anterior</th>
+                                        <th>Nueva vigencia</th>
+                                        <th>Estado</th>
+                                        <th>Razón</th>
+                                        <th>Solicitada</th>
+                                        <th>Aprobada</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ext in solicitud.Extensiones.OrderBy(x => x.NumeroExtension))
+                                    {
+                                        <tr>
+                                            <td>@ext.NumeroExtension</td>
+                                            <td>@FormatDate(ext.FechaVigenciaAnterior)</td>
+                                            <td>@FormatDate(ext.NuevaFechaVigencia)</td>
+                                            <td>
+                                                <span class="status-pill">@ext.EstadoExtensionCodigo</span>
+                                            </td>
+                                            <td>@Texto(ext.RazonExtension)</td>
+                                            <td>@FormatDateTime(ext.FechaSolicitud)</td>
+                                            <td>@FormatDateTime(ext.FechaAprobacion)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Control de cierre / Closure Control</h2>
+                            <p class="panel-subtitle">Información capturada al cierre de la desviación.</p>
+                        </div>
+                    </div>
+
+                    @if (solicitud.Control is null)
+                    {
+                        <div class="empty-state compact">La desviación aún no tiene datos de cierre.</div>
+                    }
+                    else
+                    {
                         <div class="summary-grid three">
                             <div class="summary-item">
-                                <span>Severidad</span>
-                                <strong>@aprobacion.Solicitud.AnalisisRiesgo.SeveridadActual</strong>
+                                <span>Lote de inicio / Start Lot</span>
+                                <strong>@Texto(solicitud.Control.NumeroLoteInicio)</strong>
                             </div>
+
                             <div class="summary-item">
-                                <span>Ocurrencia</span>
-                                <strong>@aprobacion.Solicitud.AnalisisRiesgo.OcurrenciaActual</strong>
+                                <span>Case de inicio / Start Case</span>
+                                <strong>@Texto(solicitud.Control.NumeroCaseInicio)</strong>
                             </div>
+
                             <div class="summary-item">
-                                <span>Detección</span>
-                                <strong>@aprobacion.Solicitud.AnalisisRiesgo.DeteccionActual</strong>
+                                <span>Lote final / Final Lot</span>
+                                <strong>@Texto(solicitud.Control.NumeroLoteFinal)</strong>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Case final / Final Case</span>
+                                <strong>@Texto(solicitud.Control.NumeroCaseFinal)</strong>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Fecha de cierre / Closure Date</span>
+                                <strong>@FormatDateTime(solicitud.Control.FechaCierre)</strong>
                             </div>
                         </div>
-                    </section>
-                }
+                    }
+                </section>
             </main>
 
-            <aside class="side-stack">
-                <section class="panel-card sticky-card">
+            <aside class="side-stack compact-side">
+                <section class="panel-card">
                     <div class="panel-head">
                         <div>
                             <h2>Decisión / Decision</h2>
@@ -159,6 +473,144 @@
                         </button>
                     </div>
                 </section>
+
+                <section class="panel-card compact-panel">
+                    <div class="panel-head compact-head">
+                        <div>
+                            <h2>Aprobaciones / Approvals</h2>
+                            <p class="panel-subtitle">Agrupadas por solicitud inicial y extensiones.</p>
+                        </div>
+                        <span class="panel-badge">@solicitud.Aprobaciones.Count</span>
+                    </div>
+
+                    @if (!solicitud.Aprobaciones.Any())
+                    {
+                        <div class="empty-state compact">Sin aprobaciones registradas.</div>
+                    }
+                    else
+                    {
+                        <div class="approval-scroll">
+                            @foreach (var grupo in AprobacionesAgrupadas)
+                            {
+                                <details class="approval-group" open="@grupo.Abierto">
+                                    <summary>
+                                        <span>@grupo.Titulo</span>
+                                        <strong>@grupo.Items.Count paso(s)</strong>
+                                    </summary>
+
+                                    <div class="approval-list compact">
+                                        @foreach (var item in grupo.Items.OrderBy(x => x.Orden))
+                                        {
+                                            <div class="approval-item @(item.EsPasoActual ? "current" : "")">
+                                                <div class="approval-topline">
+                                                    <span class="approval-step">@item.Orden</span>
+                                                    <div>
+                                                        <strong>@item.RolAprobador?.NombreEs</strong>
+                                                        <span>@item.RolAprobador?.NombreEn</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="approval-status-line">
+                                                    <span class="status-dot @ApprovalStatusClass(item.EstadoAprobacionCodigo)">
+                                                        @TextoAprobacion(item)
+                                                    </span>
+
+                                                    @if (item.EsPasoActual)
+                                                    {
+                                                        <span class="current-chip">Actual / Current</span>
+                                                    }
+                                                </div>
+
+                                                <div class="approval-meta">
+                                                    <span>Asignado: @FormatDateTime(item.FechaAsignacion)</span>
+                                                    <span>Decisión: @FormatDateTime(item.FechaDecision)</span>
+                                                    <span>Aprobador: @Texto(item.UsuarioAprobador?.NombreCompleto)</span>
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(item.Comentarios))
+                                                {
+                                                    <p class="approval-comment">@item.Comentarios</p>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </details>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <section class="panel-card compact-panel">
+                    <div class="panel-head compact-head">
+                        <div>
+                            <h2>Archivos / Files</h2>
+                            <p class="panel-subtitle">Adjuntos relacionados con la solicitud.</p>
+                        </div>
+                        <span class="panel-badge">@solicitud.Archivos.Count</span>
+                    </div>
+
+                    @if (!solicitud.Archivos.Any())
+                    {
+                        <div class="empty-state compact">Sin archivos adjuntos.</div>
+                    }
+                    else
+                    {
+                        <div class="file-list compact-files">
+                            @foreach (var archivo in solicitud.Archivos.OrderByDescending(x => x.FechaSubida))
+                            {
+                                <a href="@archivo.RutaRelativa.TrimStart('/')" target="_blank">
+                                    <strong>@archivo.NombreOriginal</strong>
+                                    <span>@FormatDateTime(archivo.FechaSubida)</span>
+                                </a>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <section class="panel-card compact-panel">
+                    <div class="panel-head compact-head">
+                        <div>
+                            <h2>Historial / History</h2>
+                            <p class="panel-subtitle">Movimientos de la desviación.</p>
+                        </div>
+                        <span class="panel-badge">@solicitud.Historiales.Count</span>
+                    </div>
+
+                    @if (!solicitud.Historiales.Any())
+                    {
+                        <div class="empty-state compact">Sin historial registrado.</div>
+                    }
+                    else
+                    {
+                        <div class="history-scroll">
+                            <div class="history-timeline">
+                                @foreach (var h in solicitud.Historiales.OrderByDescending(x => x.FechaMovimiento))
+                                {
+                                    <article class="history-item timeline-item">
+                                        <div class="timeline-dot"></div>
+
+                                        <div>
+                                            <strong>@h.Accion</strong>
+                                            <span>@FormatDateTime(h.FechaMovimiento)</span>
+
+                                            @if (!string.IsNullOrWhiteSpace(h.EstadoAnteriorCodigo) || !string.IsNullOrWhiteSpace(h.EstadoNuevoCodigo))
+                                            {
+                                                <div class="history-status">
+                                                    @Texto(h.EstadoAnteriorCodigo) → @Texto(h.EstadoNuevoCodigo)
+                                                </div>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(h.Comentario))
+                                            {
+                                                <p>@h.Comentario</p>
+                                            }
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        </div>
+                    }
+                </section>
             </aside>
         </div>
     }
@@ -175,11 +627,75 @@
     private string mensaje = string.Empty;
     private int usuarioActualId;
 
+    private IReadOnlyList<GrupoAprobacionesRevisar> AprobacionesAgrupadas
+    {
+        get
+        {
+            var solicitud = aprobacion?.Solicitud;
+
+            if (solicitud is null)
+            {
+                return Array.Empty<GrupoAprobacionesRevisar>();
+            }
+
+            var grupos = new List<GrupoAprobacionesRevisar>();
+
+            var inicial = solicitud.Aprobaciones
+                .Where(x => x.ExtensionId is null)
+                .OrderBy(x => x.Orden)
+                .ToList();
+
+            if (inicial.Any())
+            {
+                grupos.Add(new GrupoAprobacionesRevisar
+                {
+                    Titulo = "Solicitud inicial / Initial Request",
+                    Abierto = true,
+                    Items = inicial
+                });
+            }
+
+            var gruposExtension = solicitud.Aprobaciones
+                .Where(x => x.ExtensionId.HasValue)
+                .GroupBy(x => x.ExtensionId!.Value)
+                .OrderBy(x => NumeroExtension(x.Key));
+
+            foreach (var grupo in gruposExtension)
+            {
+                var extension = solicitud.Extensiones.FirstOrDefault(x => x.Id == grupo.Key);
+                var numero = extension?.NumeroExtension.ToString() ?? grupo.Key.ToString();
+
+                grupos.Add(new GrupoAprobacionesRevisar
+                {
+                    Titulo = $"Extensión #{numero} / Extension #{numero}",
+                    Abierto = grupo.Any(x => x.EsPasoActual),
+                    Items = grupo.OrderBy(x => x.Orden).ToList()
+                });
+            }
+
+            return grupos;
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
         aprobacion = await AprobacionService.ObtenerDetalleAprobacionAsync(AprobacionId);
         cargando = false;
+    }
+
+    private int NumeroExtension(int extensionId)
+    {
+        var solicitud = aprobacion?.Solicitud;
+
+        if (solicitud is null)
+        {
+            return 0;
+        }
+
+        return solicitud.Extensiones
+            .FirstOrDefault(x => x.Id == extensionId)?
+            .NumeroExtension ?? 0;
     }
 
     private async Task AprobarAsync()
@@ -194,7 +710,7 @@
 
         if (resultado.Succeeded)
         {
-            Navigation.NavigateTo("/aprobaciones/pendientes");
+            Navigation.NavigateTo("aprobaciones/pendientes");
             return;
         }
 
@@ -214,11 +730,55 @@
 
         if (resultado.Succeeded)
         {
-            Navigation.NavigateTo("/aprobaciones/pendientes");
+            Navigation.NavigateTo("aprobaciones/pendientes");
             return;
         }
 
         mensaje = resultado.Message;
         procesando = false;
+    }
+
+    private static string Texto(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "—" : value;
+    }
+
+    private static string SiNo(bool value)
+    {
+        return value ? "Sí / Yes" : "No / No";
+    }
+
+    private static string FormatDate(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("yyyy-MM-dd") : "—";
+    }
+
+    private static string FormatDateTime(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("yyyy-MM-dd HH:mm") : "—";
+    }
+
+    private static string TextoAprobacion(QcDesvAprobacion aprobacion)
+    {
+        return aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo;
+    }
+
+    private static string ApprovalStatusClass(string estadoCodigo)
+    {
+        return estadoCodigo switch
+        {
+            QcDesvCodigos.EstadoAprobacion.Aprobado => "approved",
+            QcDesvCodigos.EstadoAprobacion.Rechazado => "rejected",
+            QcDesvCodigos.EstadoAprobacion.Cancelado => "cancelled",
+            QcDesvCodigos.EstadoAprobacion.Omitido => "skipped",
+            _ => "pending"
+        };
+    }
+
+    private sealed class GrupoAprobacionesRevisar
+    {
+        public string Titulo { get; set; } = string.Empty;
+        public bool Abierto { get; set; }
+        public List<QcDesvAprobacion> Items { get; set; } = new();
     }
 }

@@ -448,8 +448,11 @@ public class ApplicationDbContext : DbContext
             entity.ToTable("qcDesvControl");
             entity.HasKey(e => e.Id);
 
-            entity.Property(e => e.NumeroLote).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.NumeroCase).HasMaxLength(100).IsRequired();
+            // Las columnas NumeroLote/NumeroCase originales guardan los datos de inicio.
+            entity.Property(e => e.NumeroLoteInicio).HasColumnName("NumeroLote").HasMaxLength(100).IsRequired();
+            entity.Property(e => e.NumeroCaseInicio).HasColumnName("NumeroCase").HasMaxLength(100).IsRequired();
+            entity.Property(e => e.NumeroLoteFinal).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.NumeroCaseFinal).HasMaxLength(100).IsRequired();
             entity.Property(e => e.FechaCierre).HasDefaultValueSql("SYSDATETIME()");
 
             entity.HasIndex(e => e.SolicitudId)

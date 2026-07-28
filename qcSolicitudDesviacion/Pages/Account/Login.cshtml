@@ -138,6 +138,17 @@
             display: block;
         }
 
+        .dev-mode-badge {
+            display: block;
+            background: #b45309;
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+            padding: 0.55rem 1rem;
+        }
+
         @@media (max-width: 576px) {
             .login-header {
                 padding: 1.75rem 1.25rem 1.25rem;
@@ -160,6 +171,10 @@
 <body>
     <div class="login-wrapper">
         <div class="login-card">
+            <div class="dev-mode-badge">
+                ⚠ MODO DESARROLLO — login sin Meax One
+            </div>
+
             <div class="login-header">
                 <img src="~/images/logo.png"
                      asp-append-version="true"
@@ -168,12 +183,12 @@
                      onerror="this.style.display='none'" />
 
                 <h1 class="login-title">Solicitud de Desviación</h1>
-                <p class="login-subtitle">Acceso con usuario de red / Active Directory</p>
+                <p class="login-subtitle">Acceso de desarrollo (sin Meax One)</p>
             </div>
 
             <div class="login-body">
                 <p class="login-hint">
-                    Ingresa tus credenciales corporativas para continuar.
+                    Usuario libre + contraseña de desarrollo (config <code>Auth:DevPassword</code>).
                 </p>
 
                 @if (!ViewData.ModelState.IsValid)
@@ -189,9 +204,9 @@
                     <div class="form-floating mb-3">
                         <input asp-for="Input.Username"
                                class="form-control"
-                               placeholder="Usuario de red"
+                               placeholder="Usuario (PcLoginId)"
                                autocomplete="username" />
-                        <label asp-for="Input.Username">Usuario de red</label>
+                        <label asp-for="Input.Username">Usuario (PcLoginId)</label>
                     </div>
                     <span asp-validation-for="Input.Username" class="text-danger"></span>
 
@@ -199,9 +214,9 @@
                         <input asp-for="Input.Password"
                                class="form-control"
                                type="password"
-                               placeholder="Contraseña"
+                               placeholder="Contraseña de desarrollo"
                                autocomplete="current-password" />
-                        <label asp-for="Input.Password">Contraseña</label>
+                        <label asp-for="Input.Password">Contraseña de desarrollo</label>
                     </div>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
 

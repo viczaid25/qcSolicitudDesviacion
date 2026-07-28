@@ -1,5 +1,4 @@
 @inject UsuarioActualService UsuarioActualService
-@inject NavigationManager Navigation
 
 <header class="top-bar">
     <div class="top-bar-inner">
@@ -14,9 +13,12 @@
                 <div class="top-bar-user-name">@nombreUsuario</div>
             </div>
 
-            <button type="button" class="top-bar-logout-btn" @onclick="Salir">
+            @* Enlace (no @onclick): el TopBar vive en el layout estático, donde
+               los eventos de Blazor no disparan; el href relativo resuelve el
+               PathBase vía <base href>. *@
+            <a class="top-bar-logout-btn" href="Account/Logout">
                 Salir / Logout
-            </button>
+            </a>
         </div>
     </div>
 </header>
@@ -32,10 +34,5 @@
         {
             nombreUsuario = usuario.NombreCompleto;
         }
-    }
-
-    private void Salir()
-    {
-        Navigation.NavigateTo("/Account/Logout", forceLoad: true);
     }
 }

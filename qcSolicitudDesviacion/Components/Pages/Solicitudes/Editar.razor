@@ -19,7 +19,7 @@
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="/solicitudes/@SolicitudId">Volver / Back</a>
+            <a class="hero-btn" href="solicitudes/@SolicitudId">Volver / Back</a>
         </div>
     </section>
 
@@ -327,7 +327,7 @@
 
         if (resultado.Succeeded)
         {
-            Navigation.NavigateTo($"/solicitudes/{resultado.Data}");
+            Navigation.NavigateTo($"solicitudes/{resultado.Data}");
             return;
         }
 

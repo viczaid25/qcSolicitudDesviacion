@@ -56,7 +56,7 @@ public class EmailNotificationService
             ? $"Please be informed that a Deviation Extension ID{id} has been issued and is now available for review.\n\nPlease review the request and provide your judgment by approving or rejecting it, as applicable."
             : $"Please be informed that a Deviation Request ID{id} has been issued and is now available for review.\n\nPlease review the request and provide your judgment by approving or rejecting it, as applicable.";
 
-        await EnviarAsync(destinatarios, asunto, ConEnlace(cuerpo, "/aprobaciones/pendientes"));
+        await EnviarAsync(destinatarios, asunto, ConEnlace(cuerpo, $"/aprobaciones/revisar/{aprobacion.Id}"));
     }
 
     public async Task NotificarRechazoAsync(

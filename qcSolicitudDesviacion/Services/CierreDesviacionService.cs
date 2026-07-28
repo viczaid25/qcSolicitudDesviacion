@@ -25,14 +25,24 @@ public class CierreDesviacionService
             return ServiceResult.Failure("La solicitud es obligatoria.");
         }
 
-        if (string.IsNullOrWhiteSpace(model.NumeroLote))
+        if (string.IsNullOrWhiteSpace(model.NumeroLoteInicio))
         {
-            return ServiceResult.Failure("El número de lote es obligatorio.");
+            return ServiceResult.Failure("El número de lote de inicio es obligatorio.");
         }
 
-        if (string.IsNullOrWhiteSpace(model.NumeroCase))
+        if (string.IsNullOrWhiteSpace(model.NumeroCaseInicio))
         {
-            return ServiceResult.Failure("El número de case es obligatorio.");
+            return ServiceResult.Failure("El número de case de inicio es obligatorio.");
+        }
+
+        if (string.IsNullOrWhiteSpace(model.NumeroLoteFinal))
+        {
+            return ServiceResult.Failure("El número de lote final es obligatorio.");
+        }
+
+        if (string.IsNullOrWhiteSpace(model.NumeroCaseFinal))
+        {
+            return ServiceResult.Failure("El número de case final es obligatorio.");
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -78,8 +88,10 @@ public class CierreDesviacionService
             var control = new QcDesvControl
             {
                 SolicitudId = solicitud.Id,
-                NumeroLote = model.NumeroLote.Trim(),
-                NumeroCase = model.NumeroCase.Trim(),
+                NumeroLoteInicio = model.NumeroLoteInicio.Trim(),
+                NumeroCaseInicio = model.NumeroCaseInicio.Trim(),
+                NumeroLoteFinal = model.NumeroLoteFinal.Trim(),
+                NumeroCaseFinal = model.NumeroCaseFinal.Trim(),
                 CerradoPorUsuarioId = usuarioActualId,
                 FechaCierre = DateTime.Now
             };
@@ -96,7 +108,8 @@ public class CierreDesviacionService
                 Accion = "Desviación cerrada",
                 EstadoAnteriorCodigo = estadoAnterior,
                 EstadoNuevoCodigo = QcDesvCodigos.EstadoSolicitud.Cerrada,
-                Comentario = $"Lote: {model.NumeroLote.Trim()} | Case: {model.NumeroCase.Trim()}",
+                Comentario = $"Lote inicio: {model.NumeroLoteInicio.Trim()} | Case inicio: {model.NumeroCaseInicio.Trim()} | " +
+                             $"Lote final: {model.NumeroLoteFinal.Trim()} | Case final: {model.NumeroCaseFinal.Trim()}",
                 UsuarioId = usuarioActualId,
                 FechaMovimiento = DateTime.Now
             });
