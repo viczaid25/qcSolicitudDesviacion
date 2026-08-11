@@ -12,9 +12,10 @@ public class SolicitudDesviacionService
     private readonly QcDesvWorkflowService _workflowService;
     private readonly EmailNotificationService _emailService;
 
+    // QMS ya no requiere elegir un aprobador específico: lo atiende
+    // cualquier usuario con rol Admin (ver AprobacionService).
     private static readonly string[] RolesAprobacionSolicitud =
     {
-        QcDesvCodigos.Rol.Qms,
         QcDesvCodigos.Rol.CoordApqp,
         QcDesvCodigos.Rol.CoordQc,
         QcDesvCodigos.Rol.ManagerQc,

@@ -149,11 +149,20 @@ public class EmailNotificationService
         return string.IsNullOrWhiteSpace(correo) ? null : correo;
     }
 
-    private static async Task<List<string>> ObtenerCorreosAprobadorAsync(
+    private async Task<List<string>> ObtenerCorreosAprobadorAsync(
         ApplicationDbContext context,
         QcDesvAprobacion aprobacion,
         CancellationToken cancellationToken)
     {
+        // El paso QMS ya no se asigna a un usuario ni se resuelve por el rol
+        // QMS: sus notificaciones van siempre al buzón compartido de QMS.
+        if (aprobacion.RolAprobadorCodigo == QcDesvCodigos.Rol.Qms)
+        {
+            return string.IsNullOrWhiteSpace(_settings.QmsNotificationEmail)
+                ? new List<string>()
+                : new List<string> { _settings.QmsNotificationEmail };
+        }
+
         if (aprobacion.UsuarioAprobadorId.HasValue)
         {
             var correo = await context.QcDesvUsuarios

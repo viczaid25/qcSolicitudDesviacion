@@ -668,6 +668,20 @@
         box-shadow: 0 14px 30px rgba(37, 99, 235, 0.09);
     }
 
+.approver-flow-card-auto {
+    background: #f8fafc;
+    border-style: dashed;
+}
+
+    .approver-flow-card-auto:hover {
+        border-color: #e2e8f0;
+        box-shadow: none;
+    }
+
+    .approver-flow-card-auto .approver-step {
+        background: #64748b;
+    }
+
 .approver-step {
     width: 40px;
     height: 40px;

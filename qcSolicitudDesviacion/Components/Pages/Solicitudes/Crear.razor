@@ -589,15 +589,30 @@
                         <span class="panel-badge">Paso 4 / Step 4</span>
                     </div>
 
-                    @if (rolesAprobadores.Count == 0)
-                    {
-                        <div class="notice-box error">
-                            No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="approver-flow-list">
+                    <div class="approver-flow-list">
+                        <article class="approver-flow-card approver-flow-card-auto">
+                            <div class="approver-step">1</div>
+
+                            <div class="approver-info">
+                                <h3>QMS</h3>
+                                <p>QMS</p>
+
+                                <div class="field-help">
+                                    Se asigna automáticamente a los administradores del sistema; no requiere
+                                    seleccionar un aprobador. / Automatically assigned to system administrators;
+                                    no approver selection required.
+                                </div>
+                            </div>
+                        </article>
+
+                        @if (rolesAprobadores.Count == 0)
+                        {
+                            <div class="notice-box error">
+                                No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
+                            </div>
+                        }
+                        else
+                        {
                             @foreach (var rol in rolesAprobadores.OrderBy(x => x.Orden))
                             {
                                 <article class="approver-flow-card">
@@ -637,8 +652,8 @@
                                     </div>
                                 </article>
                             }
-                        </div>
-                    }
+                        }
+                    </div>
                 </section>
 
                 <section class="panel-card submit-panel">

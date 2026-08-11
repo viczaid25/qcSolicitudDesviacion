@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/dm45207/Downloads/**)",
+      "Bash(python -c ' *)",
+      "Bash(pip install *)",
+      "Bash(dotnet ef *)",
+      "Bash(dotnet add *)"
+    ]
+  }
+}

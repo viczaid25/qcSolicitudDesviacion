@@ -29,6 +29,14 @@ public class AprobacionService
             .Select(x => x.RolCodigo)
             .ToListAsync(cancellationToken);
 
+        // El paso QMS ya no se asigna a una persona ni se resuelve por el rol
+        // QMS: lo atiende cualquier Admin del sistema.
+        if (rolesUsuario.Contains(QcDesvCodigos.Rol.Admin) &&
+            !rolesUsuario.Contains(QcDesvCodigos.Rol.Qms))
+        {
+            rolesUsuario.Add(QcDesvCodigos.Rol.Qms);
+        }
+
         return await context.QcDesvAprobaciones
             .AsNoTracking()
             .Include(x => x.Solicitud)
@@ -337,10 +345,16 @@ public class AprobacionService
             return aprobacion.UsuarioAprobadorId.Value == usuarioId;
         }
 
+        // El paso QMS no se asigna a una persona específica: cualquier Admin
+        // puede atenderlo, en vez de requerir el rol QMS.
+        var rolParaVerificar = aprobacion.RolAprobadorCodigo == QcDesvCodigos.Rol.Qms
+            ? QcDesvCodigos.Rol.Admin
+            : aprobacion.RolAprobadorCodigo;
+
         return await UsuarioTieneRolAsync(
             context,
             usuarioId,
-            aprobacion.RolAprobadorCodigo,
+            rolParaVerificar,
             cancellationToken);
     }
 

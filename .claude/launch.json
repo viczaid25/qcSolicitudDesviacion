@@ -54,6 +54,13 @@
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/KpiSystem/KpiSystem/KpiSystem.csproj", "--urls", "http://localhost:5250"],
       "port": 5250
+    },
+    {
+      "name": "qcmAuditoriasIatf",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/qcmAuditoriasIatf/qcmAuditoriasIatf/qcmAuditoriasIatf.csproj", "--urls", "http://localhost:5260"],
+      "port": 5260,
+      "url": "http://localhost:5260"
     }
   ]
 }

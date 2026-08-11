@@ -14,4 +14,10 @@ public class EmailSettings
     /// destinatarios reales (útil para probar en Development sin notificar a usuarios reales).
     /// </summary>
     public string? TestOverrideEmail { get; set; }
+
+    /// <summary>
+    /// Buzón fijo que recibe las notificaciones del paso QMS del flujo de
+    /// aprobación (ya no se elige un aprobador QMS específico).
+    /// </summary>
+    public string QmsNotificationEmail { get; set; } = "meax_qms_communication@meax.mx";
 }

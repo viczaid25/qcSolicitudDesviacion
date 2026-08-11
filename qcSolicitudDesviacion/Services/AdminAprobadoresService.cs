@@ -10,9 +10,10 @@ public class AdminAprobadoresService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
+    // QMS ya no es un rol de aprobador autoadministrable: ese paso lo
+    // atiende automáticamente cualquier usuario con rol Admin.
     private static readonly string[] RolesAprobadores =
     {
-        QcDesvCodigos.Rol.Qms,
         QcDesvCodigos.Rol.CoordApqp,
         QcDesvCodigos.Rol.CoordQc,
         QcDesvCodigos.Rol.ManagerQc,
@@ -24,7 +25,6 @@ public class AdminAprobadoresService
 
     private static readonly string[] RolesSolicitud =
     {
-        QcDesvCodigos.Rol.Qms,
         QcDesvCodigos.Rol.CoordApqp,
         QcDesvCodigos.Rol.CoordQc,
         QcDesvCodigos.Rol.ManagerQc,
@@ -425,16 +425,11 @@ public class AdminAprobadoresService
 
     private static List<AdminAprobadorRolVm> ObtenerRolesAdministrables()
     {
+        // QMS ya no aparece aquí: ese paso del flujo lo atiende
+        // automáticamente cualquier usuario con rol Admin, sin necesidad de
+        // asignar el rol QMS a nadie en particular.
         return new List<AdminAprobadorRolVm>
         {
-            new()
-            {
-                Codigo = QcDesvCodigos.Rol.Qms,
-                NombreEs = "QMS",
-                NombreEn = "QMS",
-                Grupo = "Solicitud inicial",
-                Orden = 1
-            },
             new()
             {
                 Codigo = QcDesvCodigos.Rol.CoordApqp,
