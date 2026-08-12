@@ -4,71 +4,13 @@
     color: #0f172a;
 }
 
-/* HERO */
-.nueva-hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.35rem 1.5rem;
-    border-radius: 26px;
-    background: linear-gradient(135deg, #0f172a, #1e1b4b);
-    color: #ffffff;
-    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
-}
-
-.nueva-kicker {
-    display: inline-flex;
-    margin-bottom: 0.4rem;
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.12);
-    color: #c7d2fe;
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.nueva-hero h1 {
-    margin: 0;
-    color: #ffffff;
-    font-size: clamp(1.7rem, 3vw, 2.4rem);
-    font-weight: 950;
-    letter-spacing: -0.04em;
-}
-
-.hero-text {
-    margin: 0.45rem 0 0;
-    color: #cbd5e1;
-    font-size: 0.98rem;
-    font-weight: 600;
-}
-
 .hero-actions {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
 }
-
-.hero-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 42px;
-    padding: 0.65rem 1rem;
-    border-radius: 999px;
-    background: #ffffff;
-    color: #1e1b4b !important;
-    text-decoration: none;
-    font-weight: 900;
-    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.18);
-}
-
-    .hero-btn:hover {
-        background: #eef2ff;
-        color: #312e81 !important;
-    }
 
 /* CARDS */
 .panel-card {
@@ -101,134 +43,6 @@
     font-size: 0.92rem;
     font-weight: 650;
 }
-
-.panel-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    padding: 0.38rem 0.7rem;
-    border-radius: 999px;
-    background: #eef2ff;
-    color: #3730a3;
-    font-size: 0.75rem;
-    font-weight: 950;
-}
-
-/* INPUTS */
-.form-control {
-    width: 100%;
-    min-height: 42px;
-    padding: 0.65rem 0.85rem;
-    border-radius: 14px;
-    border: 1px solid #cbd5e1;
-    background: #f8fafc;
-    color: #0f172a;
-    font-weight: 700;
-    outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-
-    .form-control:focus {
-        border-color: #6366f1;
-        background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.13);
-    }
-
-    .form-control::placeholder {
-        color: #94a3b8;
-    }
-
-/* BUTTONS */
-.table-btn,
-button.table-btn,
-a.table-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 40px;
-    padding: 0.6rem 0.9rem;
-    border-radius: 999px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #334155;
-    font-size: 0.84rem;
-    font-weight: 900;
-    line-height: 1;
-    text-decoration: none;
-    cursor: pointer;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-}
-
-    .table-btn:hover,
-    button.table-btn:hover,
-    a.table-btn:hover {
-        transform: translateY(-1px);
-        background: #f8fafc;
-        border-color: #94a3b8;
-        color: #0f172a;
-        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.11);
-    }
-
-    .table-btn:disabled,
-    button.table-btn:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-.table-btn-primary,
-button.table-btn-primary,
-a.table-btn-primary {
-    border-color: #4f46e5;
-    background: linear-gradient(135deg, #4f46e5, #2563eb);
-    color: #ffffff !important;
-    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.24);
-}
-
-    .table-btn-primary:hover,
-    button.table-btn-primary:hover,
-    a.table-btn-primary:hover {
-        border-color: #4338ca;
-        background: linear-gradient(135deg, #4338ca, #1d4ed8);
-        color: #ffffff !important;
-    }
-
-.table-btn.danger {
-    border-color: #fecaca;
-    background: #fef2f2;
-    color: #991b1b;
-}
-
-    .table-btn.danger:hover {
-        background: #fee2e2;
-        border-color: #fca5a5;
-        color: #7f1d1d;
-    }
-
-/* NOTICES */
-.notice-box {
-    padding: 0.9rem 1rem;
-    border-radius: 18px;
-    border: 1px solid #bfdbfe;
-    background: #eff6ff;
-    color: #1e3a8a;
-    font-weight: 750;
-}
-
-    .notice-box.success {
-        border-color: #bbf7d0;
-        background: #f0fdf4;
-        color: #166534;
-    }
-
-    .notice-box.error {
-        border-color: #fecaca;
-        background: #fef2f2;
-        color: #991b1b;
-    }
 
 .section-divider {
     height: 1px;
@@ -324,28 +138,6 @@ a.table-btn-primary {
     gap: 0.65rem;
 }
 
-/* STATUS */
-.status-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 72px;
-    padding: 0.38rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.76rem;
-    font-weight: 950;
-}
-
-    .status-pill.ok {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-pill.off {
-        background: #f1f5f9;
-        color: #64748b;
-    }
-
 /* ROLE CHIPS */
 .role-chip-list {
     display: flex;
@@ -353,21 +145,6 @@ a.table-btn-primary {
     gap: 0.4rem;
     margin-top: 0.65rem;
 }
-
-.role-chip {
-    display: inline-flex;
-    padding: 0.3rem 0.58rem;
-    border-radius: 999px;
-    background: #e0f2fe;
-    color: #075985;
-    font-size: 0.72rem;
-    font-weight: 950;
-}
-
-    .role-chip.muted {
-        background: #f1f5f9;
-        color: #64748b;
-    }
 
 /* SELECTED USER */
 .selected-user-card {
@@ -432,7 +209,7 @@ a.table-btn-primary {
     .role-check input {
         width: 18px;
         height: 18px;
-        accent-color: #4f46e5;
+        accent-color: var(--mo-blue-deep);
     }
 
     .role-check strong {
@@ -562,7 +339,6 @@ a.table-btn-primary {
 }
 
 @media (max-width: 768px) {
-    .nueva-hero,
     .panel-head,
     .selected-user-card {
         flex-direction: column;
@@ -577,10 +353,10 @@ a.table-btn-primary {
     }
 
         .hero-actions,
-        .hero-btn,
-        .search-row .table-btn,
-        .user-actions .table-btn,
-        .meax-user-card .table-btn {
+        .hero-actions .mo-btn,
+        .search-row .mo-btn,
+        .user-actions .mo-btn,
+        .meax-user-card .mo-btn {
             width: 100%;
         }
 

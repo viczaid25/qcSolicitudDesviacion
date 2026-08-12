@@ -4,54 +4,11 @@
     gap: 1.25rem;
 }
 
-.nueva-hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.6rem 1.75rem;
-    border-radius: 28px;
-    background: var(--color-primary-gradient, linear-gradient(135deg, #060B29 0%, #1c3375 100%));
-    color: #fff;
-    box-shadow: 0 24px 45px rgba(15,23,42,0.16);
-}
-
-.nueva-kicker {
-    display: inline-flex;
-    padding: 0.38rem 0.78rem;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.10);
-    color: rgba(255,255,255,0.86);
-    font-size: 0.82rem;
-    font-weight: 700;
-    margin-bottom: 0.9rem;
-}
-
-.nueva-hero h1 {
-    margin: 0 0 0.45rem;
-    font-size: clamp(1.9rem, 3vw, 2.7rem);
-    font-weight: 800;
-}
-
-.hero-text {
-    margin: 0;
-    color: rgba(255,255,255,0.78);
-    max-width: 760px;
-}
-
 .hero-actions {
     display: flex;
     gap: 0.75rem;
-}
-
-.hero-btn {
-    min-height: 46px;
-    padding: 0.78rem 1.15rem;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.10);
-    color: #fff;
-    text-decoration: none;
-    font-weight: 700;
+    position: relative;
+    z-index: 1;
 }
 
 .nueva-grid {
@@ -100,21 +57,6 @@
     gap: 1rem;
 }
 
-.form-label {
-    font-weight: 700;
-    color: #334155;
-    margin-bottom: 0.35rem;
-}
-
-.form-control,
-.form-select {
-    min-height: 48px;
-    border-radius: 14px;
-    border: 1px solid #dbe3ee;
-    background: #fff;
-    box-shadow: none;
-}
-
 .field-help {
     margin-top: 0.35rem;
     color: #64748b;
@@ -150,7 +92,7 @@
 }
 
     .approver-flow-card:hover {
-        border-color: #bfdbfe;
+        border-color: rgba(37,99,235,0.25);
         box-shadow: 0 14px 30px rgba(37, 99, 235, 0.09);
     }
 
@@ -195,7 +137,7 @@
     font-weight: 700;
 }
 
-.approver-info .form-select {
+.approver-info .mo-form-select {
     max-width: 520px;
 }
 
@@ -207,7 +149,7 @@
     margin-top: 1rem;
 }
 
-    .submit-panel-inner .table-btn {
+    .submit-panel-inner .mo-btn {
         min-width: 190px;
     }
 
@@ -237,32 +179,13 @@
         color: #0f172a;
     }
 
-.notice-box {
-    padding: 0.95rem 1rem;
+.empty-state.compact {
+    padding: 1rem;
     border-radius: 18px;
-    font-size: 0.9rem;
-}
-
-    .notice-box.error {
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #991b1b;
-    }
-
-.table-btn {
-    min-height: 46px;
-    padding: 0.72rem 1rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 14px;
-    background: #fff;
-    color: #0f172a;
-    font-weight: 800;
-}
-
-.table-btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border-color: transparent;
-    color: #fff;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    color: #64748b;
+    text-align: center;
 }
 
 .nueva-skeleton {
@@ -287,22 +210,15 @@
     .nueva-grid {
         grid-template-columns: 1fr;
     }
-
-    .nueva-hero {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 }
 
 @media (max-width: 768px) {
-    .nueva-hero,
     .panel-card {
         padding: 1rem;
     }
 
     .hero-actions,
-    .hero-btn,
-    .table-btn {
+    .hero-actions .mo-btn {
         width: 100%;
     }
 
@@ -310,11 +226,11 @@
         grid-template-columns: 38px minmax(0, 1fr);
     }
 
-    .approver-info .form-select {
+    .approver-info .mo-form-select {
         max-width: none;
     }
 
-    .submit-panel-inner .table-btn {
+    .submit-panel-inner .mo-btn {
         width: 100%;
     }
 }

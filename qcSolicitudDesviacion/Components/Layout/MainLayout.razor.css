@@ -1,37 +1,12 @@
-.page {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    min-height: 100vh;
-    overflow: hidden;
-    background: #f8fafc;
-}
-
-.body-row {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
-}
-
-main {
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
-    overflow: auto;
-    background: #f8fafc;
-}
-
-.sidebar {
-    background: transparent;
-    z-index: 10;
-}
-
+/* El shell (navbar fijo, sidebar fijo, offsets) ya lo da
+   wwwroot/css/meaxone-template.css vía #mo-navbar/#mo-content-area/
+   #mo-sidebar/#mo-main. Aquí solo se ajusta el padding del contenido
+   de cada página dentro de #mo-main. */
 .content {
     padding-top: 1.4rem;
     padding-bottom: 2rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
 @media (max-width: 640.98px) {
@@ -42,17 +17,6 @@ main {
 }
 
 @media (min-width: 641px) {
-    .body-row {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 280px;
-        min-width: 280px;
-        height: 100%;
-        overflow: hidden;
-    }
-
     article {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
@@ -68,7 +32,7 @@ main {
     padding: 0.6rem 1.25rem 0.7rem 1.25rem;
     position: fixed;
     width: 100%;
-    z-index: 1000;
+    z-index: 2000;
 }
 
     #blazor-error-ui .dismiss {

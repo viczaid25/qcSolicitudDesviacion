@@ -1,0 +1,8 @@
+#mo-banner .mo-btn-secondary-outline {
+    color: #fff;
+    border-color: rgba(255,255,255,0.35);
+}
+#mo-banner .mo-btn-secondary-outline:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+}

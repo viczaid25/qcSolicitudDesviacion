@@ -10,17 +10,20 @@
 <PageTitle>Administrar aprobadores</PageTitle>
 
 <div class="approver-admin-page">
-    <section class="nueva-hero">
-        <div>
-            <span class="nueva-kicker">Administración / Administration</span>
-            <h1>Aprobadores / Approvers</h1>
-            <p class="hero-text">
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">Administración / Administration</div>
+            <div id="mo-banner-title">Aprobadores / Approvers</div>
+            <div id="mo-banner-sub">
                 Asigne o retire roles de aprobación a los usuarios registrados en el sistema.
-            </p>
+            </div>
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="">Inicio / Home</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="">Inicio / Home</a>
         </div>
     </section>
 
@@ -39,7 +42,7 @@
                 Solo los usuarios con rol <strong>ADMIN</strong> pueden administrar aprobadores.
             </p>
 
-            <div class="notice-box">
+            <div class="mo-alert mo-alert-primary">
                 Tu usuario actual es ID: <strong>@usuarioActualId</strong>.
                 Asigna el rol ADMIN por SQL para el primer administrador.
             </div>
@@ -49,7 +52,7 @@
     {
         @if (!string.IsNullOrWhiteSpace(mensaje))
         {
-            <div class="notice-box @(exito ? "success" : "error")">
+            <div class="mo-alert @(exito ? "mo-alert-success" : "mo-alert-danger")">
                 @mensaje
             </div>
         }
@@ -62,24 +65,24 @@
                         Busque usuarios existentes en dbo.meax_all_user y agréguelos al sistema para asignarles roles aprobadores.
                     </p>
                 </div>
-                <span class="panel-badge">meax_all_user</span>
+                <span class="mo-badge mo-badge-primary">meax_all_user</span>
             </div>
 
             <div class="search-row">
-                <input class="form-control"
+                <input class="mo-form-control"
                        placeholder="Buscar por login, nombre, correo, departamento o puesto..."
                        @bind="busquedaMeax"
                        @bind:event="oninput" />
 
                 <button type="button"
-                        class="table-btn table-btn-primary"
+                        class="mo-btn mo-btn-primary"
                         disabled="@buscandoMeax"
                         @onclick="BuscarUsuariosMeaxAsync">
                     @(buscandoMeax ? "Buscando..." : "Buscar MEAX")
                 </button>
 
                 <button type="button"
-                        class="table-btn"
+                        class="mo-btn mo-btn-secondary"
                         @onclick="LimpiarBusquedaMeax">
                     Limpiar
                 </button>
@@ -110,7 +113,7 @@
                             </div>
 
                             <button type="button"
-                                    class="table-btn table-btn-primary"
+                                    class="mo-btn mo-btn-primary mo-btn-sm"
                                     disabled="@guardando"
                                     @onclick="() => AgregarUsuarioMeaxAsync(usuarioMeax)">
                                 Agregar / Add
@@ -136,23 +139,23 @@
                             Seleccione un usuario para administrar sus roles de aprobación.
                         </p>
                     </div>
-                    <span class="panel-badge">@usuarios.Count usuarios</span>
+                    <span class="mo-badge mo-badge-primary">@usuarios.Count usuarios</span>
                 </div>
 
                 <div class="search-row">
-                    <input class="form-control"
+                    <input class="mo-form-control"
                            placeholder="Buscar por nombre, usuario, correo o departamento..."
                            @bind="busqueda"
                            @bind:event="oninput" />
 
                     <button type="button"
-                            class="table-btn table-btn-primary"
+                            class="mo-btn mo-btn-primary"
                             @onclick="BuscarAsync">
                         Buscar
                     </button>
 
                     <button type="button"
-                            class="table-btn"
+                            class="mo-btn mo-btn-secondary"
                             @onclick="LimpiarBusquedaAsync">
                         Limpiar
                     </button>
@@ -188,25 +191,25 @@
                                     <div class="role-chip-list">
                                         @if (usuario.Roles.Count == 0)
                                         {
-                                            <span class="role-chip muted">Sin roles</span>
+                                            <span class="mo-badge mo-badge-secondary">Sin roles</span>
                                         }
                                         else
                                         {
                                             @foreach (var rol in usuario.Roles)
                                             {
-                                                <span class="role-chip">@NombreRol(rol)</span>
+                                                <span class="mo-badge mo-badge-primary">@NombreRol(rol)</span>
                                             }
                                         }
                                     </div>
                                 </div>
 
                                 <div class="user-actions">
-                                    <span class="status-pill @(usuario.Activo ? "ok" : "off")">
+                                    <span class="mo-badge @(usuario.Activo ? "mo-badge-success" : "mo-badge-secondary")">
                                         @(usuario.Activo ? "Activo" : "Inactivo")
                                     </span>
 
                                     <button type="button"
-                                            class="table-btn table-btn-primary"
+                                            class="mo-btn mo-btn-primary mo-btn-sm"
                                             @onclick="() => SeleccionarUsuario(usuario)">
                                         Administrar
                                     </button>
@@ -225,7 +228,7 @@
                             Marque los roles que este usuario podrá aprobar.
                         </p>
                     </div>
-                    <span class="panel-badge">Workflow</span>
+                    <span class="mo-badge mo-badge-primary">Workflow</span>
                 </div>
 
                 @if (usuarioSeleccionado is null)
@@ -242,7 +245,7 @@
                             <p>@usuarioSeleccionado.UserName</p>
                         </div>
 
-                        <span class="status-pill @(usuarioSeleccionado.Activo ? "ok" : "off")">
+                        <span class="mo-badge @(usuarioSeleccionado.Activo ? "mo-badge-success" : "mo-badge-secondary")">
                             @(usuarioSeleccionado.Activo ? "Activo" : "Inactivo")
                         </span>
                     </div>
@@ -257,7 +260,7 @@
                             <div class="role-check-list">
                                 @foreach (var rol in grupo.OrderBy(x => x.Orden))
                                 {
-                                    <label class="role-check">
+                                    <label class="role-check mo-form-check">
                                         <input type="checkbox"
                                                checked="@RolSeleccionado(rol.Codigo)"
                                                @onchange="e => CambiarRol(rol.Codigo, e)" />
@@ -274,14 +277,14 @@
 
                     <div class="admin-actions">
                         <button type="button"
-                                class="table-btn table-btn-primary"
+                                class="mo-btn mo-btn-primary"
                                 disabled="@guardando"
                                 @onclick="GuardarRolesAsync">
                             @(guardando ? "Guardando..." : "Guardar roles")
                         </button>
 
                         <button type="button"
-                                class="table-btn"
+                                class="mo-btn mo-btn-secondary"
                                 disabled="@guardando"
                                 @onclick="CambiarEstadoUsuarioAsync">
                             @(usuarioSeleccionado.Activo ? "Desactivar usuario" : "Activar usuario")

@@ -9,17 +9,20 @@
 <PageTitle>Editar solicitud de desviación</PageTitle>
 
 <div class="nueva-page">
-    <section class="nueva-hero">
-        <div>
-            <span class="nueva-kicker">Editar / Edit</span>
-            <h1>Editar solicitud de desviación / Edit Deviation Request</h1>
-            <p class="hero-text">
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">Editar / Edit</div>
+            <div id="mo-banner-title">Editar solicitud de desviación / Edit Deviation Request</div>
+            <div id="mo-banner-sub">
                 Actualiza la información y reenvía la solicitud al flujo de aprobación.
-            </p>
+            </div>
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="solicitudes/@SolicitudId">Volver / Back</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@SolicitudId">Volver / Back</a>
         </div>
     </section>
 
@@ -30,7 +33,7 @@
     else if (!string.IsNullOrWhiteSpace(mensajeInicial))
     {
         <section class="panel-card">
-            <div class="notice-box error">@mensajeInicial</div>
+            <div class="mo-alert mo-alert-danger">@mensajeInicial</div>
         </section>
     }
     else
@@ -44,43 +47,43 @@
                                 <h2>Información general / General Information</h2>
                                 <p class="panel-subtitle">Actualiza los datos principales.</p>
                             </div>
-                            <span class="panel-badge">Solicitud #@model.SolicitudId</span>
+                            <span class="mo-badge mo-badge-primary">Solicitud #@model.SolicitudId</span>
                         </div>
 
                         <div class="form-grid">
                             <div>
-                                <label class="form-label">Nombre del solicitante / Applicant Name</label>
-                                <InputText class="form-control" @bind-Value="model.NombreSolicitante" />
+                                <label class="mo-form-label">Nombre del solicitante / Applicant Name</label>
+                                <InputText class="mo-form-control" @bind-Value="model.NombreSolicitante" />
                             </div>
 
                             <div>
-                                <label class="form-label">Fecha / Date</label>
-                                <InputDate class="form-control" @bind-Value="model.FechaSolicitud" />
+                                <label class="mo-form-label">Fecha / Date</label>
+                                <InputDate class="mo-form-control" @bind-Value="model.FechaSolicitud" />
                             </div>
 
                             <div>
-                                <label class="form-label">Departamento solicitante / Requesting Department</label>
-                                <InputText class="form-control" @bind-Value="model.DepartamentoSolicitante" />
+                                <label class="mo-form-label">Departamento solicitante / Requesting Department</label>
+                                <InputText class="mo-form-control" @bind-Value="model.DepartamentoSolicitante" />
                             </div>
 
                             <div>
-                                <label class="form-label">Unidad de negocio afectada / Affected Business Unit</label>
-                                <InputText class="form-control" @bind-Value="model.UnidadNegocioAfectada" />
+                                <label class="mo-form-label">Unidad de negocio afectada / Affected Business Unit</label>
+                                <InputText class="mo-form-control" @bind-Value="model.UnidadNegocioAfectada" />
                             </div>
 
                             <div>
-                                <label class="form-label">Código de la línea / Line Code</label>
-                                <InputText class="form-control" @bind-Value="model.CodigoLinea" />
+                                <label class="mo-form-label">Código de la línea / Line Code</label>
+                                <InputText class="mo-form-control" @bind-Value="model.CodigoLinea" />
                             </div>
 
                             <div>
-                                <label class="form-label">Cliente(s) / Customer(s)</label>
-                                <InputText class="form-control" @bind-Value="model.Clientes" />
+                                <label class="mo-form-label">Cliente(s) / Customer(s)</label>
+                                <InputText class="mo-form-control" @bind-Value="model.Clientes" />
                             </div>
 
                             <div>
-                                <label class="form-label">Tipo de desviación / Deviation Type</label>
-                                <InputSelect class="form-select" @bind-Value="model.TipoDesviacionCodigo">
+                                <label class="mo-form-label">Tipo de desviación / Deviation Type</label>
+                                <InputSelect class="mo-form-select" @bind-Value="model.TipoDesviacionCodigo">
                                     @foreach (var tipo in tiposDesviacion)
                                     {
                                         <option value="@tipo.Codigo">@tipo.NombreEs / @tipo.NombreEn</option>
@@ -89,23 +92,23 @@
                             </div>
 
                             <div>
-                                <label class="form-label">Tiempo de vigencia / Validity Period</label>
-                                <InputDate class="form-control" @bind-Value="model.FechaVigencia" />
+                                <label class="mo-form-label">Tiempo de vigencia / Validity Period</label>
+                                <InputDate class="mo-form-control" @bind-Value="model.FechaVigencia" />
                             </div>
 
                             <div>
-                                <label class="form-label">Cantidad de piezas / Quantity of Pieces</label>
-                                <InputNumber class="form-control" @bind-Value="model.CantidadPiezas" />
+                                <label class="mo-form-label">Cantidad de piezas / Quantity of Pieces</label>
+                                <InputNumber class="mo-form-control" @bind-Value="model.CantidadPiezas" />
                             </div>
 
                             <div>
-                                <label class="form-label">Número de parte afectado / Affected Part Number</label>
-                                <InputText class="form-control" @bind-Value="model.NumeroParteAfectado" />
+                                <label class="mo-form-label">Número de parte afectado / Affected Part Number</label>
+                                <InputText class="mo-form-control" @bind-Value="model.NumeroParteAfectado" />
                             </div>
 
                             <div>
-                                <label class="form-label">Requisitos del proceso / Process Requirement</label>
-                                <InputSelect class="form-select" @bind-Value="model.RequisitoProcesoCodigo">
+                                <label class="mo-form-label">Requisitos del proceso / Process Requirement</label>
+                                <InputSelect class="mo-form-select" @bind-Value="model.RequisitoProcesoCodigo">
                                     <option value="">Seleccione / Select</option>
                                     @foreach (var requisito in requisitosProceso)
                                     {
@@ -117,29 +120,29 @@
                             @if (model.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
                             {
                                 <div>
-                                    <label class="form-label">Especifique otro / Specify other</label>
-                                    <InputText class="form-control" @bind-Value="model.RequisitoProcesoOtro" />
+                                    <label class="mo-form-label">Especifique otro / Specify other</label>
+                                    <InputText class="mo-form-control" @bind-Value="model.RequisitoProcesoOtro" />
                                 </div>
                             }
 
                             <div>
-                                <label class="form-label">CSR 1</label>
-                                <InputText class="form-control" @bind-Value="model.CSR1" />
+                                <label class="mo-form-label">CSR 1</label>
+                                <InputText class="mo-form-control" @bind-Value="model.CSR1" />
                             </div>
 
                             <div>
-                                <label class="form-label">CSR 2</label>
-                                <InputText class="form-control" @bind-Value="model.CSR2" />
+                                <label class="mo-form-label">CSR 2</label>
+                                <InputText class="mo-form-control" @bind-Value="model.CSR2" />
                             </div>
 
                             <div>
-                                <label class="form-label">CSR 3</label>
-                                <InputText class="form-control" @bind-Value="model.CSR3" />
+                                <label class="mo-form-label">CSR 3</label>
+                                <InputText class="mo-form-control" @bind-Value="model.CSR3" />
                             </div>
 
                             <div>
-                                <label class="form-label">¿Informar al cliente? / Inform customer?</label>
-                                <InputSelect class="form-select" @bind-Value="model.InformarCliente">
+                                <label class="mo-form-label">¿Informar al cliente? / Inform customer?</label>
+                                <InputSelect class="mo-form-select" @bind-Value="model.InformarCliente">
                                     <option value="false">No / No</option>
                                     <option value="true">Sí / Yes</option>
                                 </InputSelect>
@@ -147,8 +150,8 @@
                         </div>
 
                         <div class="mt-3">
-                            <label class="form-label">Razón / Reason</label>
-                            <InputTextArea class="form-control" rows="3" @bind-Value="model.RazonInformarCliente" />
+                            <label class="mo-form-label">Razón / Reason</label>
+                            <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.RazonInformarCliente" />
                         </div>
                     </section>
 
@@ -161,23 +164,23 @@
 
                         <div class="stack-fields">
                             <div>
-                                <label class="form-label">¿Cómo debe realizarse el proceso? / How should the process be performed?</label>
-                                <InputTextArea class="form-control" rows="3" @bind-Value="model.ComoDebeRealizarseProceso" />
+                                <label class="mo-form-label">¿Cómo debe realizarse el proceso? / How should the process be performed?</label>
+                                <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ComoDebeRealizarseProceso" />
                             </div>
 
                             <div>
-                                <label class="form-label">Controles actuales / Current controls</label>
-                                <InputTextArea class="form-control" rows="3" @bind-Value="model.ControlesOperacionActual" />
+                                <label class="mo-form-label">Controles actuales / Current controls</label>
+                                <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ControlesOperacionActual" />
                             </div>
 
                             <div>
-                                <label class="form-label">Proceso después del cambio temporal / Process after temporary change</label>
-                                <InputTextArea class="form-control" rows="3" @bind-Value="model.ProcesoDespuesCambioTemporal" />
+                                <label class="mo-form-label">Proceso después del cambio temporal / Process after temporary change</label>
+                                <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ProcesoDespuesCambioTemporal" />
                             </div>
 
                             <div>
-                                <label class="form-label">Controles durante el cambio / Controls during change</label>
-                                <InputTextArea class="form-control" rows="3" @bind-Value="model.ControlesDuranteCambio" />
+                                <label class="mo-form-label">Controles durante el cambio / Controls during change</label>
+                                <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ControlesDuranteCambio" />
                             </div>
                         </div>
                     </section>
@@ -190,23 +193,23 @@
                                     <h2>Análisis de riesgo / Risk Analysis</h2>
                                     <p class="panel-subtitle">Solo aplica para desviación crítica.</p>
                                 </div>
-                                <span class="panel-badge danger">Crítica / Critical</span>
+                                <span class="mo-badge mo-badge-danger">Crítica / Critical</span>
                             </div>
 
                             <div class="form-grid three">
                                 <div>
-                                    <label class="form-label">Severidad / Severity</label>
-                                    <InputNumber class="form-control" @bind-Value="model.SeveridadActual" min="1" max="10" />
+                                    <label class="mo-form-label">Severidad / Severity</label>
+                                    <InputNumber class="mo-form-control" @bind-Value="model.SeveridadActual" min="1" max="10" />
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Ocurrencia actual / Current occurrence</label>
-                                    <InputNumber class="form-control" @bind-Value="model.OcurrenciaActual" min="1" max="10" />
+                                    <label class="mo-form-label">Ocurrencia actual / Current occurrence</label>
+                                    <InputNumber class="mo-form-control" @bind-Value="model.OcurrenciaActual" min="1" max="10" />
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Detección actual / Current detection</label>
-                                    <InputNumber class="form-control" @bind-Value="model.DeteccionActual" min="1" max="10" />
+                                    <label class="mo-form-label">Detección actual / Current detection</label>
+                                    <InputNumber class="mo-form-control" @bind-Value="model.DeteccionActual" min="1" max="10" />
                                 </div>
                             </div>
 
@@ -214,13 +217,13 @@
 
                             <div class="form-grid two">
                                 <div>
-                                    <label class="form-label">Ocurrencia con cambio / Occurrence with Change</label>
-                                    <InputNumber class="form-control" @bind-Value="model.OcurrenciaConCambio" min="1" max="10" />
+                                    <label class="mo-form-label">Ocurrencia con cambio / Occurrence with Change</label>
+                                    <InputNumber class="mo-form-control" @bind-Value="model.OcurrenciaConCambio" min="1" max="10" />
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Detección con cambio / Detection with Change</label>
-                                    <InputNumber class="form-control" @bind-Value="model.DeteccionConCambio" min="1" max="10" />
+                                    <label class="mo-form-label">Detección con cambio / Detection with Change</label>
+                                    <InputNumber class="mo-form-control" @bind-Value="model.DeteccionConCambio" min="1" max="10" />
                                 </div>
                             </div>
                         </section>
@@ -235,19 +238,19 @@
 
                         <div class="stack-fields">
                             <div>
-                                <label class="form-label">Descripción de acciones / Action Description</label>
-                                <InputTextArea class="form-control" rows="4" @bind-Value="model.DescripcionAccion" />
+                                <label class="mo-form-label">Descripción de acciones / Action Description</label>
+                                <InputTextArea class="mo-form-control" rows="4" @bind-Value="model.DescripcionAccion" />
                             </div>
 
                             <div class="form-grid two">
                                 <div>
-                                    <label class="form-label">Responsable / Owner</label>
-                                    <InputText class="form-control" @bind-Value="model.ResponsableAccion" />
+                                    <label class="mo-form-label">Responsable / Owner</label>
+                                    <InputText class="mo-form-control" @bind-Value="model.ResponsableAccion" />
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Fecha compromiso / Commitment Date</label>
-                                    <InputDate class="form-control" @bind-Value="model.FechaCompromisoAccion" />
+                                    <label class="mo-form-label">Fecha compromiso / Commitment Date</label>
+                                    <InputDate class="mo-form-control" @bind-Value="model.FechaCompromisoAccion" />
                                 </div>
                             </div>
                         </div>
@@ -265,10 +268,10 @@
 
                         @if (!string.IsNullOrWhiteSpace(mensaje))
                         {
-                            <div class="notice-box error">@mensaje</div>
+                            <div class="mo-alert mo-alert-danger">@mensaje</div>
                         }
 
-                        <button class="table-btn table-btn-primary w-100" type="submit" disabled="@guardando">
+                        <button class="mo-btn mo-btn-primary w-100" type="submit" disabled="@guardando">
                             @(guardando ? "Guardando..." : "Guardar y reenviar / Save and resubmit")
                         </button>
                     </section>

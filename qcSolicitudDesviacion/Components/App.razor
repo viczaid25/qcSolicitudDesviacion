@@ -11,18 +11,25 @@
     <base href="@BaseHref" />
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="app.css" />
+    @* Montserrat auto-hospedada + design system MEAX One (mo-*). El orden
+       importa: van después de app.css para que sus variables/estilos
+       tengan prioridad donde ambos definan lo mismo. *@
+    <link rel="stylesheet" href="css/meaxone-fonts.css" />
+    <link rel="stylesheet" href="css/meaxone-template.css" />
+    <link rel="stylesheet" href="css/meaxone-app.css" />
     <link rel="stylesheet" href="qcSolicitudDesviacion.styles.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <HeadOutlet />
 </head>
 
-<body>
+<body class="mo-body">
     <Routes />
     <script src="lib/html2canvas/html2canvas.min.js"></script>
     <script>
         window.html2canvas || document.write('<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script>');
     </script>
     <script src="js/qcDesvShare.js"></script>
+    <script src="js/meaxone-app.js"></script>
     <script src="_framework/blazor.web.js"></script>
 
     @if (!AuthMode.DevLoginActivo && !string.IsNullOrWhiteSpace(HubBaseUrl))

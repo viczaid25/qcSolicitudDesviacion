@@ -1,93 +1,105 @@
-﻿<div class="nav-menu-root">
-    <input type="checkbox" id="qc-nav-toggle" title="Navigation menu" class="nav-toggle" />
+<aside id="mo-sidebar">
+    <nav id="mo-sb-nav">
+        <div class="mo-sb-section-label">Principal / Main</div>
 
-    <div class="top-row navbar navbar-dark">
-        <div class="container-fluid">
-            <label for="qc-nav-toggle" class="navbar-toggler">
-                <span></span>
-            </label>
-        </div>
-    </div>
+        <NavLink class="mo-sb-item" href="" Match="NavLinkMatch.All" title="Inicio">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 11.5 12 4l9 7.5" />
+                    <path d="M5.5 10v9a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 0 0 0 1-1v-9" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Inicio</span>
+                <span class="mo-sb-label-sub">Home</span>
+            </span>
+        </NavLink>
 
-    <div class="nav-scrollable">
-        <div class="nav-shell">
-            <nav class="qc-nav">
-                <div class="nav-section-title">Principal / Main</div>
+        <div class="mo-sb-section-label">Desviaciones / Deviations</div>
 
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="" Match="NavLinkMatch.All" title="Inicio">
-                        <span class="bi bi-house-door-fill-nav-menu nav-icon" aria-hidden="true"></span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Inicio</span>
-                            <span class="nav-sub-text">Home</span>
-                        </span>
-                    </NavLink>
-                </div>
+        <NavLink class="mo-sb-item" href="solicitudes" Match="NavLinkMatch.All" title="Mis Solicitudes">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="4" width="12" height="17" rx="2" />
+                    <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" />
+                    <path d="M9 11h6M9 14h6M9 17h4" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Mis Solicitudes</span>
+                <span class="mo-sb-label-sub">My Requests</span>
+            </span>
+        </NavLink>
 
-                <div class="nav-section-title">Desviaciones / Deviations</div>
+        <NavLink class="mo-sb-item" href="solicitudes/crear" title="Nueva desviación">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3.5" y="3.5" width="17" height="17" rx="3" />
+                    <path d="M12 8v8M8 12h8" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Nueva desviación</span>
+                <span class="mo-sb-label-sub">New Deviation</span>
+            </span>
+        </NavLink>
 
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="solicitudes" Match="NavLinkMatch.All" title="Mis Solicitudes">
-                        <span class="bi bi-list-nested-nav-menu nav-icon" aria-hidden="true"></span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Mis Solicitudes</span>
-                            <span class="nav-sub-text">My Requests</span>
-                        </span>
-                    </NavLink>
-                </div>
+        <NavLink class="mo-sb-item" href="desviaciones" title="Desviaciones">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3.5" y="3.5" width="7" height="7" rx="1.2" />
+                    <rect x="13.5" y="3.5" width="7" height="7" rx="1.2" />
+                    <rect x="3.5" y="13.5" width="7" height="7" rx="1.2" />
+                    <rect x="13.5" y="13.5" width="7" height="7" rx="1.2" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Desviaciones</span>
+                <span class="mo-sb-label-sub">Deviations</span>
+            </span>
+        </NavLink>
 
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="solicitudes/crear" title="Nueva desviación">
-                        <span class="bi bi-plus-square-fill-nav-menu nav-icon" aria-hidden="true"></span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Nueva desviación</span>
-                            <span class="nav-sub-text">New Deviation</span>
-                        </span>
-                    </NavLink>
-                </div>
+        <NavLink class="mo-sb-item" href="solicitudes/aprobadas" title="Desviaciones aprobadas">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="8.5" />
+                    <path d="M8.5 12.3l2.3 2.3 4.7-5" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Aprobadas</span>
+                <span class="mo-sb-label-sub">Approved</span>
+            </span>
+        </NavLink>
 
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="desviaciones" title="Desviaciones">
-                        <span class="bi bi-list-nested-nav-menu nav-icon" aria-hidden="true"></span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Desviaciones</span>
-                            <span class="nav-sub-text">Deviations</span>
-                        </span>
-                    </NavLink>
-                </div>
+        <div class="mo-sb-section-label">Flujo / Workflow</div>
 
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="solicitudes/aprobadas" title="Desviaciones aprobadas">
-                        <span class="bi bi-check2-square-nav-menu nav-icon" aria-hidden="true"></span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Aprobadas</span>
-                            <span class="nav-sub-text">Approved</span>
-                        </span>
-                    </NavLink>
-                </div>
+        <NavLink class="mo-sb-item" href="aprobaciones/pendientes" title="Aprobaciones">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="4" width="12" height="17" rx="2" />
+                    <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" />
+                    <path d="M9.5 12.5l1.8 1.8 3.2-3.6" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Aprobaciones</span>
+                <span class="mo-sb-label-sub">Approvals</span>
+            </span>
+        </NavLink>
 
-                <div class="nav-section-title">Flujo / Workflow</div>
-
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="aprobaciones/pendientes" title="Aprobaciones">
-                        <span class="bi bi-check2-square-nav-menu nav-icon" aria-hidden="true"></span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Aprobaciones</span>
-                            <span class="nav-sub-text">Approvals</span>
-                        </span>
-                    </NavLink>
-                </div>
-
-                <div class="nav-item">
-                    <NavLink class="qc-nav-link" href="admin/aprobadores" title="Administrar aprobadores">
-                        <span class="nav-icon" aria-hidden="true">✓</span>
-                        <span class="nav-text">
-                            <span class="nav-main-text">Aprobadores</span>
-                            <span class="nav-sub-text">Approvers</span>
-                        </span>
-                    </NavLink>
-                </div>
-            </nav>
-        </div>
-    </div>
-</div>
+        <NavLink class="mo-sb-item" href="admin/aprobadores" title="Administrar aprobadores">
+            <span class="mo-sb-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9.5" cy="8" r="3.3" />
+                    <path d="M3.5 20c.6-3.6 3.2-6 6-6s5.4 2.4 6 6" />
+                    <path d="M15.5 12.5l1.6 1.6 3-3.4" />
+                </svg>
+            </span>
+            <span class="mo-sb-label">
+                <span class="mo-sb-label-main">Aprobadores</span>
+                <span class="mo-sb-label-sub">Approvers</span>
+            </span>
+        </NavLink>
+    </nav>
+</aside>

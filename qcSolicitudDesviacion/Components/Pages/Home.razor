@@ -6,15 +6,18 @@
 <PageTitle>Inicio - Solicitud de Desviación</PageTitle>
 
 <div class="index-page">
-    <section class="index-hero">
-        <div>
-            <span class="index-kicker">Sistema de desviaciones / Deviation System</span>
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
 
-            <h1>Solicitud de Desviación</h1>
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">Sistema de desviaciones / Deviation System</div>
 
-            <p class="hero-text">
+            <div id="mo-banner-title">Solicitud de Desviación</div>
+
+            <div id="mo-banner-sub">
                 Controla solicitudes de desviación, aprobaciones, extensiones y cierre desde un solo lugar.
-            </p>
+            </div>
 
             <div class="hero-meta">
                 <span class="meta-chip">Solicitudes / Requests</span>
@@ -25,11 +28,11 @@
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn primary" href="solicitudes/crear">
+            <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
                 Nueva desviación / New Deviation
             </a>
 
-            <a class="hero-btn" href="desviaciones">
+            <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">
                 Ver desviaciones / View Deviations
             </a>
         </div>
@@ -102,7 +105,9 @@
                             </div>
 
                             <div class="recent-meta">
-                                <span class="status-pill">@item.EstadoSolicitudEs</span>
+                                <span class="mo-badge @QcDesvEstadoBadge.ClaseSolicitud(item.EstadoSolicitudCodigo)">
+                                    <span class="mo-badge-dot"></span>@item.EstadoSolicitudEs
+                                </span>
                                 <small>Vigencia: @item.FechaVigencia.ToString("yyyy-MM-dd")</small>
                             </div>
                         </a>

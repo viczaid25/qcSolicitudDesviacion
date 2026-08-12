@@ -20,17 +20,20 @@
     }
     else
     {
-        <section class="nueva-hero">
-            <div>
-                <span class="nueva-kicker">Cancelar / Cancel</span>
-                <h1>Cancelar solicitud #@solicitud.Id</h1>
-                <p class="hero-text">
+        <section id="mo-banner">
+            <div class="mo-banner-orb mo-banner-orb-1"></div>
+            <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+            <div id="mo-banner-content">
+                <div id="mo-banner-tag">Cancelar / Cancel</div>
+                <div id="mo-banner-title">Cancelar solicitud #@solicitud.Id</div>
+                <div id="mo-banner-sub">
                     Esta acción marcará la solicitud como cancelada.
-                </p>
+                </div>
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="solicitudes/@solicitud.Id">Volver / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id">Volver / Back</a>
             </div>
         </section>
 
@@ -45,16 +48,16 @@
 
                 <div class="stack-fields">
                     <div>
-                        <label class="form-label">Comentario / Comment</label>
-                        <textarea class="form-control" rows="5" @bind="comentario"></textarea>
+                        <label class="mo-form-label">Comentario / Comment</label>
+                        <textarea class="mo-form-control" rows="5" @bind="comentario"></textarea>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(mensaje))
                     {
-                        <div class="notice-box error">@mensaje</div>
+                        <div class="mo-alert mo-alert-danger">@mensaje</div>
                     }
 
-                    <button class="table-btn danger" disabled="@procesando" @onclick="CancelarAsync">
+                    <button class="mo-btn mo-btn-danger" disabled="@procesando" @onclick="CancelarAsync">
                         @(procesando ? "Cancelando..." : "Cancelar solicitud / Cancel request")
                     </button>
                 </div>

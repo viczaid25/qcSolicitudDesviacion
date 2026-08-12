@@ -20,16 +20,19 @@
             <div class="empty-state compact">
                 <div class="empty-title">Solicitud no encontrada / Request not found</div>
                 <p class="empty-text">No existe una solicitud con el ID indicado.</p>
-                <a class="table-btn table-btn-primary mt-3" href="desviaciones">Volver / Back</a>
+                <a class="mo-btn mo-btn-primary mt-3" href="desviaciones">Volver / Back</a>
             </div>
         </section>
     }
     else
     {
-        <section class="nueva-hero">
-            <div>
-                <span class="nueva-kicker">Desviación #@solicitud.Id</span>
-                <h1>@solicitud.NumeroParteAfectado</h1>
+        <section id="mo-banner">
+            <div class="mo-banner-orb mo-banner-orb-1"></div>
+            <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+            <div id="mo-banner-content">
+                <div id="mo-banner-tag">Desviación #@solicitud.Id</div>
+                <div id="mo-banner-title">@solicitud.NumeroParteAfectado</div>
 
                 <div class="hero-meta">
                     <span class="meta-chip">@solicitud.TipoDesviacion?.NombreEs / @solicitud.TipoDesviacion?.NombreEn</span>
@@ -38,38 +41,38 @@
                     <span class="meta-chip">Extensiones: @solicitud.NumeroExtensionActual / 2</span>
                 </div>
 
-                <p class="hero-text">
+                <div id="mo-banner-sub">
                     Solicitante: @solicitud.NombreSolicitante | Cliente(s): @solicitud.Clientes
-                </p>
+                </div>
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="desviaciones">Volver / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">Volver / Back</a>
 
                 @if (PuedeEditar)
                 {
-                    <a class="hero-btn" href="solicitudes/@solicitud.Id/editar">
+                    <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id/editar">
                         Editar / Edit
                     </a>
                 }
 
                 @if (PuedeCancelar)
                 {
-                    <a class="hero-btn danger" href="solicitudes/@solicitud.Id/cancelar">
+                    <a class="mo-btn mo-btn-danger" href="solicitudes/@solicitud.Id/cancelar">
                         Cancelar / Cancel
                     </a>
                 }
 
                 @if (PuedeSolicitarExtension)
                 {
-                    <a class="hero-btn" href="solicitudes/@solicitud.Id/extension">
+                    <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id/extension">
                         Extensión / Extension
                     </a>
                 }
 
                 @if (PuedeCerrar)
                 {
-                    <a class="hero-btn primary" href="solicitudes/@solicitud.Id/cerrar">
+                    <a class="mo-btn mo-btn-primary" href="solicitudes/@solicitud.Id/cerrar">
                         Cerrar / Close
                     </a>
                 }
@@ -84,7 +87,7 @@
                             <h2>Información general / General Information</h2>
                             <p class="panel-subtitle">Datos completos de la solicitud de desviación.</p>
                         </div>
-                        <span class="panel-badge">Solicitud #@solicitud.Id</span>
+                        <span class="mo-badge mo-badge-primary">Solicitud #@solicitud.Id</span>
                     </div>
 
                     <div class="info-grid">
@@ -256,11 +259,11 @@
 
                         @if (solicitud.AnalisisRiesgo is not null)
                         {
-                            <span class="panel-badge danger">Crítica / Critical</span>
+                            <span class="mo-badge mo-badge-danger">Crítica / Critical</span>
                         }
                         else
                         {
-                            <span class="panel-badge">No aplica / N/A</span>
+                            <span class="mo-badge mo-badge-secondary">No aplica / N/A</span>
                         }
                     </div>
 
@@ -334,7 +337,7 @@
                             <h2>Acciones / Actions</h2>
                             <p class="panel-subtitle">Acciones propuestas o registradas para la desviación.</p>
                         </div>
-                        <span class="panel-badge">@solicitud.Acciones.Count acción(es)</span>
+                        <span class="mo-badge mo-badge-primary">@solicitud.Acciones.Count acción(es)</span>
                     </div>
 
                     @if (!solicitud.Acciones.Any())
@@ -389,7 +392,7 @@
                             <h2>Extensiones / Extensions</h2>
                             <p class="panel-subtitle">Historial de extensiones solicitadas para la desviación.</p>
                         </div>
-                        <span class="panel-badge">@solicitud.Extensiones.Count extensión(es)</span>
+                        <span class="mo-badge mo-badge-primary">@solicitud.Extensiones.Count extensión(es)</span>
                     </div>
 
                     @if (!solicitud.Extensiones.Any())
@@ -399,7 +402,7 @@
                     else
                     {
                         <div class="table-wrap">
-                            <table class="mini-table">
+                            <table class="mo-table mini-table">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -419,7 +422,7 @@
                                             <td>@FormatDate(ext.FechaVigenciaAnterior)</td>
                                             <td>@FormatDate(ext.NuevaFechaVigencia)</td>
                                             <td>
-                                                <span class="status-pill">@ext.EstadoExtensionCodigo</span>
+                                                <span class="mo-badge @QcDesvEstadoBadge.ClaseExtension(ext.EstadoExtensionCodigo)">@ext.EstadoExtensionCodigo</span>
                                             </td>
                                             <td>@Texto(ext.RazonExtension)</td>
                                             <td>@FormatDateTime(ext.FechaSolicitud)</td>
@@ -483,7 +486,7 @@
                             <h2>Aprobaciones / Approvals</h2>
                             <p class="panel-subtitle">Agrupadas por solicitud inicial y extensiones.</p>
                         </div>
-                        <span class="panel-badge">@solicitud.Aprobaciones.Count</span>
+                        <span class="mo-badge mo-badge-primary">@solicitud.Aprobaciones.Count</span>
                     </div>
 
                     @if (!solicitud.Aprobaciones.Any())
@@ -514,13 +517,13 @@
                                                 </div>
 
                                                 <div class="approval-status-line">
-                                                    <span class="status-dot @ApprovalStatusClass(aprobacion.EstadoAprobacionCodigo)">
+                                                    <span class="mo-badge @QcDesvEstadoBadge.ClaseAprobacion(aprobacion.EstadoAprobacionCodigo)">
                                                         @TextoAprobacion(aprobacion)
                                                     </span>
 
                                                     @if (aprobacion.EsPasoActual)
                                                     {
-                                                        <span class="current-chip">Actual / Current</span>
+                                                        <span class="mo-badge mo-badge-primary">Actual / Current</span>
                                                     }
                                                 </div>
 
@@ -549,7 +552,7 @@
                             <h2>Archivos / Files</h2>
                             <p class="panel-subtitle">Adjuntos relacionados con la solicitud.</p>
                         </div>
-                        <span class="panel-badge">@solicitud.Archivos.Count</span>
+                        <span class="mo-badge mo-badge-primary">@solicitud.Archivos.Count</span>
                     </div>
 
                     @if (!solicitud.Archivos.Any())
@@ -576,7 +579,7 @@
                             <h2>Historial / History</h2>
                             <p class="panel-subtitle">Movimientos de la desviación.</p>
                         </div>
-                        <span class="panel-badge">@solicitud.Historiales.Count</span>
+                        <span class="mo-badge mo-badge-primary">@solicitud.Historiales.Count</span>
                     </div>
 
                     @if (!solicitud.Historiales.Any())
@@ -749,18 +752,6 @@
     private static string TextoAprobacion(QcDesvAprobacion aprobacion)
     {
         return aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo;
-    }
-
-    private static string ApprovalStatusClass(string estadoCodigo)
-    {
-        return estadoCodigo switch
-        {
-            QcDesvCodigos.EstadoAprobacion.Aprobado => "approved",
-            QcDesvCodigos.EstadoAprobacion.Rechazado => "rejected",
-            QcDesvCodigos.EstadoAprobacion.Cancelado => "cancelled",
-            QcDesvCodigos.EstadoAprobacion.Omitido => "skipped",
-            _ => "pending"
-        };
     }
 
     private sealed class GrupoAprobacionesDetalle

@@ -7,25 +7,28 @@
 <PageTitle>Mis solicitudes</PageTitle>
 
 <div class="nueva-page">
-    <section class="nueva-hero">
-        <div>
-            <span class="nueva-kicker">qcSolicitudDesviacion</span>
-            <h1>Mis solicitudes / My Requests</h1>
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">qcSolicitudDesviacion</div>
+            <div id="mo-banner-title">Mis solicitudes / My Requests</div>
             <div class="hero-meta">
                 <span class="meta-chip">Control de proceso / Process Control</span>
                 <span class="meta-chip">Aprobaciones / Approvals</span>
                 <span class="meta-chip">Extensiones / Extensions</span>
             </div>
-            <p class="hero-text">
+            <div id="mo-banner-sub">
                 Consulta, revisa y da seguimiento a las solicitudes de desviación que has registrado.
-            </p>
+            </div>
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn primary" href="solicitudes/crear">
+            <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
                 Nueva solicitud / New request
             </a>
-            <a class="hero-btn" href="aprobaciones/pendientes">
+            <a class="mo-btn mo-btn-secondary-outline" href="aprobaciones/pendientes">
                 Aprobaciones / Approvals
             </a>
         </div>
@@ -37,11 +40,13 @@
                 <h2>Listado de mis solicitudes / My request list</h2>
                 <p class="panel-subtitle">Solicitudes registradas por ti en el sistema.</p>
             </div>
-            <span class="panel-badge">@SolicitudesFiltradas.Count() registros</span>
+            <span class="mo-badge mo-badge-primary">
+                <span class="mo-badge-dot"></span>@SolicitudesFiltradas.Count() registros
+            </span>
         </div>
 
         <div class="toolbar-actions mb-3">
-            <input class="form-control search-input"
+            <input class="mo-form-control search-input"
                    placeholder="Buscar por ID, línea, BU, cliente o estado..."
                    @bind="filtro"
                    @bind:event="oninput" />
@@ -62,8 +67,8 @@
         }
         else
         {
-            <div class="table-wrap">
-                <table class="procesos-table">
+            <div class="mo-table-wrap table-wrap">
+                <table class="mo-table procesos-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -99,19 +104,21 @@
                                     <div class="cell-title">@item.RequisitoProcesoEs</div>
                                 </td>
                                 <td>
-                                    <span class="type-pill @(item.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica ? "critical" : "standard")">
-                                        @item.TipoDesviacionEs / @item.TipoDesviacionEn
+                                    <span class="mo-badge @(item.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica ? "mo-badge-danger" : "mo-badge-secondary")">
+                                        <span class="mo-badge-dot"></span>@item.TipoDesviacionEs / @item.TipoDesviacionEn
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="status-pill">@item.EstadoSolicitudEs</span>
+                                    <span class="mo-badge @QcDesvEstadoBadge.ClaseSolicitud(item.EstadoSolicitudCodigo)">
+                                        <span class="mo-badge-dot"></span>@item.EstadoSolicitudEs
+                                    </span>
                                 </td>
                                 <td>
                                     <div class="cell-title">@item.FechaVigencia.ToString("yyyy-MM-dd")</div>
                                     <div class="cell-subtitle">Extensiones: @item.NumeroExtensionActual</div>
                                 </td>
                                 <td class="text-end">
-                                    <a class="table-btn table-btn-primary" href="solicitudes/@item.SolicitudId">
+                                    <a class="mo-btn mo-btn-primary mo-btn-sm" href="solicitudes/@item.SolicitudId">
                                         Ver / View
                                     </a>
                                 </td>

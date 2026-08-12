@@ -1,20 +1,17 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-<div class="page">
-    <DevModeBanner />
-    <TopBar />
+<TopBar />
 
-    <div class="body-row">
-        <div class="sidebar">
-            <NavMenu />
-        </div>
+<div id="mo-content-area">
+    <NavMenu />
 
-        <main>
-            <article class="content px-4">
-                @Body
-            </article>
-        </main>
-    </div>
+    <main id="mo-main">
+        <DevModeBanner />
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
 </div>
 
 <div id="blazor-error-ui">

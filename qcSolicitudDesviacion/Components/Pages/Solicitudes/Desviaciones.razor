@@ -6,20 +6,23 @@
 <PageTitle>Desviaciones</PageTitle>
 
 <div class="desv-page">
-    <section class="nueva-hero">
-        <div>
-            <span class="nueva-kicker">Todas las desviaciones / All deviations</span>
-            <h1>Desviaciones / Deviations</h1>
-            <p class="hero-text">
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">Todas las desviaciones / All deviations</div>
+            <div id="mo-banner-title">Desviaciones / Deviations</div>
+            <div id="mo-banner-sub">
                 Consulta todas las desviaciones registradas por cualquier solicitante, con su estado de vigencia.
-            </p>
+            </div>
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="solicitudes">
+            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes">
                 Mis solicitudes / My Requests
             </a>
-            <a class="hero-btn primary" href="solicitudes/crear">
+            <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
                 Nueva desviación / New Deviation
             </a>
         </div>
@@ -32,21 +35,23 @@
                 <p class="panel-subtitle">Todas las desviaciones, con las completadas primero.</p>
             </div>
 
-            <span class="panel-badge">@SolicitudesFiltradas.Count() registros</span>
+            <span class="mo-badge mo-badge-primary">
+                <span class="mo-badge-dot"></span>@SolicitudesFiltradas.Count() registros
+            </span>
         </div>
 
         <div class="desv-filters">
             <div class="field-with-help">
-                <label class="form-label">Buscar / Search</label>
-                <input class="form-control"
+                <label class="mo-form-label">Buscar / Search</label>
+                <input class="mo-form-control"
                        placeholder="ID, línea, BU, cliente, solicitante..."
                        @bind="filtro"
                        @bind:event="oninput" />
             </div>
 
             <div class="field-with-help">
-                <label class="form-label">Estado / Status</label>
-                <select class="form-select" @bind="estadoFiltro">
+                <label class="mo-form-label">Estado / Status</label>
+                <select class="mo-form-select" @bind="estadoFiltro">
                     <option value="">Todas / All</option>
                     <option value="COMPLETADAS">Completadas / Closed</option>
                     <option value="VENCIDAS">Vencidas / Expired</option>
@@ -117,19 +122,19 @@
                         </div>
 
                         <div class="desv-side">
-                            <span class="status-pill @EstadoVigenciaClass(item)">
-                                @EstadoVigenciaTexto(item)
+                            <span class="mo-badge @EstadoVigenciaBadgeClase(item)">
+                                <span class="mo-badge-dot"></span>@EstadoVigenciaTexto(item)
                             </span>
 
                             @if (EsCompartible(item))
                             {
-                                <a class="table-btn table-btn-primary"
+                                <a class="mo-btn mo-btn-primary mo-btn-sm"
                                    href="solicitudes/@item.SolicitudId/compartir">
                                     Ver ficha / Share Card
                                 </a>
                             }
 
-                            <a class="table-btn"
+                            <a class="mo-btn mo-btn-secondary-outline mo-btn-sm"
                                href="solicitudes/@item.SolicitudId">
                                 Detalle / Detail
                             </a>
@@ -249,6 +254,18 @@
         }
 
         return "Vigente / Active";
+    }
+
+    private static string EstadoVigenciaBadgeClase(QcDesvSolicitudResumen solicitud)
+    {
+        return EstadoVigenciaClass(solicitud) switch
+        {
+            "closed" => "mo-badge-secondary",
+            "expired" => "mo-badge-danger",
+            "expiring" => "mo-badge-warning",
+            "inactive" => "mo-badge-secondary",
+            _ => "mo-badge-success"
+        };
     }
 
     private static string EstadoVigenciaClass(QcDesvSolicitudResumen solicitud)

@@ -22,17 +22,20 @@
     }
     else
     {
-        <section class="nueva-hero">
-            <div>
-                <span class="nueva-kicker">Extensión / Extension</span>
-                <h1>Solicitar extensión de desviación #@solicitud.Id</h1>
-                <p class="hero-text">
+        <section id="mo-banner">
+            <div class="mo-banner-orb mo-banner-orb-1"></div>
+            <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+            <div id="mo-banner-content">
+                <div id="mo-banner-tag">Extensión / Extension</div>
+                <div id="mo-banner-title">Solicitar extensión de desviación #@solicitud.Id</div>
+                <div id="mo-banner-sub">
                     Puedes solicitar máximo 2 extensiones y la vigencia no puede exceder 6 meses desde la creación.
-                </p>
+                </div>
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="solicitudes/@solicitud.Id">Volver / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id">Volver / Back</a>
             </div>
         </section>
 
@@ -49,16 +52,16 @@
 
                         <div class="stack-fields">
                             <div>
-                                <label class="form-label">Nueva fecha de vigencia / New Validity Date</label>
-                                <InputDate class="form-control" @bind-Value="model.NuevaFechaVigencia" />
+                                <label class="mo-form-label">Nueva fecha de vigencia / New Validity Date</label>
+                                <InputDate class="mo-form-control" @bind-Value="model.NuevaFechaVigencia" />
                                 <div class="field-help">
                                     Fecha máxima permitida: @FechaMaxima.ToString("yyyy-MM-dd")
                                 </div>
                             </div>
 
                             <div>
-                                <label class="form-label">Razón de la extensión / Extension Reason</label>
-                                <InputTextArea class="form-control" rows="5" @bind-Value="model.RazonExtension" />
+                                <label class="mo-form-label">Razón de la extensión / Extension Reason</label>
+                                <InputTextArea class="mo-form-control" rows="5" @bind-Value="model.RazonExtension" />
                             </div>
                         </div>
                     </section>
@@ -91,7 +94,7 @@
 
                             @if (rolesAprobadores.Count == 0)
                             {
-                                <div class="notice-box error">
+                                <div class="mo-alert mo-alert-danger">
                                     No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
                                 </div>
                             }
@@ -117,7 +120,7 @@
                                             else
                                             {
                                                 <InputSelect TValue="int?"
-                                                             class="form-select"
+                                                             class="mo-form-select"
                                                              @bind-Value="rol.UsuarioSeleccionadoId">
                                                     <option value="">Seleccione aprobador / Select approver</option>
 
@@ -137,11 +140,11 @@
 
                         @if (!string.IsNullOrWhiteSpace(mensaje))
                         {
-                            <div class="notice-box error">@mensaje</div>
+                            <div class="mo-alert mo-alert-danger">@mensaje</div>
                         }
 
                         <div class="submit-panel-inner">
-                            <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                            <button class="mo-btn mo-btn-primary" type="submit" disabled="@guardando">
                                 @(guardando ? "Enviando..." : "Solicitar extensión / Request extension")
                             </button>
                         </div>

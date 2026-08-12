@@ -21,17 +21,20 @@
     }
     else
     {
-        <section class="nueva-hero">
-            <div>
-                <span class="nueva-kicker">Cierre / Closure</span>
-                <h1>Cerrar desviación #@solicitud.Id</h1>
-                <p class="hero-text">
+        <section id="mo-banner">
+            <div class="mo-banner-orb mo-banner-orb-1"></div>
+            <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+            <div id="mo-banner-content">
+                <div id="mo-banner-tag">Cierre / Closure</div>
+                <div id="mo-banner-title">Cerrar desviación #@solicitud.Id</div>
+                <div id="mo-banner-sub">
                     Capture los datos de control para cerrar la desviación.
-                </p>
+                </div>
             </div>
 
             <div class="hero-actions">
-                <a class="hero-btn" href="solicitudes/@solicitud.Id">Volver / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id">Volver / Back</a>
             </div>
         </section>
 
@@ -47,31 +50,31 @@
                 <EditForm Model="@model" OnValidSubmit="@GuardarAsync">
                     <div class="stack-fields">
                         <div>
-                            <label class="form-label">Lote de inicio / Start Lot Number</label>
-                            <InputText class="form-control" @bind-Value="model.NumeroLoteInicio" />
+                            <label class="mo-form-label">Lote de inicio / Start Lot Number</label>
+                            <InputText class="mo-form-control" @bind-Value="model.NumeroLoteInicio" />
                         </div>
 
                         <div>
-                            <label class="form-label">Case de inicio / Start Case Number</label>
-                            <InputText class="form-control" @bind-Value="model.NumeroCaseInicio" />
+                            <label class="mo-form-label">Case de inicio / Start Case Number</label>
+                            <InputText class="mo-form-control" @bind-Value="model.NumeroCaseInicio" />
                         </div>
 
                         <div>
-                            <label class="form-label">Lote final / Final Lot Number</label>
-                            <InputText class="form-control" @bind-Value="model.NumeroLoteFinal" />
+                            <label class="mo-form-label">Lote final / Final Lot Number</label>
+                            <InputText class="mo-form-control" @bind-Value="model.NumeroLoteFinal" />
                         </div>
 
                         <div>
-                            <label class="form-label">Case final / Final Case Number</label>
-                            <InputText class="form-control" @bind-Value="model.NumeroCaseFinal" />
+                            <label class="mo-form-label">Case final / Final Case Number</label>
+                            <InputText class="mo-form-control" @bind-Value="model.NumeroCaseFinal" />
                         </div>
 
                         @if (!string.IsNullOrWhiteSpace(mensaje))
                         {
-                            <div class="notice-box error">@mensaje</div>
+                            <div class="mo-alert mo-alert-danger">@mensaje</div>
                         }
 
-                        <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                        <button class="mo-btn mo-btn-primary" type="submit" disabled="@guardando">
                             @(guardando ? "Cerrando..." : "Cerrar desviación / Close deviation")
                         </button>
                     </div>

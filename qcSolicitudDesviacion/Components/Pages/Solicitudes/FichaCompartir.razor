@@ -32,7 +32,7 @@
             </div>
 
             <div class="share-toolbar">
-                <a class="table-btn" href="solicitudes/@Id">Volver al detalle / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@Id">Volver al detalle / Back</a>
             </div>
         </section>
     }
@@ -40,29 +40,29 @@
     {
         <section class="share-toolbar no-print">
             <div class="toolbar-group">
-                <a class="table-btn" href="solicitudes/aprobadas">
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/aprobadas">
                     Aprobadas / Approved
                 </a>
 
-                <a class="table-btn" href="solicitudes/@Id">
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@Id">
                     Detalle / Detail
                 </a>
             </div>
 
             <div class="toolbar-group">
-                <button type="button" class="table-btn" @onclick="CopiarLinkAsync">
+                <button type="button" class="mo-btn mo-btn-secondary-outline" @onclick="CopiarLinkAsync">
                     Copiar enlace / Copy Link
                 </button>
 
-                <button type="button" class="table-btn" @onclick="ImprimirAsync">
+                <button type="button" class="mo-btn mo-btn-secondary-outline" @onclick="ImprimirAsync">
                     Imprimir / Print
                 </button>
 
-                <button type="button" class="table-btn" @onclick="DescargarImagenAsync">
+                <button type="button" class="mo-btn mo-btn-secondary-outline" @onclick="DescargarImagenAsync">
                     Descargar PNG / Download PNG
                 </button>
 
-                <button type="button" class="table-btn table-btn-primary" @onclick="CompartirImagenAsync">
+                <button type="button" class="mo-btn mo-btn-primary" @onclick="CompartirImagenAsync">
                     Compartir imagen / Share Image
                 </button>
             </div>
@@ -70,7 +70,7 @@
 
         @if (!string.IsNullOrWhiteSpace(mensaje))
         {
-            <div class="notice-box success no-print">
+            <div class="mo-alert mo-alert-success no-print">
                 @mensaje
             </div>
         }

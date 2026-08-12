@@ -11,17 +11,20 @@
 <PageTitle>Nueva solicitud de desviación</PageTitle>
 
 <div class="nueva-page">
-    <section class="nueva-hero">
-        <div>
-            <span class="nueva-kicker">Nueva desviación / New deviation</span>
-            <h1>Solicitud de desviación / Deviation Request</h1>
-            <p class="hero-text">
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">Nueva desviación / New deviation</div>
+            <div id="mo-banner-title">Solicitud de desviación / Deviation Request</div>
+            <div id="mo-banner-sub">
                 Captura la información requerida para iniciar el flujo de revisión y aprobación.
-            </p>
+            </div>
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="solicitudes">Volver / Back</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes">Volver / Back</a>
         </div>
     </section>
 
@@ -41,43 +44,43 @@
                             <h2>Información general / General Information</h2>
                             <p class="panel-subtitle">Datos principales de la solicitud.</p>
                         </div>
-                        <span class="panel-badge">Paso 1 / Step 1</span>
+                        <span class="mo-badge mo-badge-primary">Paso 1 / Step 1</span>
                     </div>
 
                     <div class="form-grid">
                         <div class="field-with-help"
                              data-help="Nombre del usuario autenticado. Este dato se toma automáticamente de la sesión y no se puede modificar.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Nombre del solicitante / Applicant Name
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <input class="form-control readonly-control"
+                            <input class="mo-form-control readonly-control"
                                    value="@model.NombreSolicitante"
                                    readonly />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Fecha en que se crea la solicitud. Este dato se asigna automáticamente y no se puede modificar.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Fecha / Date
                                 <span class="field-help-icon">?</span>
                             </label>
 
                             <input type="date"
-                                   class="form-control readonly-control"
+                                   class="mo-form-control readonly-control"
                                    value="@FechaSolicitudTexto"
                                    readonly />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Departamento del solicitante. Se obtiene automáticamente desde dbo.meax_all_user usando el usuario autenticado.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Departamento solicitante / Requesting Department
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <input class="form-control readonly-control"
+                            <input class="mo-form-control readonly-control"
                                    value="@model.DepartamentoSolicitante"
                                    readonly />
 
@@ -88,12 +91,12 @@
 
                         <div class="field-with-help"
                              data-help="Seleccione la unidad de negocio afectada por la desviación. Este dato identifica el área principal donde aplica el cambio temporal.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Unidad de negocio afectada / Affected Business Unit
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputSelect class="form-select" @bind-Value="model.UnidadNegocioAfectada">
+                            <InputSelect class="mo-form-select" @bind-Value="model.UnidadNegocioAfectada">
                                 <option value="">Seleccione / Select</option>
 
                                 @foreach (var unidad in UnidadesNegocio)
@@ -105,12 +108,12 @@
 
                         <div class="field-with-help"
                              data-help="Seleccione el código de línea, proceso o área donde se aplicará la desviación temporal.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Código de la línea / Line Code
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputSelect class="form-select" @bind-Value="model.CodigoLinea">
+                            <InputSelect class="mo-form-select" @bind-Value="model.CodigoLinea">
                                 <option value="">Seleccione / Select</option>
 
                                 @foreach (var linea in CodigosLinea)
@@ -122,7 +125,7 @@
 
                         <div class="field-with-help help-right"
                              data-help="Seleccione si la desviación es crítica o estándar. Si selecciona estándar, el análisis de riesgo no será requerido.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Tipo de desviación / Deviation Type
                                 <span class="field-help-icon">?</span>
                             </label>
@@ -146,22 +149,22 @@
 
                         <div class="field-with-help"
                              data-help="Fecha hasta la cual será válida la desviación temporal. No debe ser menor a la fecha de solicitud.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Tiempo de vigencia / Validity Period
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputDate class="form-control" @bind-Value="model.FechaVigencia" />
+                            <InputDate class="mo-form-control" @bind-Value="model.FechaVigencia" />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Cantidad estimada de piezas afectadas por la desviación. Este campo es opcional, pero si se captura debe ser mayor a cero.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Cantidad de piezas / Quantity of Pieces
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputNumber class="form-control" @bind-Value="model.CantidadPiezas" />
+                            <InputNumber class="mo-form-control" @bind-Value="model.CantidadPiezas" />
 
                             <div class="field-help">
                                 Campo opcional. Si se captura, debe ser mayor a 0.
@@ -170,22 +173,22 @@
 
                         <div class="field-with-help"
                              data-help="Número de parte, modelo o componente afectado por la desviación temporal.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Número de parte afectado / Affected Part Number
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputText class="form-control" @bind-Value="model.NumeroParteAfectado" />
+                            <InputText class="mo-form-control" @bind-Value="model.NumeroParteAfectado" />
                         </div>
 
                         <div class="field-with-help help-right"
                              data-help="Seleccione la categoría 6M relacionada con la desviación: Método, Materia, Mano de obra, Máquina, Medición u Otro.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 6M
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputSelect class="form-select" @bind-Value="model.RequisitoProcesoCodigo">
+                            <InputSelect class="mo-form-select" @bind-Value="model.RequisitoProcesoCodigo">
                                 <option value="">Seleccione / Select</option>
                                 @foreach (var requisito in requisitosProceso)
                                 {
@@ -202,12 +205,12 @@
                         {
                             <div class="field-with-help"
                                  data-help="Capture la categoría 6M cuando la opción seleccionada sea Otro.">
-                                <label class="form-label">
+                                <label class="mo-form-label">
                                     Especifique otro / Specify other
                                     <span class="field-help-icon">?</span>
                                 </label>
 
-                                <InputText class="form-control" @bind-Value="model.RequisitoProcesoOtro" />
+                                <InputText class="mo-form-control" @bind-Value="model.RequisitoProcesoOtro" />
                             </div>
                         }
                     </div>
@@ -227,7 +230,7 @@
                                  data-help="Capture el cliente o clientes impactados por la desviación. Puede agregar todos los clientes necesarios.">
                                 <div class="customer-dynamic-head">
                                     <div>
-                                        <label class="form-label">
+                                        <label class="mo-form-label">
                                             Cliente(s) / Customer(s)
                                             <span class="field-help-icon">?</span>
                                         </label>
@@ -235,7 +238,7 @@
                                     </div>
 
                                     <button type="button"
-                                            class="table-btn table-btn-primary"
+                                            class="mo-btn mo-btn-primary mo-btn-sm"
                                             @onclick="AgregarCliente">
                                         Agregar cliente / Add Customer
                                     </button>
@@ -251,7 +254,7 @@
                                                 @(index + 1)
                                             </div>
 
-                                            <input class="form-control"
+                                            <input class="mo-form-control"
                                                    value="@clientes[index]"
                                                    placeholder="Cliente @(index + 1)"
                                                    @oninput="e => ActualizarCliente(index, e.Value?.ToString())" />
@@ -259,7 +262,7 @@
                                             @if (clientes.Count > 1)
                                             {
                                                 <button type="button"
-                                                        class="table-btn danger"
+                                                        class="mo-btn mo-btn-danger-outline mo-btn-sm"
                                                         @onclick="() => QuitarCliente(index)">
                                                     Quitar / Remove
                                                 </button>
@@ -273,7 +276,7 @@
                                  data-help="Capture los requisitos específicos del cliente relacionados con esta desviación. Puede agregar tantos CSR como sean necesarios.">
                                 <div class="csr-dynamic-head">
                                     <div>
-                                        <label class="form-label">
+                                        <label class="mo-form-label">
                                             CSR
                                             <span class="field-help-icon">?</span>
                                         </label>
@@ -281,7 +284,7 @@
                                     </div>
 
                                     <button type="button"
-                                            class="table-btn table-btn-primary"
+                                            class="mo-btn mo-btn-primary mo-btn-sm"
                                             @onclick="AgregarCsr">
                                         Agregar CSR / Add CSR
                                     </button>
@@ -297,7 +300,7 @@
                                                 @(index + 1)
                                             </div>
 
-                                            <input class="form-control"
+                                            <input class="mo-form-control"
                                                    value="@model.Csrs[index]"
                                                    placeholder="CSR @(index + 1)"
                                                    @oninput="e => ActualizarCsr(index, e.Value?.ToString())" />
@@ -305,7 +308,7 @@
                                             @if (model.Csrs.Count > 1)
                                             {
                                                 <button type="button"
-                                                        class="table-btn danger"
+                                                        class="mo-btn mo-btn-danger-outline mo-btn-sm"
                                                         @onclick="() => QuitarCsr(index)">
                                                     Quitar / Remove
                                                 </button>
@@ -322,12 +325,12 @@
                     <div class="form-grid">
                         <div class="field-with-help"
                              data-help="Seleccione si es necesario informar al cliente sobre el cambio temporal solicitado.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 ¿Es necesario informar al cliente? / Inform customer?
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputSelect class="form-select" @bind-Value="model.InformarCliente">
+                            <InputSelect class="mo-form-select" @bind-Value="model.InformarCliente">
                                 <option value="false">No / No</option>
                                 <option value="true">Sí / Yes</option>
                             </InputSelect>
@@ -336,12 +339,12 @@
 
                     <div class="mt-3 field-with-help"
                          data-help="Explique la razón por la cual es necesario o no informar al cliente del cambio temporal. Si selecciona Sí, este campo es obligatorio.">
-                        <label class="form-label">
+                        <label class="mo-form-label">
                             Razón / Reason
                             <span class="field-help-icon">?</span>
                         </label>
 
-                        <InputTextArea class="form-control" rows="3" @bind-Value="model.RazonInformarCliente" />
+                        <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.RazonInformarCliente" />
                     </div>
                 </section>
 
@@ -351,54 +354,54 @@
                             <h2>Descripción de la desviación / Deviation Description</h2>
                             <p class="panel-subtitle">Describe el proceso actual y el cambio temporal.</p>
                         </div>
-                        <span class="panel-badge">Paso 2 / Step 2</span>
+                        <span class="mo-badge mo-badge-primary">Paso 2 / Step 2</span>
                     </div>
 
                     <div class="stack-fields">
                         <div class="field-with-help"
                              data-help="Describe cómo debe realizarse normalmente el proceso de acuerdo con el método aprobado, instrucción de trabajo, procedimiento, estándar o especificación vigente.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 ¿Cómo debe realizarse el proceso? / How should the process be performed?
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputTextArea class="form-control"
+                            <InputTextArea class="mo-form-control"
                                            rows="3"
                                            @bind-Value="model.ComoDebeRealizarseProceso" />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Indica los controles actuales que se aplican antes de la desviación, por ejemplo inspecciones, verificaciones, poka-yokes, registros, validaciones, pruebas o revisiones del operador.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 ¿Qué controles se siguen durante la operación actual? / Current operation controls
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputTextArea class="form-control"
+                            <InputTextArea class="mo-form-control"
                                            rows="3"
                                            @bind-Value="model.ControlesOperacionActual" />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Explica cómo se realizará temporalmente el proceso durante la desviación. Describe claramente qué cambiará contra el proceso normal y cómo se ejecutará el cambio.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 ¿Cómo se ejecutará el proceso después del cambio temporal? / Process after temporary change
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputTextArea class="form-control"
+                            <InputTextArea class="mo-form-control"
                                            rows="3"
                                            @bind-Value="model.ProcesoDespuesCambioTemporal" />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Describe los controles adicionales o temporales que deberán aplicarse mientras la desviación esté vigente para asegurar que no se afecte calidad, seguridad, cliente o proceso.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 ¿Qué controles deben implementarse durante el cambio? / Controls during change
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputTextArea class="form-control"
+                            <InputTextArea class="mo-form-control"
                                            rows="3"
                                            @bind-Value="model.ControlesDuranteCambio" />
                         </div>
@@ -413,28 +416,28 @@
                                 <h2>Análisis de riesgo / Risk Analysis</h2>
                                 <p class="panel-subtitle">Aplicable solo para desviación crítica.</p>
                             </div>
-                            <span class="panel-badge danger">Crítica / Critical</span>
+                            <span class="mo-badge mo-badge-danger">Crítica / Critical</span>
                         </div>
 
-                        <div class="notice-box">
+                        <div class="mo-alert mo-alert-warning">
                             Capture valores de AMEF entre 1 y 10.
                         </div>
 
                         <div class="section-divider"></div>
 
-                        <label class="form-label">
+                        <label class="mo-form-label">
                             Operación actual conforme al AMEF / Current operation according to FMEA
                         </label>
 
                         <div class="form-grid three">
                             <div class="field-with-help"
                                  data-help="Valor de severidad del AMEF actual. Evalúa qué tan grave sería el efecto de la falla para el cliente, producto, proceso o seguridad. Capture un valor del 1 al 10.">
-                                <label class="form-label">
+                                <label class="mo-form-label">
                                     Severidad / Severity
                                     <span class="field-help-icon">?</span>
                                 </label>
 
-                                <InputNumber class="form-control"
+                                <InputNumber class="mo-form-control"
                                              @bind-Value="model.SeveridadActual"
                                              min="1"
                                              max="10" />
@@ -442,12 +445,12 @@
 
                             <div class="field-with-help"
                                  data-help="Valor de ocurrencia del AMEF actual. Indica qué tan probable es que ocurra la falla con el proceso actual. Capture un valor del 1 al 10.">
-                                <label class="form-label">
+                                <label class="mo-form-label">
                                     Ocurrencia / Occurrence
                                     <span class="field-help-icon">?</span>
                                 </label>
 
-                                <InputNumber class="form-control"
+                                <InputNumber class="mo-form-control"
                                              @bind-Value="model.OcurrenciaActual"
                                              min="1"
                                              max="10" />
@@ -455,12 +458,12 @@
 
                             <div class="field-with-help help-right"
                                  data-help="Valor de detección del AMEF actual. Indica qué tan probable es detectar la falla antes de que llegue al cliente o al siguiente proceso. Capture un valor del 1 al 10.">
-                                <label class="form-label">
+                                <label class="mo-form-label">
                                     Detección / Detection
                                     <span class="field-help-icon">?</span>
                                 </label>
 
-                                <InputNumber class="form-control"
+                                <InputNumber class="mo-form-control"
                                              @bind-Value="model.DeteccionActual"
                                              min="1"
                                              max="10" />
@@ -469,19 +472,19 @@
 
                         <div class="section-divider"></div>
 
-                        <label class="form-label">
+                        <label class="mo-form-label">
                             Considerando el cambio / Considering the change
                         </label>
 
                         <div class="form-grid two">
                             <div class="field-with-help"
                                  data-help="Valor de ocurrencia considerando el cambio temporal. Indica qué tan probable es que ocurra la falla después de implementar la desviación. Capture un valor del 1 al 10.">
-                                <label class="form-label">
+                                <label class="mo-form-label">
                                     Ocurrencia con cambio / Occurrence with Change
                                     <span class="field-help-icon">?</span>
                                 </label>
 
-                                <InputNumber class="form-control"
+                                <InputNumber class="mo-form-control"
                                              @bind-Value="model.OcurrenciaConCambio"
                                              min="1"
                                              max="10" />
@@ -489,12 +492,12 @@
 
                             <div class="field-with-help help-right"
                                  data-help="Valor de detección considerando el cambio temporal. Indica qué tan probable es detectar la falla con los controles temporales propuestos. Capture un valor del 1 al 10.">
-                                <label class="form-label">
+                                <label class="mo-form-label">
                                     Detección con cambio / Detection with Change
                                     <span class="field-help-icon">?</span>
                                 </label>
 
-                                <InputNumber class="form-control"
+                                <InputNumber class="mo-form-control"
                                              @bind-Value="model.DeteccionConCambio"
                                              min="1"
                                              max="10" />
@@ -511,18 +514,18 @@
                                 Describe las acciones y adjunta evidencia cuando aplique.
                             </p>
                         </div>
-                        <span class="panel-badge">Paso 3 / Step 3</span>
+                        <span class="mo-badge mo-badge-primary">Paso 3 / Step 3</span>
                     </div>
 
                     <div class="stack-fields">
                         <div class="field-with-help"
                              data-help="Describe las acciones que se realizarán para controlar, corregir o mitigar la desviación. Este campo es opcional, pero si capturas una descripción deberás adjuntar al menos un archivo como evidencia o soporte.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Descripción de acciones / Action Description
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputTextArea class="form-control"
+                            <InputTextArea class="mo-form-control"
                                            rows="4"
                                            @bind-Value="model.DescripcionAccion" />
 
@@ -533,17 +536,17 @@
 
                         <div class="field-with-help"
                              data-help="Persona responsable de ejecutar o dar seguimiento a las acciones capturadas.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Responsable / Owner
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputText class="form-control" @bind-Value="model.ResponsableAccion" />
+                            <InputText class="mo-form-control" @bind-Value="model.ResponsableAccion" />
                         </div>
 
                         <div class="field-with-help"
                              data-help="Adjunte archivos de soporte o evidencia cuando capture una descripción de acciones. El tamaño máximo por archivo es 20 MB.">
-                            <label class="form-label">
+                            <label class="mo-form-label">
                                 Archivos adjuntos / Attachments
                                 @if (AccionRequiereAdjunto)
                                 {
@@ -552,7 +555,7 @@
                                 <span class="field-help-icon">?</span>
                             </label>
 
-                            <InputFile class="form-control file-input" OnChange="@SeleccionarArchivos" multiple />
+                            <InputFile class="mo-form-control file-input" OnChange="@SeleccionarArchivos" multiple />
 
                             <div class="field-help">
                                 Tamaño máximo por archivo: 20 MB.
@@ -586,7 +589,7 @@
                                 Seleccione el usuario responsable de aprobar cada etapa del flujo.
                             </p>
                         </div>
-                        <span class="panel-badge">Paso 4 / Step 4</span>
+                        <span class="mo-badge mo-badge-primary">Paso 4 / Step 4</span>
                     </div>
 
                     <div class="approver-flow-list">
@@ -607,7 +610,7 @@
 
                         @if (rolesAprobadores.Count == 0)
                         {
-                            <div class="notice-box error">
+                            <div class="mo-alert mo-alert-danger">
                                 No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
                             </div>
                         }
@@ -633,7 +636,7 @@
                                         else
                                         {
                                             <InputSelect TValue="int?"
-                                                         class="form-select"
+                                                         class="mo-form-select"
                                                          @bind-Value="rol.UsuarioSeleccionadoId">
                                                 <option value="">Seleccione aprobador / Select approver</option>
 
@@ -664,22 +667,22 @@
                                 Al enviar, la solicitud pasará al flujo de aprobación iniciando con QMS.
                             </p>
                         </div>
-                        <span class="panel-badge">Final / Submit</span>
+                        <span class="mo-badge mo-badge-primary">Final / Submit</span>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(mensaje))
                     {
-                        <div class="notice-box @(exito ? "success" : "error")">
+                        <div class="mo-alert @(exito ? "mo-alert-success" : "mo-alert-danger")">
                             @mensaje
                         </div>
                     }
 
                     <div class="submit-panel-inner">
-                        <a class="table-btn" href="solicitudes">
+                        <a class="mo-btn mo-btn-secondary" href="solicitudes">
                             Cancelar / Cancel
                         </a>
 
-                        <button class="table-btn table-btn-primary" type="submit" disabled="@guardando">
+                        <button class="mo-btn mo-btn-primary" type="submit" disabled="@guardando">
                             @(guardando ? "Guardando..." : "Crear y enviar / Create and submit")
                         </button>
                     </div>
@@ -709,7 +712,7 @@
                     <div class="modal-body">
                         @if (model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica)
                         {
-                            <span class="modal-impact-badge critica">Impacto alto / High impact</span>
+                            <span class="mo-badge mo-badge-danger">Impacto alto / High impact</span>
 
                             <ul>
                                 <li>
@@ -730,7 +733,7 @@
                         }
                         else
                         {
-                            <span class="modal-impact-badge estandar">Bajo impacto / Low impact</span>
+                            <span class="mo-badge mo-badge-primary">Bajo impacto / Low impact</span>
 
                             <ul>
                                 <li>
@@ -751,7 +754,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="table-btn table-btn-primary" @onclick="CerrarModalCriterios">
+                        <button type="button" class="mo-btn mo-btn-primary" @onclick="CerrarModalCriterios">
                             Entendido / Got it
                         </button>
                     </div>

@@ -4,36 +4,6 @@
     gap: 1.25rem;
 }
 
-.nueva-hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.6rem 1.75rem;
-    border-radius: 28px;
-    background: var(--color-primary-gradient, linear-gradient(135deg, #060B29 0%, #1c3375 100%));
-    color: #fff;
-    box-shadow: 0 24px 45px rgba(15,23,42,0.16);
-}
-
-.nueva-kicker {
-    display: inline-flex;
-    padding: 0.38rem 0.78rem;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.10);
-    color: rgba(255,255,255,0.86);
-    font-size: 0.82rem;
-    font-weight: 700;
-    margin-bottom: 0.9rem;
-}
-
-.nueva-hero h1 {
-    margin: 0 0 0.45rem;
-    font-size: clamp(1.9rem, 3vw, 2.7rem);
-    line-height: 1.05;
-    font-weight: 800;
-}
-
 .hero-meta {
     display: flex;
     flex-wrap: wrap;
@@ -49,33 +19,13 @@
     font-size: 0.88rem;
 }
 
-.hero-text {
-    margin: 0;
-    max-width: 760px;
-    color: rgba(255,255,255,0.78);
-}
-
 .hero-actions {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
 }
-
-.hero-btn {
-    min-height: 46px;
-    padding: 0.78rem 1.15rem;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.10);
-    color: #fff;
-    text-decoration: none;
-    font-weight: 700;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-    .hero-btn.primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-        border-color: transparent;
-    }
 
 .nueva-grid {
     display: grid;
@@ -118,20 +68,6 @@
     color: #64748b;
     font-size: 0.9rem;
 }
-
-.panel-badge {
-    padding: 0.38rem 0.75rem;
-    border-radius: 999px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    font-size: 0.82rem;
-    font-weight: 700;
-}
-
-    .panel-badge.danger {
-        background: #fff7ed;
-        color: #ea580c;
-    }
 
 .summary-grid {
     display: grid;
@@ -200,8 +136,8 @@
 }
 
     .approval-item.current {
-        background: #eff6ff;
-        border-color: #bfdbfe;
+        background: rgba(37,99,235,0.08);
+        border-color: rgba(37,99,235,0.25);
     }
 
     .approval-item span,
@@ -226,26 +162,9 @@
     border-radius: 16px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    color: #1d4ed8;
+    color: var(--mo-blue-deep);
     font-weight: 700;
     text-decoration: none;
-}
-
-.table-btn {
-    min-height: 42px;
-    padding: 0.65rem 1rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    background: #fff;
-    color: #0f172a;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.table-btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: #fff;
-    border-color: transparent;
 }
 
 .empty-state.compact {
@@ -283,17 +202,6 @@
     height: 420px;
 }
 
-.hero-btn.danger {
-    background: rgba(239,68,68,0.18);
-    border-color: rgba(248,113,113,0.35);
-    color: #fff;
-}
-
-    .hero-btn.danger:hover {
-        background: rgba(239,68,68,0.28);
-        color: #fff;
-    }
-
 @keyframes shimmer {
     0% {
         background-position: 100% 0;
@@ -308,11 +216,6 @@
     .nueva-grid {
         grid-template-columns: 1fr;
     }
-
-    .nueva-hero {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 }
 
 @media (max-width: 768px) {
@@ -321,13 +224,12 @@
         grid-template-columns: 1fr;
     }
 
-    .nueva-hero,
     .panel-card {
         padding: 1rem;
     }
 
     .hero-actions,
-    .hero-btn {
+    .hero-actions .mo-btn {
         width: 100%;
     }
 }
@@ -377,8 +279,8 @@
     }
 
 .rpn-item {
-    background: #eff6ff;
-    border-color: #bfdbfe;
+    background: rgba(37,99,235,0.08);
+    border-color: rgba(37,99,235,0.25);
 }
 
 .action-list {
@@ -433,8 +335,8 @@
     align-items: center;
     padding: 0.35rem 0.65rem;
     border-radius: 999px;
-    background: #eff6ff;
-    color: #1d4ed8 !important;
+    background: rgba(37,99,235,0.08);
+    color: var(--mo-blue-deep) !important;
     font-size: 0.78rem !important;
     font-weight: 800;
     white-space: nowrap;
@@ -451,8 +353,8 @@
         padding: 0.5rem 0.7rem;
         border-radius: 14px;
         background: #fff;
-        border: 1px solid #dbeafe;
-        color: #1d4ed8;
+        border: 1px solid rgba(37,99,235,0.16);
+        color: var(--mo-blue-deep);
         font-size: 0.84rem;
         font-weight: 800;
         text-decoration: none;
@@ -520,8 +422,8 @@
 }
 
     .approval-item.current {
-        background: #eff6ff;
-        border-color: #bfdbfe;
+        background: rgba(37,99,235,0.08);
+        border-color: rgba(37,99,235,0.25);
     }
 
 .approval-topline {
@@ -562,47 +464,6 @@
     margin-top: 0.7rem;
 }
 
-.status-dot,
-.current-chip {
-    display: inline-flex;
-    align-items: center;
-    min-height: 28px;
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.74rem;
-    font-weight: 900;
-}
-
-    .status-dot.pending {
-        background: #fefce8;
-        color: #854d0e;
-    }
-
-    .status-dot.approved {
-        background: #f0fdf4;
-        color: #166534;
-    }
-
-    .status-dot.rejected {
-        background: #fef2f2;
-        color: #991b1b;
-    }
-
-    .status-dot.cancelled {
-        background: #f1f5f9;
-        color: #475569;
-    }
-
-    .status-dot.skipped {
-        background: #f8fafc;
-        color: #64748b;
-    }
-
-.current-chip {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
 .approval-meta {
     display: grid;
     gap: 0.2rem;
@@ -635,7 +496,7 @@
     }
 
         .compact-files a strong {
-            color: #1d4ed8;
+            color: var(--mo-blue-deep);
             font-size: 0.88rem;
         }
 
@@ -666,8 +527,8 @@
     height: 10px;
     margin-top: 0.35rem;
     border-radius: 999px;
-    background: #3b82f6;
-    box-shadow: 0 0 0 4px #dbeafe;
+    background: var(--mo-blue);
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.16);
 }
 
 .timeline-item strong {
@@ -730,29 +591,6 @@
         color: #334155;
         vertical-align: top;
         font-size: 0.88rem;
-    }
-
-.status-pill {
-    display: inline-flex;
-    align-items: center;
-    min-height: 30px;
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    background: #f1f5f9;
-    color: #334155;
-    font-size: 0.76rem;
-    font-weight: 900;
-}
-
-.hero-btn.danger {
-    background: rgba(239,68,68,0.18);
-    border-color: rgba(248,113,113,0.35);
-    color: #fff;
-}
-
-    .hero-btn.danger:hover {
-        background: rgba(239,68,68,0.28);
-        color: #fff;
     }
 
 @media (max-width: 1280px) {

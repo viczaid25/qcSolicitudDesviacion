@@ -7,17 +7,20 @@
 <PageTitle>Aprobaciones pendientes</PageTitle>
 
 <div class="nueva-page">
-    <section class="nueva-hero">
-        <div>
-            <span class="nueva-kicker">Workflow / Approval Flow</span>
-            <h1>Aprobaciones pendientes / Pending Approvals</h1>
-            <p class="hero-text">
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">Workflow / Approval Flow</div>
+            <div id="mo-banner-title">Aprobaciones pendientes / Pending Approvals</div>
+            <div id="mo-banner-sub">
                 Solicitudes que requieren revisión de acuerdo con tus roles asignados.
-            </p>
+            </div>
         </div>
 
         <div class="hero-actions">
-            <a class="hero-btn" href="desviaciones">Desviaciones / Deviations</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">Desviaciones / Deviations</a>
         </div>
     </section>
 
@@ -27,7 +30,7 @@
                 <h2>Mis pendientes / My pending approvals</h2>
                 <p class="panel-subtitle">Usuario: ID @usuarioActualId</p>
             </div>
-            <span class="panel-badge">@pendientes.Count pendientes</span>
+            <span class="mo-badge mo-badge-primary">@pendientes.Count pendientes</span>
         </div>
 
         @if (cargando)
@@ -44,7 +47,7 @@
         else
         {
             <div class="table-wrap">
-                <table class="procesos-table">
+                <table class="mo-table procesos-table">
                     <thead>
                         <tr>
                             <th>Solicitud / Request</th>
@@ -68,14 +71,14 @@
                                     <div class="cell-subtitle">@item.Solicitud?.Clientes</div>
                                 </td>
                                 <td>
-                                    <span class="status-pill">@item.RolAprobador?.NombreEs</span>
+                                    <span class="mo-badge mo-badge-primary">@item.RolAprobador?.NombreEs</span>
                                 </td>
                                 <td>
-                                    <span class="type-pill">@item.TipoFlujoCodigo</span>
+                                    <span class="mo-badge mo-badge-secondary">@item.TipoFlujoCodigo</span>
                                 </td>
                                 <td>@item.FechaAsignacion.ToString("yyyy-MM-dd HH:mm")</td>
                                 <td class="text-end">
-                                    <a class="table-btn table-btn-primary" href="aprobaciones/revisar/@item.Id">
+                                    <a class="mo-btn mo-btn-primary mo-btn-sm" href="aprobaciones/revisar/@item.Id">
                                         Revisar / Review
                                     </a>
                                 </td>
