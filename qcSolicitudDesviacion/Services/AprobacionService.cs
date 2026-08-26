@@ -37,6 +37,10 @@ public class AprobacionService
             rolesUsuario.Add(QcDesvCodigos.Rol.Qms);
         }
 
+        // Se muestra a todo el que tenga el rol del paso, no solo al aprobador
+        // específicamente asignado: así, si esa persona no puede atenderlo,
+        // cualquier otro usuario del mismo nivel lo ve en su lista y lo puede
+        // resolver (mismo criterio que ya se usaba para QMS).
         return await context.QcDesvAprobaciones
             .AsNoTracking()
             .Include(x => x.Solicitud)
@@ -48,10 +52,7 @@ public class AprobacionService
                 x.EstadoAprobacionCodigo == QcDesvCodigos.EstadoAprobacion.Pendiente &&
                 (
                     x.UsuarioAprobadorId == usuarioId ||
-                    (
-                        !x.UsuarioAprobadorId.HasValue &&
-                        rolesUsuario.Contains(x.RolAprobadorCodigo)
-                    )
+                    rolesUsuario.Contains(x.RolAprobadorCodigo)
                 ))
             .OrderBy(x => x.FechaAsignacion)
             .ToListAsync(cancellationToken);
@@ -340,13 +341,16 @@ public class AprobacionService
         int usuarioId,
         CancellationToken cancellationToken)
     {
-        if (aprobacion.UsuarioAprobadorId.HasValue)
+        if (aprobacion.UsuarioAprobadorId == usuarioId)
         {
-            return aprobacion.UsuarioAprobadorId.Value == usuarioId;
+            return true;
         }
 
-        // El paso QMS no se asigna a una persona específica: cualquier Admin
-        // puede atenderlo, en vez de requerir el rol QMS.
+        // Cualquier usuario con el rol del paso puede resolverlo, no solo el
+        // aprobador específicamente asignado: si esa persona no puede
+        // atenderlo, otro usuario del mismo nivel puede aprobar o rechazar en
+        // su lugar (mismo criterio que ya se usaba para QMS, extendido a
+        // todos los roles).
         var rolParaVerificar = aprobacion.RolAprobadorCodigo == QcDesvCodigos.Rol.Qms
             ? QcDesvCodigos.Rol.Admin
             : aprobacion.RolAprobadorCodigo;

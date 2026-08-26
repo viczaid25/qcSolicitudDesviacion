@@ -527,6 +527,18 @@ public class SolicitudDesviacionService
                 .Where(x => x.SolicitudId == solicitud.Id && x.ExtensionId == null)
                 .ToListAsync(cancellationToken);
 
+            // Editar.razor no permite volver a elegir aprobadores: se conservan
+            // los mismos usuarios que ya estaban asignados por rol antes del
+            // rechazo, para no perder la asignación original al regenerar el
+            // flujo (si no se pasan, cada paso queda sin aprobador específico
+            // y las notificaciones se envían a todos los usuarios del rol).
+            var aprobadoresSeleccionadosPorRol = aprobacionesAnteriores
+                .Where(x => x.UsuarioAprobadorId.HasValue && x.UsuarioAprobadorId.Value > 0)
+                .GroupBy(x => x.RolAprobadorCodigo)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (int?)g.OrderByDescending(x => x.FechaAsignacion).First().UsuarioAprobadorId!.Value);
+
             context.QcDesvAprobaciones.RemoveRange(aprobacionesAnteriores);
 
             await context.SaveChangesAsync(cancellationToken);
@@ -536,6 +548,7 @@ public class SolicitudDesviacionService
                 solicitud.Id,
                 extensionId: null,
                 tipoFlujoCodigo: QcDesvCodigos.TipoFlujo.Solicitud,
+                aprobadoresSeleccionadosPorRol: aprobadoresSeleccionadosPorRol,
                 cancellationToken: cancellationToken);
 
             if (!workflowResult.Succeeded)

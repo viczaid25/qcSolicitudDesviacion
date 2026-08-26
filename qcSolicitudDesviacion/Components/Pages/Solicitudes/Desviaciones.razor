@@ -179,7 +179,7 @@
                 "COMPLETADAS" => query.Where(EstaCompletada),
                 "VENCIDAS" => query.Where(EstaVencida),
                 "POR_VENCER" => query.Where(EstaPorVencer),
-                "VIGENTES" => query.Where(x => EsAbierta(x) && x.FechaVigencia.Date >= DateTime.Today),
+                "VIGENTES" => query.Where(x => EstadoVigenciaClass(x) == "active"),
                 _ => query
             };
 
@@ -195,26 +195,37 @@
         cargando = false;
     }
 
-    private static bool EsAbierta(QcDesvSolicitudResumen solicitud)
-    {
-        return solicitud.EstadoSolicitudCodigo != QcDesvCodigos.EstadoSolicitud.Cerrada &&
-               solicitud.EstadoSolicitudCodigo != QcDesvCodigos.EstadoSolicitud.Cancelada &&
-               solicitud.EstadoSolicitudCodigo != QcDesvCodigos.EstadoSolicitud.Rechazada;
-    }
-
     private static bool EstaCompletada(QcDesvSolicitudResumen solicitud)
     {
         return solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada;
     }
 
+    // Solo tiene sentido hablar de vigencia (Vigente / Por vencer / Vencida) una
+    // vez que la solicitud ya fue aprobada: mientras está en revisión, su fecha
+    // de vigencia todavía no aplica y no debe mostrarse como "Por vencer".
+    private static bool EstaAprobada(QcDesvSolicitudResumen solicitud)
+    {
+        return solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Aprobada ||
+               solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.ExtensionAprobada ||
+               solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada;
+    }
+
+    private static bool EstaFinalizadaSinAprobar(QcDesvSolicitudResumen solicitud)
+    {
+        return solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Rechazada ||
+               solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cancelada;
+    }
+
     private static bool EstaVencida(QcDesvSolicitudResumen solicitud)
     {
-        return EsAbierta(solicitud) && solicitud.FechaVigencia.Date < DateTime.Today;
+        return EstaAprobada(solicitud) &&
+               !EstaCompletada(solicitud) &&
+               solicitud.FechaVigencia.Date < DateTime.Today;
     }
 
     private static bool EstaPorVencer(QcDesvSolicitudResumen solicitud)
     {
-        if (!EsAbierta(solicitud))
+        if (!EstaAprobada(solicitud) || EstaCompletada(solicitud))
         {
             return false;
         }
@@ -238,9 +249,14 @@
             return "Completada / Closed";
         }
 
-        if (!EsAbierta(solicitud))
+        if (EstaFinalizadaSinAprobar(solicitud))
         {
             return solicitud.EstadoSolicitudEs;
+        }
+
+        if (!EstaAprobada(solicitud))
+        {
+            return "En proceso / In process";
         }
 
         if (EstaVencida(solicitud))
@@ -264,6 +280,7 @@
             "expired" => "mo-badge-danger",
             "expiring" => "mo-badge-warning",
             "inactive" => "mo-badge-secondary",
+            "in_progress" => "mo-badge-primary",
             _ => "mo-badge-success"
         };
     }
@@ -275,9 +292,14 @@
             return "closed";
         }
 
-        if (!EsAbierta(solicitud))
+        if (EstaFinalizadaSinAprobar(solicitud))
         {
             return "inactive";
+        }
+
+        if (!EstaAprobada(solicitud))
+        {
+            return "in_progress";
         }
 
         if (EstaVencida(solicitud))

@@ -4,19 +4,37 @@
     {
       "name": "qcSolicitudDesviacion",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "qcSolicitudDesviacion/qcSolicitudDesviacion.csproj", "--urls", "http://localhost:5177"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "qcSolicitudDesviacion/qcSolicitudDesviacion.csproj",
+        "--urls",
+        "http://localhost:5177"
+      ],
       "port": 5177
     },
     {
       "name": "qcReclamosGarantias",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/qcReclamosGarantias/qcReclamosGarantias/qcReclamosGarantias.csproj", "--urls", "http://localhost:5178"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/qcReclamosGarantias/qcReclamosGarantias/qcReclamosGarantias.csproj",
+        "--urls",
+        "http://localhost:5178"
+      ],
       "port": 5178
     },
     {
       "name": "finFinanceRequest",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/finFinanceRequest - Copy/finFinanceRequest/finFinanceRequest.csproj", "--urls", "http://localhost:5184"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/finFinanceRequest - Copy/finFinanceRequest/finFinanceRequest.csproj",
+        "--urls",
+        "http://localhost:5184"
+      ],
       "port": 5184
     },
     {
@@ -24,43 +42,142 @@
       "runtimeExecutable": "dotnet",
       "runtimeArgs": [
         "run",
-        "--project", "C:/Users/dm45207/source/repos/finFinanceRequest - Copy/finFinanceRequest/finFinanceRequest.csproj",
+        "--project",
+        "C:/Users/dm45207/source/repos/finFinanceRequest - Copy/finFinanceRequest/finFinanceRequest.csproj",
         "--no-launch-profile",
-        "--environment", "Production",
-        "--urls", "http://localhost:5200"
+        "--environment",
+        "Production",
+        "--urls",
+        "http://localhost:5200"
       ],
       "port": 5200
     },
     {
       "name": "prcPurchaseRequisition",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/prcPurchaseRequisition - Copy/prcPurchaseRequisition/prcPurchaseRequisition.csproj", "--urls", "http://localhost:5185"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/prcPurchaseRequisition - Copy/prcPurchaseRequisition/prcPurchaseRequisition.csproj",
+        "--urls",
+        "http://localhost:5185"
+      ],
       "port": 5185
     },
     {
       "name": "ShippingRequestSystem",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/ShippingRequestSystem/ShippingRequestSystem/ShippingRequestSystem.csproj", "--urls", "http://localhost:5231"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/ShippingRequestSystem/ShippingRequestSystem/ShippingRequestSystem.csproj",
+        "--urls",
+        "http://localhost:5231"
+      ],
       "port": 5231
     },
     {
       "name": "solicitudMovimientosPcs",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/solicitudMovimientosPcs/solicitudMovimientosPcs/solicitudMovimientosPcs.csproj", "--urls", "http://localhost:5243"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/solicitudMovimientosPcs/solicitudMovimientosPcs/solicitudMovimientosPcs.csproj",
+        "--urls",
+        "http://localhost:5243"
+      ],
       "port": 5243
     },
     {
       "name": "kpisystem",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/KpiSystem/KpiSystem/KpiSystem.csproj", "--urls", "http://localhost:5250"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/KpiSystem/KpiSystem/KpiSystem.csproj",
+        "--urls",
+        "http://localhost:5250"
+      ],
       "port": 5250
     },
     {
       "name": "qcmAuditoriasIatf",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "C:/Users/dm45207/source/repos/qcmAuditoriasIatf/qcmAuditoriasIatf/qcmAuditoriasIatf.csproj", "--urls", "http://localhost:5260"],
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/qcmAuditoriasIatf/qcmAuditoriasIatf/qcmAuditoriasIatf.csproj",
+        "--urls",
+        "http://localhost:5260"
+      ],
       "port": 5260,
       "url": "http://localhost:5260"
+    },
+    {
+      "name": "qcApqpKarte",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/qcApqpKarte/qcApqpKarte/qcApqpKarte.csproj",
+        "--urls",
+        "http://localhost:5280"
+      ],
+      "port": 5280,
+      "url": "http://localhost:5280"
+    },
+    {
+      "name": "transferFiles",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/transferFiles/transferFiles/transferFiles.csproj",
+        "--urls",
+        "http://localhost:5270"
+      ],
+      "port": 5270
+    },
+    {
+      "name": "transferFiles-prod-local",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/transferFiles/transferFiles/transferFiles.csproj",
+        "--no-launch-profile",
+        "--environment",
+        "Production",
+        "--urls",
+        "http://localhost:5271"
+      ],
+      "port": 5271
+    },
+    {
+      "name": "qcControlDocumental",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/qcControlDocumental/qcControlDocumental/qcControlDocumental.csproj",
+        "--urls",
+        "http://localhost:5300"
+      ],
+      "port": 5300,
+      "url": "http://localhost:5300"
+    },
+    {
+      "name": "prcPriceApproval",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/prcPriceApproval/prcPriceApproval/prcPriceApproval.csproj",
+        "--urls",
+        "http://localhost:5290"
+      ],
+      "port": 5290,
+      "url": "http://localhost:5290"
     }
   ]
 }
