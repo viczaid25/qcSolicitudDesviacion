@@ -4,6 +4,7 @@
 @inject SolicitudDesviacionService SolicitudService
 @inject CatalogoService CatalogoService
 @inject UsuarioActualService UsuarioActualService
+@inject ArchivoService ArchivoService
 @inject NavigationManager Navigation
 
 <PageTitle>Editar solicitud de desviación</PageTitle>
@@ -253,6 +254,57 @@
                                     <InputDate class="mo-form-control" @bind-Value="model.FechaCompromisoAccion" />
                                 </div>
                             </div>
+
+                            <div>
+                                <label class="mo-form-label">
+                                    Archivos adjuntos / Attachments
+                                    @if (AccionRequiereAdjunto)
+                                    {
+                                        <span class="required-mark">*</span>
+                                    }
+                                </label>
+
+                                @if (archivosExistentes.Count > 0)
+                                {
+                                    <div class="file-list">
+                                        @foreach (var archivo in archivosExistentes)
+                                        {
+                                            <span>
+                                                <a href="@archivo.RutaRelativa.TrimStart('/')" target="_blank">@archivo.NombreOriginal</a>
+                                                <button type="button"
+                                                        class="mo-btn mo-btn-danger-outline mo-btn-sm"
+                                                        disabled="@eliminandoArchivoId.HasValue"
+                                                        @onclick="() => EliminarArchivoExistenteAsync(archivo.Id)">
+                                                    Quitar / Remove
+                                                </button>
+                                            </span>
+                                        }
+                                    </div>
+                                }
+
+                                <InputFile class="mo-form-control file-input" OnChange="@SeleccionarArchivos" multiple />
+
+                                <div class="field-help">
+                                    Tamaño máximo por archivo: 20 MB.
+                                </div>
+
+                                @if (AccionRequiereAdjunto && !TieneAlgunArchivoAdjunto)
+                                {
+                                    <div class="field-warning">
+                                        Debe adjuntar al menos un archivo si capturó descripción de acciones.
+                                    </div>
+                                }
+
+                                @if (archivosSeleccionados.Count > 0)
+                                {
+                                    <div class="file-list">
+                                        @foreach (var archivo in archivosSeleccionados)
+                                        {
+                                            <span>@archivo.Name</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </section>
                 </main>
@@ -288,14 +340,23 @@
     private QcDesvSolicitudFormModel model = new();
     private List<QcDesvCatTipoDesviacion> tiposDesviacion = new();
     private List<QcDesvCatRequisitoProceso> requisitosProceso = new();
+    private List<QcDesvArchivo> archivosExistentes = new();
+    private List<IBrowserFile> archivosSeleccionados = new();
 
     private bool cargando = true;
     private bool guardando;
+    private int? eliminandoArchivoId;
     private string mensaje = string.Empty;
     private string mensajeInicial = string.Empty;
     private int usuarioActualId;
 
     private bool EsCritica => model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica;
+
+    private bool AccionRequiereAdjunto =>
+        !string.IsNullOrWhiteSpace(model.DescripcionAccion);
+
+    private bool TieneAlgunArchivoAdjunto =>
+        archivosExistentes.Count > 0 || archivosSeleccionados.Count > 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -314,27 +375,79 @@
         else
         {
             model = resultado.Data;
+
+            var detalle = await SolicitudService.ObtenerDetalleAsync(SolicitudId);
+
+            archivosExistentes = detalle?.Archivos
+                .OrderByDescending(x => x.FechaSubida)
+                .ToList() ?? new();
         }
 
         cargando = false;
     }
 
+    private void SeleccionarArchivos(InputFileChangeEventArgs e)
+    {
+        archivosSeleccionados = e.GetMultipleFiles(10).ToList();
+    }
+
+    private async Task EliminarArchivoExistenteAsync(int archivoId)
+    {
+        eliminandoArchivoId = archivoId;
+        mensaje = string.Empty;
+
+        var resultado = await ArchivoService.EliminarArchivoAsync(archivoId, usuarioActualId);
+
+        if (resultado.Succeeded)
+        {
+            archivosExistentes.RemoveAll(x => x.Id == archivoId);
+        }
+        else
+        {
+            mensaje = resultado.Message;
+        }
+
+        eliminandoArchivoId = null;
+    }
+
     private async Task GuardarAsync()
     {
-        guardando = true;
         mensaje = string.Empty;
+
+        if (AccionRequiereAdjunto && !TieneAlgunArchivoAdjunto)
+        {
+            mensaje = "Debe adjuntar al menos un archivo si capturó descripción de acciones.";
+            return;
+        }
+
+        guardando = true;
 
         var resultado = await SolicitudService.ActualizarYReenviarAsync(
             model,
             usuarioActualId);
 
-        if (resultado.Succeeded)
+        if (!resultado.Succeeded)
         {
-            Navigation.NavigateTo($"solicitudes/{resultado.Data}");
+            mensaje = resultado.Message;
+            guardando = false;
             return;
         }
 
-        mensaje = resultado.Message;
-        guardando = false;
+        foreach (var archivo in archivosSeleccionados)
+        {
+            var archivoResultado = await ArchivoService.SubirArchivoSolicitudAsync(
+                resultado.Data,
+                archivo,
+                usuarioActualId);
+
+            if (!archivoResultado.Succeeded)
+            {
+                mensaje = $"La solicitud fue actualizada, pero un archivo no pudo subirse: {archivoResultado.Message}";
+                guardando = false;
+                return;
+            }
+        }
+
+        Navigation.NavigateTo($"solicitudes/{resultado.Data}");
     }
 }

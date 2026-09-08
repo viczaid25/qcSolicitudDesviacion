@@ -97,9 +97,12 @@ public class AprobacionService
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
+        QcDesvAprobacion? siguienteAprobacion;
+        QcDesvSolicitud solicitud;
+
         try
         {
-            var solicitud = aprobacion.Solicitud!;
+            solicitud = aprobacion.Solicitud!;
             var estadoAnterior = solicitud.EstadoSolicitudCodigo;
 
             aprobacion.EstadoAprobacionCodigo = QcDesvCodigos.EstadoAprobacion.Aprobado;
@@ -108,7 +111,7 @@ public class AprobacionService
             aprobacion.FechaDecision = DateTime.Now;
             aprobacion.EsPasoActual = false;
 
-            var siguienteAprobacion = await context.QcDesvAprobaciones
+            siguienteAprobacion = await context.QcDesvAprobaciones
                 .Where(x =>
                     x.SolicitudId == aprobacion.SolicitudId &&
                     x.ExtensionId == aprobacion.ExtensionId &&
@@ -166,17 +169,6 @@ public class AprobacionService
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-
-            if (siguienteAprobacion is not null)
-            {
-                await _emailService.NotificarPasoEmitidoAsync(siguienteAprobacion.Id, cancellationToken);
-            }
-            else if (aprobacion.TipoFlujoCodigo == QcDesvCodigos.TipoFlujo.Solicitud)
-            {
-                await _emailService.NotificarAprobacionFinalAsync(solicitud.Id, cancellationToken);
-            }
-
-            return ServiceResult.Success("Aprobación registrada correctamente.");
         }
         catch (Exception ex)
         {
@@ -186,6 +178,22 @@ public class AprobacionService
 
             return ServiceResult.Failure($"Error al aprobar: {detalle}");
         }
+
+        // La aprobación ya quedó guardada (transacción confirmada arriba): un
+        // fallo al notificar por correo no debe reportarse como error ni,
+        // sobre todo, intentar un rollback de una transacción que ya hizo
+        // commit (eso lanzaría una segunda excepción sin capturar y tumbaría
+        // el circuito completo de Blazor Server).
+        if (siguienteAprobacion is not null)
+        {
+            await _emailService.NotificarPasoEmitidoAsync(siguienteAprobacion.Id, cancellationToken);
+        }
+        else if (aprobacion.TipoFlujoCodigo == QcDesvCodigos.TipoFlujo.Solicitud)
+        {
+            await _emailService.NotificarAprobacionFinalAsync(solicitud.Id, cancellationToken);
+        }
+
+        return ServiceResult.Success("Aprobación registrada correctamente.");
     }
 
     public async Task<ServiceResult> RechazarAsync(
@@ -233,9 +241,11 @@ public class AprobacionService
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
+        QcDesvSolicitud solicitud;
+
         try
         {
-            var solicitud = aprobacion.Solicitud!;
+            solicitud = aprobacion.Solicitud!;
             var estadoAnterior = solicitud.EstadoSolicitudCodigo;
 
             aprobacion.EstadoAprobacionCodigo = QcDesvCodigos.EstadoAprobacion.Rechazado;
@@ -267,11 +277,6 @@ public class AprobacionService
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-
-            var posicion = aprobacion.RolAprobador?.NombreEn ?? aprobacion.RolAprobadorCodigo;
-            await _emailService.NotificarRechazoAsync(solicitud.Id, posicion, cancellationToken);
-
-            return ServiceResult.Success("Solicitud rechazada correctamente.");
         }
         catch (Exception ex)
         {
@@ -281,6 +286,16 @@ public class AprobacionService
 
             return ServiceResult.Failure($"Error al rechazar: {detalle}");
         }
+
+        // La solicitud ya quedó guardada (transacción confirmada arriba): un
+        // fallo al notificar por correo no debe reportarse como error ni,
+        // sobre todo, intentar un rollback de una transacción que ya hizo
+        // commit (eso lanzaría una segunda excepción sin capturar y tumbaría
+        // el circuito completo de Blazor Server).
+        var posicion = aprobacion.RolAprobador?.NombreEn ?? aprobacion.RolAprobadorCodigo;
+        await _emailService.NotificarRechazoAsync(solicitud.Id, posicion, cancellationToken);
+
+        return ServiceResult.Success("Solicitud rechazada correctamente.");
     }
 
     public async Task<QcDesvAprobacion?> ObtenerDetalleAprobacionAsync(

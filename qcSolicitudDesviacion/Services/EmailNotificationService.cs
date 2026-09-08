@@ -232,7 +232,14 @@ public class EmailNotificationService
 
             using var cliente = new SmtpClient(_settings.SmtpServer, _settings.SmtpPort)
             {
-                EnableSsl = _settings.EnableSsl
+                EnableSsl = _settings.EnableSsl,
+                // Sin esto, un servidor SMTP inalcanzable (puerto bloqueado,
+                // DNS caído, etc.) puede colgar la conexión hasta 100s por
+                // defecto -- suficiente para que el circuito de Blazor Server
+                // se desconecte por el lado del cliente mientras el servidor
+                // sigue esperando, lo que termina tumbando la sesión aunque
+                // esta llamada esté en un try/catch.
+                Timeout = 10_000
             };
 
             await cliente.SendMailAsync(mensaje);

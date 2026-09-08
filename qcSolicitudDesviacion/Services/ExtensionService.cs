@@ -119,6 +119,8 @@ public class ExtensionService
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
+        int extensionCreadaId;
+
         try
         {
             var estadoAnterior = solicitud.EstadoSolicitudCodigo;
@@ -172,26 +174,33 @@ public class ExtensionService
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            var primeraAprobacion = await context.QcDesvAprobaciones
-                .AsNoTracking()
-                .Where(x =>
-                    x.SolicitudId == solicitud.Id &&
-                    x.ExtensionId == extension.Id &&
-                    x.EsPasoActual)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (primeraAprobacion is not null)
-            {
-                await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
-            }
-
-            return ServiceResult<int>.Success(extension.Id, "Extensión solicitada correctamente.");
+            extensionCreadaId = extension.Id;
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
             return ServiceResult<int>.Failure($"Error al solicitar extensión: {ex.Message}");
         }
+
+        // La extensión ya quedó guardada (transacción confirmada arriba): un
+        // fallo al notificar por correo no debe reportarse como error ni,
+        // sobre todo, intentar un rollback de una transacción que ya hizo
+        // commit (eso lanzaría una segunda excepción sin capturar y tumbaría
+        // el circuito completo de Blazor Server).
+        var primeraAprobacion = await context.QcDesvAprobaciones
+            .AsNoTracking()
+            .Where(x =>
+                x.SolicitudId == solicitud.Id &&
+                x.ExtensionId == extensionCreadaId &&
+                x.EsPasoActual)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (primeraAprobacion is not null)
+        {
+            await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
+        }
+
+        return ServiceResult<int>.Success(extensionCreadaId, "Extensión solicitada correctamente.");
     }
 
     private static Dictionary<string, int?> ObtenerAprobadoresSeleccionadosPorRol(

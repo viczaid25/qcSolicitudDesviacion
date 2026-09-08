@@ -85,6 +85,8 @@ public class SolicitudDesviacionService
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
+        int solicitudCreadaId;
+
         try
         {
             var solicitud = new QcDesvSolicitud
@@ -208,20 +210,7 @@ public class SolicitudDesviacionService
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            var primeraAprobacion = await context.QcDesvAprobaciones
-                .AsNoTracking()
-                .Where(x =>
-                    x.SolicitudId == solicitud.Id &&
-                    x.ExtensionId == null &&
-                    x.EsPasoActual)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (primeraAprobacion is not null)
-            {
-                await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
-            }
-
-            return ServiceResult<int>.Success(solicitud.Id, "Solicitud creada y enviada correctamente.");
+            solicitudCreadaId = solicitud.Id;
         }
         catch (Exception ex)
         {
@@ -231,6 +220,26 @@ public class SolicitudDesviacionService
 
             return ServiceResult<int>.Failure($"Error al crear la solicitud: {detalle}");
         }
+
+        // La solicitud ya quedó guardada (transacción confirmada arriba): un
+        // fallo al notificar por correo no debe reportarse como error de
+        // creación ni, sobre todo, intentar un rollback de una transacción
+        // que ya hizo commit (eso lanzaría una segunda excepción sin
+        // capturar y tumbaría el circuito completo de Blazor Server).
+        var primeraAprobacion = await context.QcDesvAprobaciones
+            .AsNoTracking()
+            .Where(x =>
+                x.SolicitudId == solicitudCreadaId &&
+                x.ExtensionId == null &&
+                x.EsPasoActual)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (primeraAprobacion is not null)
+        {
+            await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
+        }
+
+        return ServiceResult<int>.Success(solicitudCreadaId, "Solicitud creada y enviada correctamente.");
     }
 
     public async Task<List<QcDesvSolicitudResumen>> ObtenerResumenAsync(

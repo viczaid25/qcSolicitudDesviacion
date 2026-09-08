@@ -73,8 +73,6 @@ public class ArchivoService
         var relativeFolder = Path.Combine("uploads", "qcDesv", solicitudId.ToString());
         var absoluteFolder = Path.Combine(webRootPath, relativeFolder);
 
-        Directory.CreateDirectory(absoluteFolder);
-
         var originalFileName = Path.GetFileName(archivo.Name);
         var extension = Path.GetExtension(originalFileName);
         var storedFileName = $"{Guid.NewGuid():N}{extension}";
@@ -82,6 +80,12 @@ public class ArchivoService
 
         try
         {
+            // Dentro del try: si el identity de la app no tiene permiso de
+            // escritura en wwwroot/uploads (o el disco falla por cualquier
+            // otra razón), esto debe reportarse como un Failure normal, no
+            // escaparse sin capturar y tumbar el circuito de Blazor Server.
+            Directory.CreateDirectory(absoluteFolder);
+
             await using var fileStream = new FileStream(fullPath, FileMode.CreateNew);
 
             await archivo.OpenReadStream(maxFileSizeBytes)

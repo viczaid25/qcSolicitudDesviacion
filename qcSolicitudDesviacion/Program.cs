@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using qcSolicitudDesviacion.Auth;
 using qcSolicitudDesviacion.Components;
@@ -11,6 +12,16 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddRazorPages();
+
+// El circuito de Blazor Server transmite los archivos adjuntos (IBrowserFile)
+// como mensajes de SignalR. Por defecto ese límite es de 32 KB, muy por debajo
+// de cualquier foto/PDF real -- la subida se corta a nivel de transporte antes
+// de llegar a ArchivoService, sin importar el límite de 20 MB que valida la
+// app. Se sube para que coincida con ese límite real (con margen).
+builder.Services.Configure<HubOptions>(options =>
+{
+    options.MaximumReceiveMessageSize = 25 * 1024 * 1024;
+});
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 {
