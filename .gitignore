@@ -6,3 +6,6 @@ obj/
 *.log
 .env
 appsettings.Production.json
+# Archivos locales / adjuntos subidos en pruebas
+.claude/settings.local.json
+qcSolicitudDesviacion/wwwroot/uploads/
