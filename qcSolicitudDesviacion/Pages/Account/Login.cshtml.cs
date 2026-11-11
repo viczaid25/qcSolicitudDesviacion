@@ -95,6 +95,9 @@ public class LoginModel : PageModel
             usuario,
             info);
 
+        // Igual que el JWT del hub, que trae el idioma del usuario
+        identity.AddClaim(new Claim(MeaxClaims.Idioma, "es"));
+
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identity),

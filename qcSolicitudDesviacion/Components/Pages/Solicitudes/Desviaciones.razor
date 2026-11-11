@@ -3,7 +3,7 @@
 
 @inject SolicitudDesviacionService SolicitudService
 
-<PageTitle>Desviaciones</PageTitle>
+<PageTitle>@L["Deviations"]</PageTitle>
 
 <div class="desv-page">
     <section id="mo-banner">
@@ -11,19 +11,19 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Todas las desviaciones / All deviations</div>
-            <div id="mo-banner-title">Desviaciones / Deviations</div>
+            <div id="mo-banner-tag">@L["All deviations"]</div>
+            <div id="mo-banner-title">@L["Deviations"]</div>
             <div id="mo-banner-sub">
-                Consulta todas las desviaciones registradas por cualquier solicitante, con su estado de vigencia.
+                @L["View all deviations registered by any requester, with their validity status."]
             </div>
         </div>
 
         <div class="hero-actions">
             <a class="mo-btn mo-btn-secondary-outline" href="solicitudes">
-                Mis solicitudes / My Requests
+                @L["My Requests"]
             </a>
             <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
-                Nueva desviación / New Deviation
+                @L["New Deviation"]
             </a>
         </div>
     </section>
@@ -31,32 +31,32 @@
     <section class="panel-card">
         <div class="panel-head">
             <div>
-                <h2>Listado / List</h2>
-                <p class="panel-subtitle">Todas las desviaciones, con las completadas primero.</p>
+                <h2>@L["List"]</h2>
+                <p class="panel-subtitle">@L["All deviations, with completed ones first."]</p>
             </div>
 
             <span class="mo-badge mo-badge-primary">
-                <span class="mo-badge-dot"></span>@SolicitudesFiltradas.Count() registros
+                <span class="mo-badge-dot"></span>@L["{0} records", SolicitudesFiltradas.Count()]
             </span>
         </div>
 
         <div class="desv-filters">
             <div class="field-with-help">
-                <label class="mo-form-label">Buscar / Search</label>
+                <label class="mo-form-label">@L["Search"]</label>
                 <input class="mo-form-control"
-                       placeholder="ID, línea, BU, cliente, solicitante..."
+                       placeholder="@L["ID, line, BU, customer, requester..."]"
                        @bind="filtro"
                        @bind:event="oninput" />
             </div>
 
             <div class="field-with-help">
-                <label class="mo-form-label">Estado / Status</label>
+                <label class="mo-form-label">@L["Status"]</label>
                 <select class="mo-form-select" @bind="estadoFiltro">
-                    <option value="">Todas / All</option>
-                    <option value="COMPLETADAS">Completadas / Closed</option>
-                    <option value="VENCIDAS">Vencidas / Expired</option>
-                    <option value="POR_VENCER">Por vencer / Expiring soon</option>
-                    <option value="VIGENTES">Vigentes / Active</option>
+                    <option value="">@L["All"]</option>
+                    <option value="COMPLETADAS">@L["Closed"]</option>
+                    <option value="VENCIDAS">@L["Expired"]</option>
+                    <option value="POR_VENCER">@L["Expiring soon"]</option>
+                    <option value="VIGENTES">@L["Valid"]</option>
                 </select>
             </div>
         </div>
@@ -64,84 +64,112 @@
         @if (cargando)
         {
             <div class="empty-state">
-                Cargando desviaciones...
+                @L["Loading deviations..."]
             </div>
         }
         else if (!SolicitudesFiltradas.Any())
         {
             <div class="empty-state">
-                No hay desviaciones para mostrar con los filtros actuales.
+                @L["There are no deviations to show with the current filters."]
             </div>
         }
         else
         {
-            <div class="desv-list">
-                @foreach (var item in SolicitudesFiltradas)
-                {
-                    <article class="desv-card @EstadoVigenciaClass(item)">
-                        <div class="desv-main">
-                            <div class="desv-title">
-                                <span class="desv-id">#@item.SolicitudId</span>
-                                <div>
-                                    <h3>@Texto(item.NumeroParteAfectado)</h3>
-                                    <p>@Texto(item.Clientes)</p>
-                                </div>
-                            </div>
+            <div class="mo-table-wrap" data-mo-table data-page-size="10">
+                <table class="mo-table">
+                    <thead>
+                        <tr>
+                            <th data-mo-sort-col="0">ID</th>
+                            <th data-mo-sort-col="1">@L["Part / Customer"]</th>
+                            <th data-mo-sort-col="2">@L["Requester"]</th>
+                            <th data-mo-sort-col="3">@L["Line / BU"]</th>
+                            <th data-mo-sort-col="4">@L["Validity"]</th>
+                            <th data-mo-sort-col="5">@L["Request Status"]</th>
+                            <th data-mo-sort-col="6">@L["Extension Status"]</th>
+                            <th></th>
+                        </tr>
+                        <tr class="mo-table-filter-row">
+                            <th><input class="mo-th-filter" data-mo-filter-col="0" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="1" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="2" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="3" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="4" placeholder="@L["Filter..."]" /></th>
+                            <th>
+                                <select class="mo-th-filter" data-mo-filter-col="5">
+                                    <option value="">@L["All"]</option>
+                                    @foreach (var estado in EstadosVigenciaDisponibles)
+                                    {
+                                        <option value="@estado">@estado</option>
+                                    }
+                                </select>
+                            </th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="6" placeholder="@L["Filter..."]" /></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in SolicitudesFiltradas)
+                        {
+                            var solicitud = item.Solicitud;
 
-                            <div class="desv-meta-grid">
-                                <div>
-                                    <span>Solicitante / Applicant</span>
-                                    <strong>@Texto(item.NombreSolicitante)</strong>
-                                </div>
+                            <tr>
+                                <td data-sort-value="@solicitud.SolicitudId">#@solicitud.SolicitudId</td>
 
-                                <div>
-                                    <span>Línea / Line</span>
-                                    <strong>@Texto(item.CodigoLinea)</strong>
-                                </div>
+                                <td>
+                                    <div class="cell-title">@Texto(solicitud.NumeroParteAfectado)</div>
+                                    <div class="cell-subtitle">@Texto(solicitud.Clientes)</div>
+                                </td>
 
-                                <div>
-                                    <span>BU</span>
-                                    <strong>@Texto(item.UnidadNegocioAfectada)</strong>
-                                </div>
+                                <td>@Texto(solicitud.NombreSolicitante)</td>
 
-                                <div>
-                                    <span>6M</span>
-                                    <strong>@Texto(item.RequisitoProcesoEs)</strong>
-                                </div>
+                                <td>@Texto(solicitud.CodigoLinea) · @Texto(solicitud.UnidadNegocioAfectada)</td>
 
-                                <div>
-                                    <span>Vigencia / Validity</span>
-                                    <strong>@item.FechaVigencia.ToString("yyyy-MM-dd")</strong>
-                                </div>
+                                <td data-sort-value="@solicitud.FechaVigencia.ToString("yyyy-MM-dd")">
+                                    @solicitud.FechaVigencia.ToString("yyyy-MM-dd")
+                                </td>
 
-                                <div>
-                                    <span>Estado / Status</span>
-                                    <strong>@Texto(item.EstadoSolicitudEs)</strong>
-                                </div>
-                            </div>
-                        </div>
+                                <td>
+                                    <span class="mo-badge @EstadoVigenciaBadgeClase(solicitud)">
+                                        <span class="mo-badge-dot"></span>@EstadoVigenciaTexto(solicitud)
+                                    </span>
+                                </td>
 
-                        <div class="desv-side">
-                            <span class="mo-badge @EstadoVigenciaBadgeClase(item)">
-                                <span class="mo-badge-dot"></span>@EstadoVigenciaTexto(item)
-                            </span>
+                                <td class="desv-ext-cell">
+                                    @if (item.Extensiones.Count == 0)
+                                    {
+                                        <span class="desv-muted">—</span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var ext in item.Extensiones.OrderBy(x => x.NumeroExtension))
+                                        {
+                                            <span class="mo-badge @EstadoExtensionBadgeClase(ext)">
+                                                <span class="mo-badge-dot"></span>@L["Ext. {0}: {1}", ext.NumeroExtension, Texto(CatalogoTexto.Nombre(ext.EstadoExtensionEs, ext.EstadoExtensionEn))]
+                                            </span>
+                                        }
+                                    }
+                                </td>
 
-                            @if (EsCompartible(item))
-                            {
-                                <a class="mo-btn mo-btn-primary mo-btn-sm"
-                                   href="solicitudes/@item.SolicitudId/compartir">
-                                    Ver ficha / Share Card
-                                </a>
-                            }
+                                <td class="text-end desv-actions">
+                                    @if (EsCompartible(solicitud))
+                                    {
+                                        <a class="mo-btn mo-btn-primary mo-btn-sm"
+                                           href="solicitudes/@solicitud.SolicitudId/compartir">
+                                            @L["Sheet"]
+                                        </a>
+                                    }
 
-                            <a class="mo-btn mo-btn-secondary-outline mo-btn-sm"
-                               href="solicitudes/@item.SolicitudId">
-                                Detalle / Detail
-                            </a>
-                        </div>
-                    </article>
-                }
+                                    <a class="mo-btn mo-btn-secondary-outline mo-btn-sm"
+                                       href="solicitudes/@solicitud.SolicitudId">
+                                        @L["Detail"]
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
+            <div class="mo-table-pagination" data-mo-pagination></div>
         }
     </section>
 </div>
@@ -153,9 +181,9 @@
     private string filtro = string.Empty;
     private string estadoFiltro = string.Empty;
 
-    private List<QcDesvSolicitudResumen> solicitudes = new();
+    private List<QcDesvSolicitudConExtensiones> solicitudes = new();
 
-    private IEnumerable<QcDesvSolicitudResumen> SolicitudesFiltradas
+    private IEnumerable<QcDesvSolicitudConExtensiones> SolicitudesFiltradas
     {
         get
         {
@@ -166,32 +194,39 @@
                 var valor = filtro.Trim();
 
                 query = query.Where(x =>
-                    x.SolicitudId.ToString().Contains(valor, StringComparison.OrdinalIgnoreCase) ||
-                    Contiene(x.CodigoLinea, valor) ||
-                    Contiene(x.UnidadNegocioAfectada, valor) ||
-                    Contiene(x.Clientes, valor) ||
-                    Contiene(x.NombreSolicitante, valor) ||
-                    Contiene(x.EstadoSolicitudEs, valor));
+                    x.Solicitud.SolicitudId.ToString().Contains(valor, StringComparison.OrdinalIgnoreCase) ||
+                    Contiene(x.Solicitud.CodigoLinea, valor) ||
+                    Contiene(x.Solicitud.UnidadNegocioAfectada, valor) ||
+                    Contiene(x.Solicitud.Clientes, valor) ||
+                    Contiene(x.Solicitud.NombreSolicitante, valor) ||
+                    Contiene(x.Solicitud.EstadoSolicitudEs, valor));
             }
 
             query = estadoFiltro switch
             {
-                "COMPLETADAS" => query.Where(EstaCompletada),
-                "VENCIDAS" => query.Where(EstaVencida),
-                "POR_VENCER" => query.Where(EstaPorVencer),
-                "VIGENTES" => query.Where(x => EstadoVigenciaClass(x) == "active"),
+                "COMPLETADAS" => query.Where(x => EstaCompletada(x.Solicitud)),
+                "VENCIDAS" => query.Where(x => EstaVencida(x.Solicitud)),
+                "POR_VENCER" => query.Where(x => EstaPorVencer(x.Solicitud)),
+                "VIGENTES" => query.Where(x => EstadoVigenciaClass(x.Solicitud) == "active"),
                 _ => query
             };
 
-            return query
-                .OrderByDescending(EstaCompletada)
-                .ThenByDescending(x => x.SolicitudId);
+            // Orden por default: ID de mayor a menor. El ordenamiento fino por
+            // columna lo hace el cliente (mo-table.js) sobre las filas ya
+            // renderizadas.
+            return query.OrderByDescending(x => x.Solicitud.SolicitudId);
         }
     }
 
+    private IEnumerable<string> EstadosVigenciaDisponibles =>
+        solicitudes
+            .Select(x => EstadoVigenciaTexto(x.Solicitud))
+            .Distinct()
+            .OrderBy(x => x);
+
     protected override async Task OnInitializedAsync()
     {
-        solicitudes = await SolicitudService.ObtenerResumenAsync();
+        solicitudes = await SolicitudService.ObtenerResumenConExtensionesAsync();
         cargando = false;
     }
 
@@ -246,30 +281,30 @@
     {
         if (EstaCompletada(solicitud))
         {
-            return "Completada / Closed";
+            return Loc.T("Closed");
         }
 
         if (EstaFinalizadaSinAprobar(solicitud))
         {
-            return solicitud.EstadoSolicitudEs;
+            return CatalogoTexto.Nombre(solicitud.EstadoSolicitudEs, solicitud.EstadoSolicitudEn);
         }
 
         if (!EstaAprobada(solicitud))
         {
-            return "En proceso / In process";
+            return Loc.T("In process");
         }
 
         if (EstaVencida(solicitud))
         {
-            return "Vencida / Expired";
+            return Loc.T("Expired");
         }
 
         if (EstaPorVencer(solicitud))
         {
-            return "Por vencer / Expiring soon";
+            return Loc.T("Expiring soon");
         }
 
-        return "Vigente / Active";
+        return Loc.T("Valid");
     }
 
     private static string EstadoVigenciaBadgeClase(QcDesvSolicitudResumen solicitud)
@@ -313,6 +348,17 @@
         }
 
         return "active";
+    }
+
+    private static string EstadoExtensionBadgeClase(QcDesvExtensionResumen extension)
+    {
+        return extension.EstadoExtensionCodigo switch
+        {
+            QcDesvCodigos.EstadoExtension.Aprobada => "mo-badge-success",
+            QcDesvCodigos.EstadoExtension.Rechazada => "mo-badge-danger",
+            QcDesvCodigos.EstadoExtension.Cancelada => "mo-badge-secondary",
+            _ => "mo-badge-primary"
+        };
     }
 
     private static bool Contiene(string? texto, string filtro)

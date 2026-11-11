@@ -4,7 +4,7 @@
 @inject SolicitudDesviacionService SolicitudService
 @inject UsuarioActualService UsuarioActualService
 
-<PageTitle>Detalle de desviación</PageTitle>
+<PageTitle>@L["Deviation detail"]</PageTitle>
 
 <div class="nueva-page">
     @if (cargando)
@@ -18,9 +18,9 @@
     {
         <section class="panel-card">
             <div class="empty-state compact">
-                <div class="empty-title">Solicitud no encontrada / Request not found</div>
-                <p class="empty-text">No existe una solicitud con el ID indicado.</p>
-                <a class="mo-btn mo-btn-primary mt-3" href="desviaciones">Volver / Back</a>
+                <div class="empty-title">@L["Request not found"]</div>
+                <p class="empty-text">@L["There is no request with the given ID."]</p>
+                <a class="mo-btn mo-btn-primary mt-3" href="desviaciones">@L["Back"]</a>
             </div>
         </section>
     }
@@ -31,49 +31,43 @@
             <div class="mo-banner-orb mo-banner-orb-2"></div>
 
             <div id="mo-banner-content">
-                <div id="mo-banner-tag">Desviación #@solicitud.Id</div>
+                <div id="mo-banner-tag">@L["Deviation #{0}", solicitud.Id]</div>
                 <div id="mo-banner-title">@solicitud.NumeroParteAfectado</div>
 
                 <div class="hero-meta">
-                    <span class="meta-chip">@solicitud.TipoDesviacion?.NombreEs / @solicitud.TipoDesviacion?.NombreEn</span>
-                    <span class="meta-chip">@solicitud.EstadoSolicitud?.NombreEs</span>
-                    <span class="meta-chip">Vigencia: @FormatDate(solicitud.FechaVigencia)</span>
-                    <span class="meta-chip">Extensiones: @solicitud.NumeroExtensionActual / 2</span>
+                    <span class="meta-chip">@CatalogoTexto.Nombre(solicitud.TipoDesviacion?.NombreEs, solicitud.TipoDesviacion?.NombreEn)</span>
+                    <span class="meta-chip">@CatalogoTexto.Nombre(solicitud.EstadoSolicitud?.NombreEs, solicitud.EstadoSolicitud?.NombreEn)</span>
+                    <span class="meta-chip">@L["Validity: {0}", FormatDate(solicitud.FechaVigencia)]</span>
+                    <span class="meta-chip">@L["Extensions: {0} / {1}", solicitud.NumeroExtensionActual, 2]</span>
                 </div>
 
                 <div id="mo-banner-sub">
-                    Solicitante: @solicitud.NombreSolicitante | Cliente(s): @solicitud.Clientes
+                    @L["Requester: {0} | Customer(s): {1}", solicitud.NombreSolicitante, solicitud.Clientes]
                 </div>
             </div>
 
             <div class="hero-actions">
-                <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">Volver / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">@L["Back"]</a>
 
                 @if (PuedeEditar)
                 {
                     <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id/editar">
-                        Editar / Edit
+                        @L["Edit"]
                     </a>
                 }
 
-                @if (PuedeCancelar)
-                {
-                    <a class="mo-btn mo-btn-danger" href="solicitudes/@solicitud.Id/cancelar">
-                        Cancelar / Cancel
-                    </a>
-                }
 
                 @if (PuedeSolicitarExtension)
                 {
                     <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id/extension">
-                        Extensión / Extension
+                        @L["Extension"]
                     </a>
                 }
 
                 @if (PuedeCerrar)
                 {
                     <a class="mo-btn mo-btn-primary" href="solicitudes/@solicitud.Id/cerrar">
-                        Cerrar / Close
+                        @L["Close"]
                     </a>
                 }
             </div>
@@ -84,98 +78,98 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Información general / General Information</h2>
-                            <p class="panel-subtitle">Datos completos de la solicitud de desviación.</p>
+                            <h2>@L["General information"]</h2>
+                            <p class="panel-subtitle">@L["Complete data of the deviation request."]</p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">Solicitud #@solicitud.Id</span>
+                        <span class="mo-badge mo-badge-primary">@L["Request #{0}", solicitud.Id]</span>
                     </div>
 
                     <div class="info-grid">
                         <div class="summary-item">
-                            <span>ID de desviación / Deviation ID</span>
+                            <span>@L["Deviation ID"]</span>
                             <strong>#@solicitud.Id</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Fecha de solicitud / Request Date</span>
+                            <span>@L["Request Date"]</span>
                             <strong>@FormatDate(solicitud.FechaSolicitud)</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Solicitante / Requester</span>
+                            <span>@L["Requester"]</span>
                             <strong>@solicitud.NombreSolicitante</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Departamento / Department</span>
+                            <span>@L["Department"]</span>
                             <strong>@solicitud.DepartamentoSolicitante</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Unidad de negocio afectada / Affected Business Unit</span>
+                            <span>@L["Affected Business Unit"]</span>
                             <strong>@solicitud.UnidadNegocioAfectada</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Código de línea / Line Code</span>
+                            <span>@L["Line Code"]</span>
                             <strong>@solicitud.CodigoLinea</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Cliente(s) / Customer(s)</span>
+                            <span>@L["Customer(s)"]</span>
                             <strong>@solicitud.Clientes</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Tipo de desviación / Deviation Type</span>
-                            <strong>@solicitud.TipoDesviacion?.NombreEs / @solicitud.TipoDesviacion?.NombreEn</strong>
+                            <span>@L["Deviation Type"]</span>
+                            <strong>@CatalogoTexto.Nombre(solicitud.TipoDesviacion?.NombreEs, solicitud.TipoDesviacion?.NombreEn)</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Estado / Status</span>
-                            <strong>@solicitud.EstadoSolicitud?.NombreEs / @solicitud.EstadoSolicitud?.NombreEn</strong>
+                            <span>@L["Status"]</span>
+                            <strong>@CatalogoTexto.Nombre(solicitud.EstadoSolicitud?.NombreEs, solicitud.EstadoSolicitud?.NombreEn)</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Tiempo de vigencia / Validity Period</span>
+                            <span>@L["Validity Period"]</span>
                             <strong>@FormatDate(solicitud.FechaVigencia)</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Cantidad de piezas / Quantity of Pieces</span>
+                            <span>@L["Quantity of Pieces"]</span>
                             <strong>@solicitud.CantidadPiezas</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Número de parte afectado / Affected Part Number</span>
+                            <span>@L["Affected Part Number"]</span>
                             <strong>@solicitud.NumeroParteAfectado</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Requisito del proceso / Process Requirement</span>
-                            <strong>@solicitud.RequisitoProceso?.NombreEs / @solicitud.RequisitoProceso?.NombreEn</strong>
+                            <span>@L["Process Requirement"]</span>
+                            <strong>@CatalogoTexto.Nombre(solicitud.RequisitoProceso?.NombreEs, solicitud.RequisitoProceso?.NombreEn)</strong>
                         </div>
 
                         @if (solicitud.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
                         {
                             <div class="summary-item">
-                                <span>Otro requisito / Other Requirement</span>
+                                <span>@L["Other Requirement"]</span>
                                 <strong>@Texto(solicitud.RequisitoProcesoOtro)</strong>
                             </div>
                         }
 
                         <div class="summary-item">
-                            <span>Extensiones usadas / Used Extensions</span>
-                            <strong>@solicitud.NumeroExtensionActual de 2</strong>
+                            <span>@L["Used extensions"]</span>
+                            <strong>@L["{0} of {1}", solicitud.NumeroExtensionActual, 2]</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Fecha de creación / Created Date</span>
+                            <span>@L["Created date"]</span>
                             <strong>@FormatDateTime(solicitud.FechaCreacion)</strong>
                         </div>
 
                         <div class="summary-item">
-                            <span>Última modificación / Last Modified</span>
+                            <span>@L["Last Modified"]</span>
                             <strong>@FormatDateTime(solicitud.FechaModificacion)</strong>
                         </div>
                     </div>
@@ -199,7 +193,7 @@
                         </div>
 
                         <div class="summary-item">
-                            <span>Informar al cliente / Inform Customer</span>
+                            <span>@L["Inform Customer"]</span>
                             <strong>@SiNo(solicitud.InformarCliente)</strong>
                         </div>
                     </div>
@@ -207,7 +201,7 @@
                     <div class="section-divider"></div>
 
                     <div class="detail-box">
-                        <span>Razón / Reason</span>
+                        <span>@L["Reason"]</span>
                         <p>@Texto(solicitud.RazonInformarCliente)</p>
                     </div>
                 </section>
@@ -215,8 +209,8 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Descripción de la desviación / Deviation Description</h2>
-                            <p class="panel-subtitle">Comparativo entre el proceso actual y el proceso con cambio temporal.</p>
+                            <h2>@L["Deviation Description"]</h2>
+                            <p class="panel-subtitle">@L["Comparison between the current process and the process with the temporary change."]</p>
                         </div>
                     </div>
 
@@ -224,46 +218,46 @@
                     {
                         <div class="detail-stack">
                             <div class="detail-box">
-                                <span>¿Cómo debe realizarse el proceso? / How should the process be performed?</span>
+                                <span>@L["How is the process performed under normal operating conditions?"]</span>
                                 <p>@Texto(solicitud.Descripcion.ComoDebeRealizarseProceso)</p>
                             </div>
 
                             <div class="detail-box">
-                                <span>¿Qué controles se siguen durante la operación actual? / Current operation controls</span>
+                                <span>@L["What controls are followed under normal operating conditions?"]</span>
                                 <p>@Texto(solicitud.Descripcion.ControlesOperacionActual)</p>
                             </div>
 
                             <div class="detail-box">
-                                <span>¿Cómo se ejecutará el proceso después de implementar el cambio temporal? / Process after temporary change</span>
+                                <span>@L["What is the temporary change that will be implemented?"]</span>
                                 <p>@Texto(solicitud.Descripcion.ProcesoDespuesCambioTemporal)</p>
                             </div>
 
                             <div class="detail-box">
-                                <span>¿Qué controles deben implementarse durante la operación con cambio? / Controls during change</span>
+                                <span>@L["Will additional controls be implemented during the temporary change to mitigate risks? If so, describe them."]</span>
                                 <p>@Texto(solicitud.Descripcion.ControlesDuranteCambio)</p>
                             </div>
                         </div>
                     }
                     else
                     {
-                        <div class="empty-state compact">Sin descripción registrada.</div>
+                        <div class="empty-state compact">@L["No description recorded."]</div>
                     }
                 </section>
 
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Análisis de riesgo / Risk Analysis</h2>
-                            <p class="panel-subtitle">Aplica únicamente para desviaciones críticas.</p>
+                            <h2>@L["Risk Analysis"]</h2>
+                            <p class="panel-subtitle">@L["Applies only to critical deviations."]</p>
                         </div>
 
                         @if (solicitud.AnalisisRiesgo is not null)
                         {
-                            <span class="mo-badge mo-badge-danger">Crítica / Critical</span>
+                            <span class="mo-badge mo-badge-danger">@L["Critical"]</span>
                         }
                         else
                         {
-                            <span class="mo-badge mo-badge-secondary">No aplica / N/A</span>
+                            <span class="mo-badge mo-badge-secondary">@L["Not applicable"]</span>
                         }
                     </div>
 
@@ -271,52 +265,52 @@
                     {
                         <div class="risk-comparison">
                             <div class="risk-block">
-                                <h3>Operación actual / Current Operation</h3>
+                                <h3>@L["Current Operation"]</h3>
 
                                 <div class="summary-grid three">
                                     <div class="summary-item">
-                                        <span>Severidad / Severity</span>
+                                        <span>@L["Severity"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
                                     </div>
 
                                     <div class="summary-item">
-                                        <span>Ocurrencia / Occurrence</span>
+                                        <span>@L["Occurrence"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.OcurrenciaActual</strong>
                                     </div>
 
                                     <div class="summary-item">
-                                        <span>Detección / Detection</span>
+                                        <span>@L["Detection"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.DeteccionActual</strong>
                                     </div>
 
                                     <div class="summary-item rpn-item">
-                                        <span>RPN actual / Current RPN</span>
+                                        <span>@L["Current RPN"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.RpnActual</strong>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="risk-block">
-                                <h3>Con cambio temporal / With Temporary Change</h3>
+                                <h3>@L["With Temporary Change"]</h3>
 
                                 <div class="summary-grid three">
                                     <div class="summary-item">
-                                        <span>Severidad / Severity</span>
+                                        <span>@L["Severity"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
                                     </div>
 
                                     <div class="summary-item">
-                                        <span>Ocurrencia con cambio / Occurrence with Change</span>
+                                        <span>@L["Occurrence with Change"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.OcurrenciaConCambio</strong>
                                     </div>
 
                                     <div class="summary-item">
-                                        <span>Detección con cambio / Detection with Change</span>
+                                        <span>@L["Detection with Change"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.DeteccionConCambio</strong>
                                     </div>
 
                                     <div class="summary-item rpn-item">
-                                        <span>RPN con cambio / RPN with Change</span>
+                                        <span>@L["RPN with Change"]</span>
                                         <strong>@solicitud.AnalisisRiesgo.RpnConCambio</strong>
                                     </div>
                                 </div>
@@ -326,7 +320,7 @@
                     else
                     {
                         <div class="empty-state compact">
-                            Esta solicitud es estándar o no tiene análisis de riesgo registrado.
+                            @L["This request is standard or has no risk analysis recorded."]
                         </div>
                     }
                 </section>
@@ -334,15 +328,15 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Acciones / Actions</h2>
-                            <p class="panel-subtitle">Acciones propuestas o registradas para la desviación.</p>
+                            <h2>@L["Actions"]</h2>
+                            <p class="panel-subtitle">@L["Actions proposed or recorded for the deviation."]</p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">@solicitud.Acciones.Count acción(es)</span>
+                        <span class="mo-badge mo-badge-primary">@L["{0} action(s)", solicitud.Acciones.Count]</span>
                     </div>
 
                     @if (!solicitud.Acciones.Any())
                     {
-                        <div class="empty-state compact">Sin acciones registradas.</div>
+                        <div class="empty-state compact">@L["No actions recorded."]</div>
                     }
                     else
                     {
@@ -352,14 +346,14 @@
                                 <article class="action-card">
                                     <div class="action-card-head">
                                         <div>
-                                            <span>Acción / Action</span>
-                                            <strong>Acción #@accion.Id</strong>
+                                            <span>@L["Action"]</span>
+                                            <strong>@L["Action #{0}", accion.Id]</strong>
                                         </div>
 
                                         @if (accion.FechaCompromiso.HasValue)
                                         {
                                             <span class="date-chip">
-                                                Compromiso: @FormatDate(accion.FechaCompromiso)
+                                                @L["Commitment: {0}", FormatDate(accion.FechaCompromiso)]
                                             </span>
                                         }
                                     </div>
@@ -367,8 +361,8 @@
                                     <p>@Texto(accion.DescripcionAccion)</p>
 
                                     <div class="action-meta">
-                                        <span><strong>Responsable:</strong> @Texto(accion.Responsable)</span>
-                                        <span><strong>Creada:</strong> @FormatDateTime(accion.FechaCreacion)</span>
+                                        <span><strong>@L["Responsible:"]</strong> @Texto(accion.Responsable)</span>
+                                        <span><strong>@L["Created:"]</strong> @FormatDateTime(accion.FechaCreacion)</span>
                                     </div>
 
                                     @if (accion.Archivos.Any())
@@ -389,15 +383,15 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Extensiones / Extensions</h2>
-                            <p class="panel-subtitle">Historial de extensiones solicitadas para la desviación.</p>
+                            <h2>@L["Extensions"]</h2>
+                            <p class="panel-subtitle">@L["History of extensions requested for the deviation."]</p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">@solicitud.Extensiones.Count extensión(es)</span>
+                        <span class="mo-badge mo-badge-primary">@L["{0} extension(s)", solicitud.Extensiones.Count]</span>
                     </div>
 
                     @if (!solicitud.Extensiones.Any())
                     {
-                        <div class="empty-state compact">Sin extensiones registradas.</div>
+                        <div class="empty-state compact">@L["No extensions recorded."]</div>
                     }
                     else
                     {
@@ -406,12 +400,12 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Vigencia anterior</th>
-                                        <th>Nueva vigencia</th>
-                                        <th>Estado</th>
-                                        <th>Razón</th>
-                                        <th>Solicitada</th>
-                                        <th>Aprobada</th>
+                                        <th>@L["Previous validity"]</th>
+                                        <th>@L["New validity"]</th>
+                                        <th>@L["Status"]</th>
+                                        <th>@L["Reason"]</th>
+                                        <th>@L["Requested on"]</th>
+                                        <th>@L["Approved on"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -438,40 +432,40 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Control de cierre / Closure Control</h2>
-                            <p class="panel-subtitle">Información capturada al cierre de la desviación.</p>
+                            <h2>@L["Closure Control"]</h2>
+                            <p class="panel-subtitle">@L["Information captured at the closure of the deviation."]</p>
                         </div>
                     </div>
 
                     @if (solicitud.Control is null)
                     {
-                        <div class="empty-state compact">La desviación aún no tiene datos de cierre.</div>
+                        <div class="empty-state compact">@L["The deviation has no closure data yet."]</div>
                     }
                     else
                     {
                         <div class="summary-grid three">
                             <div class="summary-item">
-                                <span>Lote de inicio / Start Lot</span>
+                                <span>@L["Start Lot"]</span>
                                 <strong>@Texto(solicitud.Control.NumeroLoteInicio)</strong>
                             </div>
 
                             <div class="summary-item">
-                                <span>Case de inicio / Start Case</span>
+                                <span>@L["Start Case"]</span>
                                 <strong>@Texto(solicitud.Control.NumeroCaseInicio)</strong>
                             </div>
 
                             <div class="summary-item">
-                                <span>Lote final / Final Lot</span>
+                                <span>@L["Final Lot"]</span>
                                 <strong>@Texto(solicitud.Control.NumeroLoteFinal)</strong>
                             </div>
 
                             <div class="summary-item">
-                                <span>Case final / Final Case</span>
+                                <span>@L["Final Case"]</span>
                                 <strong>@Texto(solicitud.Control.NumeroCaseFinal)</strong>
                             </div>
 
                             <div class="summary-item">
-                                <span>Fecha de cierre / Closure Date</span>
+                                <span>@L["Closure Date"]</span>
                                 <strong>@FormatDateTime(solicitud.Control.FechaCierre)</strong>
                             </div>
                         </div>
@@ -483,15 +477,15 @@
                 <section class="panel-card compact-panel">
                     <div class="panel-head compact-head">
                         <div>
-                            <h2>Aprobaciones / Approvals</h2>
-                            <p class="panel-subtitle">Agrupadas por solicitud inicial y extensiones.</p>
+                            <h2>@L["Approvals"]</h2>
+                            <p class="panel-subtitle">@L["Grouped by initial request and extensions."]</p>
                         </div>
                         <span class="mo-badge mo-badge-primary">@solicitud.Aprobaciones.Count</span>
                     </div>
 
                     @if (!solicitud.Aprobaciones.Any())
                     {
-                        <div class="empty-state compact">Sin aprobaciones registradas.</div>
+                        <div class="empty-state compact">@L["No approvals recorded."]</div>
                     }
                     else
                     {
@@ -501,7 +495,7 @@
                                 <details class="approval-group" open="@grupo.Abierto">
                                     <summary>
                                         <span>@grupo.Titulo</span>
-                                        <strong>@grupo.Items.Count paso(s)</strong>
+                                        <strong>@L["{0} step(s)", grupo.Items.Count]</strong>
                                     </summary>
 
                                     <div class="approval-list compact">
@@ -511,8 +505,7 @@
                                                 <div class="approval-topline">
                                                     <span class="approval-step">@aprobacion.Orden</span>
                                                     <div>
-                                                        <strong>@aprobacion.RolAprobador?.NombreEs</strong>
-                                                        <span>@aprobacion.RolAprobador?.NombreEn</span>
+                                                        <strong>@CatalogoTexto.Nombre(aprobacion.RolAprobador?.NombreEs, aprobacion.RolAprobador?.NombreEn)</strong>
                                                     </div>
                                                 </div>
 
@@ -523,14 +516,14 @@
 
                                                     @if (aprobacion.EsPasoActual)
                                                     {
-                                                        <span class="mo-badge mo-badge-primary">Actual / Current</span>
+                                                        <span class="mo-badge mo-badge-primary">@L["Current"]</span>
                                                     }
                                                 </div>
 
                                                 <div class="approval-meta">
-                                                    <span>Asignado: @FormatDateTime(aprobacion.FechaAsignacion)</span>
-                                                    <span>Decisión: @FormatDateTime(aprobacion.FechaDecision)</span>
-                                                    <span>Aprobador: @Texto(aprobacion.UsuarioAprobador?.NombreCompleto)</span>
+                                                    <span>@L["Assigned: {0}", FormatDateTime(aprobacion.FechaAsignacion)]</span>
+                                                    <span>@L["Decision: {0}", FormatDateTime(aprobacion.FechaDecision)]</span>
+                                                    <span>@L["Approver: {0}", Texto(aprobacion.UsuarioAprobador?.NombreCompleto)]</span>
                                                 </div>
 
                                                 @if (!string.IsNullOrWhiteSpace(aprobacion.Comentarios))
@@ -549,15 +542,15 @@
                 <section class="panel-card compact-panel">
                     <div class="panel-head compact-head">
                         <div>
-                            <h2>Archivos / Files</h2>
-                            <p class="panel-subtitle">Adjuntos relacionados con la solicitud.</p>
+                            <h2>@L["Files"]</h2>
+                            <p class="panel-subtitle">@L["Attachments related to the request."]</p>
                         </div>
                         <span class="mo-badge mo-badge-primary">@solicitud.Archivos.Count</span>
                     </div>
 
                     @if (!solicitud.Archivos.Any())
                     {
-                        <div class="empty-state compact">Sin archivos adjuntos.</div>
+                        <div class="empty-state compact">@L["No attached files."]</div>
                     }
                     else
                     {
@@ -576,15 +569,15 @@
                 <section class="panel-card compact-panel">
                     <div class="panel-head compact-head">
                         <div>
-                            <h2>Historial / History</h2>
-                            <p class="panel-subtitle">Movimientos de la desviación.</p>
+                            <h2>@L["History"]</h2>
+                            <p class="panel-subtitle">@L["Movements of the deviation."]</p>
                         </div>
                         <span class="mo-badge mo-badge-primary">@solicitud.Historiales.Count</span>
                     </div>
 
                     @if (!solicitud.Historiales.Any())
                     {
-                        <div class="empty-state compact">Sin historial registrado.</div>
+                        <div class="empty-state compact">@L["No history recorded."]</div>
                     }
                     else
                     {
@@ -656,12 +649,6 @@
             solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Rechazada
         );
 
-    private bool PuedeCancelar =>
-        EsSolicitanteActual &&
-        solicitud is not null &&
-        solicitud.EstadoSolicitudCodigo != QcDesvCodigos.EstadoSolicitud.Cerrada &&
-        solicitud.EstadoSolicitudCodigo != QcDesvCodigos.EstadoSolicitud.Cancelada;
-
     private IReadOnlyList<GrupoAprobacionesDetalle> AprobacionesAgrupadas
     {
         get
@@ -682,7 +669,7 @@
             {
                 grupos.Add(new GrupoAprobacionesDetalle
                 {
-                    Titulo = "Solicitud inicial / Initial Request",
+                    Titulo = L["Initial request"].Value,
                     Abierto = true,
                     Items = inicial
                 });
@@ -700,7 +687,7 @@
 
                 grupos.Add(new GrupoAprobacionesDetalle
                 {
-                    Titulo = $"Extensión #{numero} / Extension #{numero}",
+                    Titulo = L["Extension #{0}", numero].Value,
                     Abierto = grupo.Any(x => x.EsPasoActual),
                     Items = grupo.OrderBy(x => x.Orden).ToList()
                 });
@@ -736,7 +723,7 @@
 
     private static string SiNo(bool value)
     {
-        return value ? "Sí / Yes" : "No / No";
+        return value ? Loc.T("Yes") : Loc.T("No");
     }
 
     private static string FormatDate(DateTime? value)
@@ -751,7 +738,9 @@
 
     private static string TextoAprobacion(QcDesvAprobacion aprobacion)
     {
-        return aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo;
+        return aprobacion.EstadoAprobacion is null
+            ? aprobacion.EstadoAprobacionCodigo
+            : CatalogoTexto.Nombre(aprobacion.EstadoAprobacion.NombreEs, aprobacion.EstadoAprobacion.NombreEn);
     }
 
     private sealed class GrupoAprobacionesDetalle

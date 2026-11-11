@@ -18,6 +18,8 @@ public static class MeaxClaims
     public const string Position = "Position";
     public const string EmployeeId = "EmployeeId";
     public const string SystemRole = "SystemRole";
+    // Idioma elegido en MEAX One ("es", "en" o "ja"); lo lee MeaxCultureProvider
+    public const string Idioma = "Idioma";
 
     // Claims propios de la app (los consume UsuarioActualService)
     public const string QcUsuarioId = "qc_usuario_id";

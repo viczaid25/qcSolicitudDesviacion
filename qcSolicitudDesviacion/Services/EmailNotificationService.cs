@@ -62,6 +62,7 @@ public class EmailNotificationService
     public async Task NotificarRechazoAsync(
         int solicitudId,
         string? posicion,
+        bool esExtension = false,
         CancellationToken cancellationToken = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -75,10 +76,18 @@ public class EmailNotificationService
 
         var posicionTexto = string.IsNullOrWhiteSpace(posicion) ? "the reviewer" : posicion;
 
-        var asunto = $"Deviation Request ID{solicitudId} \"Rejected\"";
-        var cuerpo =
-            $"Please be informed that the Deviation Request ID{solicitudId} has been reviewed and rejected by {posicionTexto}.\n\n" +
-            "Please review the comments provided in the request. If applicable, a new request may be submitted for re-evaluation.";
+        // El rechazo de una extensión NO significa que la desviación original
+        // se haya rechazado -- esa ya estaba aprobada. El correo debe dejarlo
+        // claro para no confundir al solicitante.
+        var asunto = esExtension
+            ? $"Deviation Extension ID{solicitudId} \"Rejected\""
+            : $"Deviation Request ID{solicitudId} \"Rejected\"";
+
+        var cuerpo = esExtension
+            ? $"Please be informed that the extension requested for Deviation ID{solicitudId} has been reviewed and rejected by {posicionTexto}. The original deviation approval remains valid; only the requested extension was declined.\n\n" +
+              "Please review the comments provided. If applicable, a new extension may be requested."
+            : $"Please be informed that the Deviation Request ID{solicitudId} has been reviewed and rejected by {posicionTexto}.\n\n" +
+              "Please review the comments provided in the request. If applicable, a new request may be submitted for re-evaluation.";
 
         await EnviarAsync(new[] { destinatario }, asunto, ConEnlace(cuerpo, $"/solicitudes/{solicitudId}"));
     }

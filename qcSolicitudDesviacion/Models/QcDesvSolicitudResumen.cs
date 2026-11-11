@@ -34,3 +34,25 @@ public class QcDesvSolicitudResumen
 
     public DateTime FechaCreacion { get; set; }
 }
+
+// DTO ligero para mostrar, junto al resumen de la solicitud, el estatus
+// de cada extensión que se le haya pedido -- así la lista puede distinguir
+// "solicitud aprobada, extensión rechazada" en vez de mostrar un solo estado.
+public class QcDesvExtensionResumen
+{
+    public int Id { get; set; }
+    public byte NumeroExtension { get; set; }
+    public string EstadoExtensionCodigo { get; set; } = string.Empty;
+    public string EstadoExtensionEs { get; set; } = string.Empty;
+    public string EstadoExtensionEn { get; set; } = string.Empty;
+    public DateTime NuevaFechaVigencia { get; set; }
+}
+
+public class QcDesvSolicitudConExtensiones
+{
+    public QcDesvSolicitudResumen Solicitud { get; set; } = null!;
+    public List<QcDesvExtensionResumen> Extensiones { get; set; } = new();
+
+    public QcDesvExtensionResumen? UltimaExtension =>
+        Extensiones.OrderByDescending(x => x.NumeroExtension).FirstOrDefault();
+}

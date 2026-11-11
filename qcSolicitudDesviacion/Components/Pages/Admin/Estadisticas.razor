@@ -1,0 +1,276 @@
+@page "/admin/estadisticas"
+@rendermode InteractiveServer
+
+@inject SolicitudDesviacionService SolicitudService
+@inject AdminAprobadoresService AdminAprobadoresService
+@inject UsuarioActualService UsuarioActualService
+@inject IJSRuntime JS
+
+<PageTitle>@L["Statistics"]</PageTitle>
+
+<div class="stats-page">
+    <section id="mo-banner">
+        <div class="mo-banner-orb mo-banner-orb-1"></div>
+        <div class="mo-banner-orb mo-banner-orb-2"></div>
+
+        <div id="mo-banner-content">
+            <div id="mo-banner-tag">@L["Administration"]</div>
+            <div id="mo-banner-title">@L["Statistics"]</div>
+            <div id="mo-banner-sub">
+                @L["General indicators of deviation requests, extensions and their distribution."]
+            </div>
+        </div>
+
+        <div class="hero-actions">
+            <a class="mo-btn mo-btn-secondary-outline" href="">@L["Home"]</a>
+        </div>
+    </section>
+
+    @if (cargando)
+    {
+        <section class="panel-card">
+            <div class="empty-state">@L["Loading statistics..."]</div>
+        </section>
+    }
+    else if (!autorizado)
+    {
+        <section class="panel-card access-card">
+            <div class="access-icon">!</div>
+            <h2>@L["Restricted access"]</h2>
+            <p>
+                @L["Only users with the {0} role can view the statistics."].Con(@<strong>ADMIN</strong>)
+            </p>
+        </section>
+    }
+    else
+    {
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <span>@L["Total Requests"]</span>
+                <strong>@datos.TotalSolicitudes</strong>
+            </div>
+
+            <div class="kpi-card kpi-info">
+                <span>@L["Extensions Requested"]</span>
+                <strong>@datos.TotalExtensiones</strong>
+            </div>
+
+            <div class="kpi-card kpi-success">
+                <span>@L["Valid"]</span>
+                <strong>@datos.Vigentes</strong>
+            </div>
+
+            <div class="kpi-card kpi-warning">
+                <span>@L["Expiring soon"]</span>
+                <strong>@datos.PorVencer</strong>
+            </div>
+
+            <div class="kpi-card kpi-danger">
+                <span>@L["Expired"]</span>
+                <strong>@datos.Vencidas</strong>
+            </div>
+
+            <div class="kpi-card kpi-neutral">
+                <span>@L["Closed"]</span>
+                <strong>@datos.Cerradas</strong>
+            </div>
+
+            <div class="kpi-card kpi-success">
+                <span>@L["Approval rate"]</span>
+                <strong>@datos.PorcentajeAprobacion.ToString("0.#")%</strong>
+            </div>
+
+            <div class="kpi-card kpi-danger">
+                <span>@L["Rejection rate"]</span>
+                <strong>@datos.PorcentajeRechazo.ToString("0.#")%</strong>
+            </div>
+        </section>
+
+        <section class="charts-grid">
+            <div class="panel-card chart-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Requests by Status"]</h2>
+                        <p class="panel-subtitle">@L["Distribution of all registered requests."]</p>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartEstado"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card chart-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Requests by 6M Classification"]</h2>
+                        <p class="panel-subtitle">@L["Method, Material, Manpower, Machine, Measurement or Other."]</p>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chart6m"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card chart-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Requests by Type"]</h2>
+                        <p class="panel-subtitle">@L["Critical vs. Standard."]</p>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartTipo"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card chart-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Extensions by Status"]</h2>
+                        <p class="panel-subtitle">@L["Pending, approved, rejected and canceled."]</p>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    @if (datos.TotalExtensiones == 0)
+                    {
+                        <div class="empty-state compact">@L["No extensions registered."]</div>
+                    }
+                    else
+                    {
+                        <canvas id="chartExtensiones"></canvas>
+                    }
+                </div>
+            </div>
+
+            <div class="panel-card chart-card chart-card-wide">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Monthly Trend"]</h2>
+                        <p class="panel-subtitle">@L["Requests created in the last 12 months."]</p>
+                    </div>
+                </div>
+                <div class="chart-box chart-box-wide">
+                    <canvas id="chartTendencia"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card chart-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Top Business Units"]</h2>
+                        <p class="panel-subtitle">@L["Business units with the most requests."]</p>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartBu"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card chart-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>@L["Top Requesters"]</h2>
+                        <p class="panel-subtitle">@L["Users with the most registered requests."]</p>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartSolicitantes"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2>@L["Top Lines"]</h2>
+                    <p class="panel-subtitle">@L["Production lines with the most registered deviations."]</p>
+                </div>
+            </div>
+
+            <div class="mo-table-wrap">
+                <table class="mo-table">
+                    <thead>
+                        <tr>
+                            <th>@L["Line"]</th>
+                            <th class="text-end">@L["Requests"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in datos.TopLineas)
+                        {
+                            <tr>
+                                <td>@item.Etiqueta</td>
+                                <td class="text-end">@item.Valor</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    }
+</div>
+
+@code {
+    private bool cargando = true;
+    private bool autorizado;
+    private bool graficasRenderizadas;
+    private QcDesvEstadisticas datos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var usuarioActualId = await UsuarioActualService.ObtenerUsuarioIdAsync();
+        autorizado = await AdminAprobadoresService.UsuarioEsAdminAsync(usuarioActualId);
+
+        if (autorizado)
+        {
+            datos = await SolicitudService.ObtenerEstadisticasAsync();
+        }
+
+        cargando = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // No se puede usar solo "firstRender": ese primer render es el que
+        // muestra "Cargando..." (todavía sin los <canvas> en el DOM). Las
+        // gráficas se inicializan una sola vez, en el primer render posterior
+        // a que cargando pase a false y ya existan los <canvas>.
+        if (cargando || !autorizado || graficasRenderizadas)
+        {
+            return;
+        }
+
+        graficasRenderizadas = true;
+
+        await JS.InvokeVoidAsync("qcDesvCharts.donut", "chartEstado",
+            datos.PorEstado.Select(x => x.Etiqueta).ToArray(),
+            datos.PorEstado.Select(x => x.Valor).ToArray());
+
+        await JS.InvokeVoidAsync("qcDesvCharts.barVertical", "chart6m",
+            datos.Por6M.Select(x => x.Etiqueta).ToArray(),
+            datos.Por6M.Select(x => x.Valor).ToArray());
+
+        await JS.InvokeVoidAsync("qcDesvCharts.barVertical", "chartTipo",
+            datos.PorTipo.Select(x => x.Etiqueta).ToArray(),
+            datos.PorTipo.Select(x => x.Valor).ToArray());
+
+        if (datos.TotalExtensiones > 0)
+        {
+            await JS.InvokeVoidAsync("qcDesvCharts.donut", "chartExtensiones",
+                datos.PorEstadoExtension.Select(x => x.Etiqueta).ToArray(),
+                datos.PorEstadoExtension.Select(x => x.Valor).ToArray());
+        }
+
+        await JS.InvokeVoidAsync("qcDesvCharts.linea", "chartTendencia",
+            datos.TendenciaMensual.Select(x => x.Etiqueta).ToArray(),
+            datos.TendenciaMensual.Select(x => x.Valor).ToArray());
+
+        await JS.InvokeVoidAsync("qcDesvCharts.barHorizontal", "chartBu",
+            datos.TopUnidadesNegocio.Select(x => x.Etiqueta).ToArray(),
+            datos.TopUnidadesNegocio.Select(x => x.Valor).ToArray());
+
+        await JS.InvokeVoidAsync("qcDesvCharts.barHorizontal", "chartSolicitantes",
+            datos.TopSolicitantes.Select(x => x.Etiqueta).ToArray(),
+            datos.TopSolicitantes.Select(x => x.Valor).ToArray());
+    }
+}

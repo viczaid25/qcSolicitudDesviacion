@@ -7,7 +7,7 @@
 @inject AdminAprobadoresService AdminAprobadoresService
 @inject NavigationManager Navigation
 
-<PageTitle>Solicitar extensión</PageTitle>
+<PageTitle>@L["Request extension"]</PageTitle>
 
 <div class="nueva-page">
     @if (cargando)
@@ -17,7 +17,7 @@
     else if (solicitud is null)
     {
         <section class="panel-card">
-            <div class="empty-state compact">Solicitud no encontrada.</div>
+            <div class="empty-state compact">@L["Request not found."]</div>
         </section>
     }
     else
@@ -27,15 +27,15 @@
             <div class="mo-banner-orb mo-banner-orb-2"></div>
 
             <div id="mo-banner-content">
-                <div id="mo-banner-tag">Extensión / Extension</div>
-                <div id="mo-banner-title">Solicitar extensión de desviación #@solicitud.Id</div>
+                <div id="mo-banner-tag">@L["Extension"]</div>
+                <div id="mo-banner-title">@L["Request extension for deviation #{0}", solicitud.Id]</div>
                 <div id="mo-banner-sub">
-                    Puedes solicitar máximo 2 extensiones y la vigencia no puede exceder 6 meses desde la creación.
+                    @L["You can request a maximum of 2 extensions and the validity cannot exceed 6 months from creation."]
                 </div>
             </div>
 
             <div class="hero-actions">
-                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id">Volver / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@solicitud.Id">@L["Back"]</a>
             </div>
         </section>
 
@@ -45,22 +45,22 @@
                     <section class="panel-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Datos de extensión / Extension Data</h2>
-                                <p class="panel-subtitle">Capture la nueva fecha y la razón.</p>
+                                <h2>@L["Extension Data"]</h2>
+                                <p class="panel-subtitle">@L["Enter the new date and the reason."]</p>
                             </div>
                         </div>
 
                         <div class="stack-fields">
                             <div>
-                                <label class="mo-form-label">Nueva fecha de vigencia / New Validity Date</label>
+                                <label class="mo-form-label">@L["New Validity Date"]</label>
                                 <InputDate class="mo-form-control" @bind-Value="model.NuevaFechaVigencia" />
                                 <div class="field-help">
-                                    Fecha máxima permitida: @FechaMaxima.ToString("yyyy-MM-dd")
+                                    @L["Maximum allowed date: {0}", FechaMaxima.ToString("yyyy-MM-dd")]
                                 </div>
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Razón de la extensión / Extension Reason</label>
+                                <label class="mo-form-label">@L["Extension Reason"]</label>
                                 <InputTextArea class="mo-form-control" rows="5" @bind-Value="model.RazonExtension" />
                             </div>
                         </div>
@@ -69,9 +69,9 @@
                     <section class="panel-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Aprobadores / Approvers</h2>
+                                <h2>@L["Approvers"]</h2>
                                 <p class="panel-subtitle">
-                                    Seleccione el usuario responsable de aprobar cada etapa del flujo de extensión.
+                                    @L["Select the user responsible for approving each stage of the extension flow."]
                                 </p>
                             </div>
                         </div>
@@ -85,9 +85,7 @@
                                     <p>QMS</p>
 
                                     <div class="field-help">
-                                        Se asigna automáticamente a los administradores del sistema; no requiere
-                                        seleccionar un aprobador. / Automatically assigned to system administrators;
-                                        no approver selection required.
+                                        @L["Automatically assigned to system administrators; no approver selection required."]
                                     </div>
                                 </div>
                             </article>
@@ -95,7 +93,7 @@
                             @if (rolesAprobadores.Count == 0)
                             {
                                 <div class="mo-alert mo-alert-danger">
-                                    No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
+                                    @L["No approvers are configured. First configure users in Administration > Approvers."]
                                 </div>
                             }
                             else
@@ -108,13 +106,12 @@
                                         </div>
 
                                         <div class="approver-info">
-                                            <h3>@rol.NombreEs</h3>
-                                            <p>@rol.NombreEn</p>
+                                            <h3>@CatalogoTexto.Nombre(rol.NombreEs, rol.NombreEn)</h3>
 
                                             @if (rol.Usuarios.Count == 0)
                                             {
                                                 <div class="field-warning">
-                                                    No hay usuarios activos con este rol.
+                                                    @L["There are no active users with this role."]
                                                 </div>
                                             }
                                             else
@@ -122,7 +119,7 @@
                                                 <InputSelect TValue="int?"
                                                              class="mo-form-select"
                                                              @bind-Value="rol.UsuarioSeleccionadoId">
-                                                    <option value="">Seleccione aprobador / Select approver</option>
+                                                    <option value="">@L["Select approver"]</option>
 
                                                     @foreach (var usuario in rol.Usuarios)
                                                     {
@@ -145,7 +142,7 @@
 
                         <div class="submit-panel-inner">
                             <button class="mo-btn mo-btn-primary" type="submit" disabled="@guardando">
-                                @(guardando ? "Enviando..." : "Solicitar extensión / Request extension")
+                                @(guardando ? L["Sending..."] : L["Request extension"])
                             </button>
                         </div>
                     </section>
@@ -155,28 +152,28 @@
             <aside class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2>Resumen / Summary</h2>
+                        <h2>@L["Summary"]</h2>
                     </div>
                 </div>
 
                 <div class="summary-grid">
                     <div class="summary-item">
-                        <span>Vigencia actual / Current validity</span>
+                        <span>@L["Current validity"]</span>
                         <strong>@solicitud.FechaVigencia.ToString("yyyy-MM-dd")</strong>
                     </div>
 
                     <div class="summary-item">
-                        <span>Extensiones usadas / Used extensions</span>
-                        <strong>@solicitud.NumeroExtensionActual de 2</strong>
+                        <span>@L["Used extensions"]</span>
+                        <strong>@L["{0} of {1}", solicitud.NumeroExtensionActual, 2]</strong>
                     </div>
 
                     <div class="summary-item">
-                        <span>Fecha creación / Created date</span>
+                        <span>@L["Created date"]</span>
                         <strong>@solicitud.FechaCreacion.ToString("yyyy-MM-dd")</strong>
                     </div>
 
                     <div class="summary-item">
-                        <span>Máximo permitido / Max allowed</span>
+                        <span>@L["Max allowed"]</span>
                         <strong>@FechaMaxima.ToString("yyyy-MM-dd")</strong>
                     </div>
                 </div>
@@ -261,29 +258,29 @@
     {
         if (rolesAprobadores.Count == 0)
         {
-            mensaje = "No hay aprobadores configurados. Primero configure usuarios en Administración > Aprobadores.";
+            mensaje = L["No approvers are configured. First configure users in Administration > Approvers."].Value;
             return false;
         }
 
         var rolesSinUsuarios = rolesAprobadores
             .Where(x => x.Usuarios.Count == 0)
-            .Select(x => x.NombreEs)
+            .Select(x => CatalogoTexto.Nombre(x.NombreEs, x.NombreEn))
             .ToList();
 
         if (rolesSinUsuarios.Count > 0)
         {
-            mensaje = $"Hay roles sin usuarios configurados: {string.Join(", ", rolesSinUsuarios)}.";
+            mensaje = L["There are roles without configured users: {0}.", string.Join(", ", rolesSinUsuarios)].Value;
             return false;
         }
 
         var rolesFaltantes = rolesAprobadores
             .Where(x => !x.UsuarioSeleccionadoId.HasValue || x.UsuarioSeleccionadoId.Value <= 0)
-            .Select(x => x.NombreEs)
+            .Select(x => CatalogoTexto.Nombre(x.NombreEs, x.NombreEn))
             .ToList();
 
         if (rolesFaltantes.Count > 0)
         {
-            mensaje = $"Debe seleccionar aprobador para: {string.Join(", ", rolesFaltantes)}.";
+            mensaje = L["You must select an approver for: {0}.", string.Join(", ", rolesFaltantes)].Value;
             return false;
         }
 

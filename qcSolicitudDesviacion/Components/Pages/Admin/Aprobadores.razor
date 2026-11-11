@@ -7,7 +7,7 @@
 @inject AdminAprobadoresService AdminAprobadoresService
 @inject UsuarioActualService UsuarioActualService
 
-<PageTitle>Administrar aprobadores</PageTitle>
+<PageTitle>@L["Manage approvers"]</PageTitle>
 
 <div class="approver-admin-page">
     <section id="mo-banner">
@@ -15,15 +15,15 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Administración / Administration</div>
-            <div id="mo-banner-title">Aprobadores / Approvers</div>
+            <div id="mo-banner-tag">@L["Administration"]</div>
+            <div id="mo-banner-title">@L["Approvers"]</div>
             <div id="mo-banner-sub">
-                Asigne o retire roles de aprobación a los usuarios registrados en el sistema.
+                @L["Assign or remove approval roles for the users registered in the system."]
             </div>
         </div>
 
         <div class="hero-actions">
-            <a class="mo-btn mo-btn-secondary-outline" href="">Inicio / Home</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="">@L["Home"]</a>
         </div>
     </section>
 
@@ -37,14 +37,14 @@
     {
         <section class="panel-card access-card">
             <div class="access-icon">!</div>
-            <h2>Acceso restringido</h2>
+            <h2>@L["Restricted access"]</h2>
             <p>
-                Solo los usuarios con rol <strong>ADMIN</strong> pueden administrar aprobadores.
+                @L["Only users with the {0} role can manage approvers."].Con(@<strong>ADMIN</strong>)
             </p>
 
             <div class="mo-alert mo-alert-primary">
-                Tu usuario actual es ID: <strong>@usuarioActualId</strong>.
-                Asigna el rol ADMIN por SQL para el primer administrador.
+                @L["Your current user ID is: {0}."].Con(@<strong>@usuarioActualId</strong>)
+                @L["Assign the ADMIN role via SQL for the first administrator."]
             </div>
         </section>
     }
@@ -60,9 +60,9 @@
         <section class="panel-card">
             <div class="panel-head">
                 <div>
-                    <h2>Agregar usuario desde MEAX / Add MEAX User</h2>
+                    <h2>@L["Add MEAX User"]</h2>
                     <p class="panel-subtitle">
-                        Busque usuarios existentes en dbo.meax_all_user y agréguelos al sistema para asignarles roles aprobadores.
+                        @L["Search for existing users in {0} and add them to the system to assign them approver roles.", "dbo.meax_all_user"]
                     </p>
                 </div>
                 <span class="mo-badge mo-badge-primary">meax_all_user</span>
@@ -70,7 +70,7 @@
 
             <div class="search-row">
                 <input class="mo-form-control"
-                       placeholder="Buscar por login, nombre, correo, departamento o puesto..."
+                       placeholder="@L["Search by login, name, email, department or position..."]"
                        @bind="busquedaMeax"
                        @bind:event="oninput" />
 
@@ -78,13 +78,13 @@
                         class="mo-btn mo-btn-primary"
                         disabled="@buscandoMeax"
                         @onclick="BuscarUsuariosMeaxAsync">
-                    @(buscandoMeax ? "Buscando..." : "Buscar MEAX")
+                    @(buscandoMeax ? L["Searching..."] : L["Search MEAX"])
                 </button>
 
                 <button type="button"
                         class="mo-btn mo-btn-secondary"
                         @onclick="LimpiarBusquedaMeax">
-                    Limpiar
+                    @L["Clear"]
                 </button>
             </div>
 
@@ -104,11 +104,11 @@
                                     }
                                 </div>
                                 <div class="user-meta">
-                                    @MostrarTexto(usuarioMeax.Departamento, "Sin departamento")
+                                    @MostrarTexto(usuarioMeax.Departamento, L["No department"].Value)
                                     <span>•</span>
-                                    @MostrarTexto(usuarioMeax.Puesto, "Sin puesto")
+                                    @MostrarTexto(usuarioMeax.Puesto, L["No position"].Value)
                                     <span>•</span>
-                                    @MostrarTexto(usuarioMeax.Dep2, "Sin dep_2")
+                                    @MostrarTexto(usuarioMeax.Dep2, L["No dep_2"].Value)
                                 </div>
                             </div>
 
@@ -116,7 +116,7 @@
                                     class="mo-btn mo-btn-primary mo-btn-sm"
                                     disabled="@guardando"
                                     @onclick="() => AgregarUsuarioMeaxAsync(usuarioMeax)">
-                                Agregar / Add
+                                @L["Add"]
                             </button>
                         </article>
                     }
@@ -125,7 +125,7 @@
             else if (!string.IsNullOrWhiteSpace(busquedaMeax))
             {
                 <div class="empty-state">
-                    No hay resultados. Capture al menos 2 caracteres y presione Buscar MEAX.
+                    @L["No results. Enter at least 2 characters and press Search MEAX."]
                 </div>
             }
         </section>
@@ -134,30 +134,30 @@
             <section class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2>Usuarios / Users</h2>
+                        <h2>@L["Users"]</h2>
                         <p class="panel-subtitle">
-                            Seleccione un usuario para administrar sus roles de aprobación.
+                            @L["Select a user to manage their approval roles."]
                         </p>
                     </div>
-                    <span class="mo-badge mo-badge-primary">@usuarios.Count usuarios</span>
+                    <span class="mo-badge mo-badge-primary">@L["{0} users", usuarios.Count]</span>
                 </div>
 
                 <div class="search-row">
                     <input class="mo-form-control"
-                           placeholder="Buscar por nombre, usuario, correo o departamento..."
+                           placeholder="@L["Search by name, user, email or department..."]"
                            @bind="busqueda"
                            @bind:event="oninput" />
 
                     <button type="button"
                             class="mo-btn mo-btn-primary"
                             @onclick="BuscarAsync">
-                        Buscar
+                        @L["Search"]
                     </button>
 
                     <button type="button"
                             class="mo-btn mo-btn-secondary"
                             @onclick="LimpiarBusquedaAsync">
-                        Limpiar
+                        @L["Clear"]
                     </button>
                 </div>
 
@@ -165,7 +165,7 @@
                     @if (usuarios.Count == 0)
                     {
                         <div class="empty-state">
-                            No se encontraron usuarios.
+                            @L["No users found."]
                         </div>
                     }
                     else
@@ -183,15 +183,15 @@
                                         }
                                     </div>
                                     <div class="user-meta">
-                                        @MostrarTexto(usuario.Departamento, "Sin departamento")
+                                        @MostrarTexto(usuario.Departamento, L["No department"].Value)
                                         <span>•</span>
-                                        @MostrarTexto(usuario.UnidadNegocio, "Sin unidad")
+                                        @MostrarTexto(usuario.UnidadNegocio, L["No unit"].Value)
                                     </div>
 
                                     <div class="role-chip-list">
                                         @if (usuario.Roles.Count == 0)
                                         {
-                                            <span class="mo-badge mo-badge-secondary">Sin roles</span>
+                                            <span class="mo-badge mo-badge-secondary">@L["No roles"]</span>
                                         }
                                         else
                                         {
@@ -205,13 +205,13 @@
 
                                 <div class="user-actions">
                                     <span class="mo-badge @(usuario.Activo ? "mo-badge-success" : "mo-badge-secondary")">
-                                        @(usuario.Activo ? "Activo" : "Inactivo")
+                                        @(usuario.Activo ? L["Active"] : L["Inactive"])
                                     </span>
 
                                     <button type="button"
                                             class="mo-btn mo-btn-primary mo-btn-sm"
                                             @onclick="() => SeleccionarUsuario(usuario)">
-                                        Administrar
+                                        @L["Manage"]
                                     </button>
                                 </div>
                             </article>
@@ -223,18 +223,18 @@
             <section class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2>Roles del usuario / User Roles</h2>
+                        <h2>@L["User Roles"]</h2>
                         <p class="panel-subtitle">
-                            Marque los roles que este usuario podrá aprobar.
+                            @L["Check the roles this user will be able to approve."]
                         </p>
                     </div>
-                    <span class="mo-badge mo-badge-primary">Workflow</span>
+                    <span class="mo-badge mo-badge-primary">@L["Workflow"]</span>
                 </div>
 
                 @if (usuarioSeleccionado is null)
                 {
                     <div class="empty-state">
-                        Seleccione un usuario de la lista para administrar sus roles.
+                        @L["Select a user from the list to manage their roles."]
                     </div>
                 }
                 else
@@ -246,7 +246,7 @@
                         </div>
 
                         <span class="mo-badge @(usuarioSeleccionado.Activo ? "mo-badge-success" : "mo-badge-secondary")">
-                            @(usuarioSeleccionado.Activo ? "Activo" : "Inactivo")
+                            @(usuarioSeleccionado.Activo ? L["Active"] : L["Inactive"])
                         </span>
                     </div>
 
@@ -266,8 +266,7 @@
                                                @onchange="e => CambiarRol(rol.Codigo, e)" />
 
                                         <span>
-                                            <strong>@rol.NombreEs</strong>
-                                            <small>@rol.NombreEn</small>
+                                            <strong>@CatalogoTexto.Nombre(rol.NombreEs, rol.NombreEn)</strong>
                                         </span>
                                     </label>
                                 }
@@ -280,14 +279,14 @@
                                 class="mo-btn mo-btn-primary"
                                 disabled="@guardando"
                                 @onclick="GuardarRolesAsync">
-                            @(guardando ? "Guardando..." : "Guardar roles")
+                            @(guardando ? L["Saving..."] : L["Save roles"])
                         </button>
 
                         <button type="button"
                                 class="mo-btn mo-btn-secondary"
                                 disabled="@guardando"
                                 @onclick="CambiarEstadoUsuarioAsync">
-                            @(usuarioSeleccionado.Activo ? "Desactivar usuario" : "Activar usuario")
+                            @(usuarioSeleccionado.Activo ? L["Deactivate user"] : L["Activate user"])
                         </button>
                     </div>
                 }
@@ -297,9 +296,9 @@
         <section class="panel-card">
             <div class="panel-head">
                 <div>
-                    <h2>Resumen por rol / Role Summary</h2>
+                    <h2>@L["Role Summary"]</h2>
                     <p class="panel-subtitle">
-                        Usuarios asignados actualmente a cada etapa del flujo.
+                        @L["Users currently assigned to each stage of the flow."]
                     </p>
                 </div>
             </div>
@@ -311,7 +310,7 @@
                         <div class="role-summary-head">
                             <span class="role-order">@rol.Orden</span>
                             <div>
-                                <h3>@rol.NombreEs</h3>
+                                <h3>@CatalogoTexto.Nombre(rol.NombreEs, rol.NombreEn)</h3>
                                 <p>@rol.Grupo</p>
                             </div>
                         </div>
@@ -319,7 +318,7 @@
                         @if (rol.Usuarios.Count == 0)
                         {
                             <div class="role-empty">
-                                Sin usuarios asignados.
+                                @L["No users assigned."]
                             </div>
                         }
                         else
@@ -487,7 +486,8 @@
 
     private string NombreRol(string codigo)
     {
-        return roles.FirstOrDefault(x => x.Codigo == codigo)?.NombreEs ?? codigo;
+        var rol = roles.FirstOrDefault(x => x.Codigo == codigo);
+        return rol is null ? codigo : CatalogoTexto.Nombre(rol.NombreEs, rol.NombreEn);
     }
 
     private static string MostrarTexto(string? valor, string textoDefault)

@@ -3,6 +3,7 @@ using qcSolicitudDesviacion.Constants;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Models;
 using qcSolicitudDesviacion.ViewModels;
+using qcSolicitudDesviacion.Localization;
 
 namespace qcSolicitudDesviacion.Services;
 
@@ -22,27 +23,27 @@ public class CierreDesviacionService
     {
         if (model.SolicitudId <= 0)
         {
-            return ServiceResult.Failure("La solicitud es obligatoria.");
+            return ServiceResult.Failure(Loc.T("The request is required."));
         }
 
         if (string.IsNullOrWhiteSpace(model.NumeroLoteInicio))
         {
-            return ServiceResult.Failure("El número de lote de inicio es obligatorio.");
+            return ServiceResult.Failure(Loc.T("The starting lot number is required."));
         }
 
         if (string.IsNullOrWhiteSpace(model.NumeroCaseInicio))
         {
-            return ServiceResult.Failure("El número de case de inicio es obligatorio.");
+            return ServiceResult.Failure(Loc.T("The starting case number is required."));
         }
 
         if (string.IsNullOrWhiteSpace(model.NumeroLoteFinal))
         {
-            return ServiceResult.Failure("El número de lote final es obligatorio.");
+            return ServiceResult.Failure(Loc.T("The final lot number is required."));
         }
 
         if (string.IsNullOrWhiteSpace(model.NumeroCaseFinal))
         {
-            return ServiceResult.Failure("El número de case final es obligatorio.");
+            return ServiceResult.Failure(Loc.T("The final case number is required."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -52,12 +53,12 @@ public class CierreDesviacionService
 
         if (solicitud is null)
         {
-            return ServiceResult.Failure("La solicitud no existe.");
+            return ServiceResult.Failure(Loc.T("The request does not exist."));
         }
 
         if (solicitud.UsuarioSolicitanteId != usuarioActualId)
         {
-            return ServiceResult.Failure("Solo el solicitante original puede cerrar la desviación.");
+            return ServiceResult.Failure(Loc.T("Only the original applicant can close the deviation."));
         }
 
         var estadosPermitidos = new[]
@@ -68,7 +69,7 @@ public class CierreDesviacionService
 
         if (!estadosPermitidos.Contains(solicitud.EstadoSolicitudCodigo))
         {
-            return ServiceResult.Failure("Solo se puede cerrar una desviación aprobada.");
+            return ServiceResult.Failure(Loc.T("Only an approved deviation can be closed."));
         }
 
         var yaTieneCierre = await context.QcDesvControles
@@ -76,7 +77,7 @@ public class CierreDesviacionService
 
         if (yaTieneCierre)
         {
-            return ServiceResult.Failure("Esta desviación ya tiene datos de cierre.");
+            return ServiceResult.Failure(Loc.T("This deviation already has closing data."));
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -117,12 +118,12 @@ public class CierreDesviacionService
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return ServiceResult.Success("Desviación cerrada correctamente.");
+            return ServiceResult.Success(Loc.T("Deviation closed successfully."));
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return ServiceResult.Failure($"Error al cerrar la desviación: {ex.Message}");
+            return ServiceResult.Failure(Loc.T("Error closing the deviation: {0}", ex.Message));
         }
     }
 }

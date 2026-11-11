@@ -1,18 +1,21 @@
 /* ══════════════════════════════════════════════════════════════
    MEAX One — mo-table.js
-   Filtros por columna + paginación para tablas .mo-table,
-   sin dependencias. Funciona sobre HTML ya renderizado
-   (server-side con Razor, o estático), así que sirve igual
-   para tablas armadas en C#/Razor, PHP, Node, etc.
+   Filtros por columna + ordenamiento por columna + paginación
+   para tablas .mo-table, sin dependencias. Funciona sobre HTML
+   ya renderizado (server-side con Razor, o estático), así que
+   sirve igual para tablas armadas en C#/Razor, PHP, Node, etc.
 
    MARCADO ESPERADO:
    <div class="mo-table-wrap" data-mo-table data-page-size="10">
      <table class="mo-table">
        <thead>
-         <tr> ...encabezados normales... </tr>
+         <tr>
+           <th data-mo-sort-col="0">ID</th>          <!-- ordenable -->
+           <th>Descripción</th>                       <!-- no ordenable -->
+         </tr>
          <tr class="mo-table-filter-row">
            <th><input class="mo-th-filter" data-mo-filter-col="0" placeholder="Filtrar…"></th>
-           <th><select class="mo-th-filter" data-mo-filter-col="2"><option value="">Todos</option>...</select></th>
+           <th><select class="mo-th-filter" data-mo-filter-col="1"><option value="">Todos</option>...</select></th>
            <th></th> <!-- columna sin filtro: <th> vacío -->
          </tr>
        </thead>
@@ -21,6 +24,12 @@
    </div>
    <div class="mo-table-pagination" data-mo-pagination></div>
 
+   Para que el ordenamiento no dependa de parsear el texto visible
+   (bilingüe, con subtítulos, con "#", etc.), cada <td> puede traer
+   un atributo opcional data-sort-value con el valor "limpio" a usar
+   al ordenar (numérico o fecha ISO yyyy-MM-dd). Si no está presente
+   se usa el texto visible de la celda.
+
    No requiere llamar nada manualmente: se auto-inicializa en
    DOMContentLoaded sobre todos los [data-mo-table] de la página.
 ══════════════════════════════════════════════════════════════ */
@@ -28,22 +37,28 @@
     'use strict';
 
     function initTable(wrap) {
+        if (wrap.hasAttribute('data-mo-table-ready')) return;
+        wrap.setAttribute('data-mo-table-ready', '1');
+
         var table = wrap.querySelector('table.mo-table');
         if (!table) return;
         var tbody = table.querySelector('tbody');
         var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
         var filterInputs = Array.prototype.slice.call(wrap.querySelectorAll('.mo-th-filter'));
+        var sortHeaders = Array.prototype.slice.call(wrap.querySelectorAll('[data-mo-sort-col]'));
         var paginationEl = wrap.nextElementSibling && wrap.nextElementSibling.hasAttribute('data-mo-pagination')
             ? wrap.nextElementSibling
             : wrap.parentElement.querySelector('[data-mo-pagination]');
 
         var pageSize = parseInt(wrap.getAttribute('data-page-size'), 10) || 10;
         var currentPage = 1;
+        var sortCol = null;
+        var sortDir = 1; // 1 = ascendente, -1 = descendente
 
         // Fila de "sin resultados" (se inserta una vez y se muestra/oculta)
         var emptyRow = document.createElement('tr');
         var colCount = table.querySelectorAll('thead tr:first-child th').length || 1;
-        emptyRow.innerHTML = '<td class="mo-table-empty" colspan="' + colCount + '">No se encontraron resultados con esos filtros.</td>';
+        emptyRow.innerHTML = '<td class="mo-table-empty" colspan="' + colCount + '">' + moT('No results match those filters.') + '</td>';
         emptyRow.style.display = 'none';
         tbody.appendChild(emptyRow);
 
@@ -66,6 +81,48 @@
 
         function getFiltered() {
             return allRows.filter(rowMatchesFilters);
+        }
+
+        function cellSortValue(row, col) {
+            var cell = row.children[col];
+            if (!cell) return '';
+            var attr = cell.getAttribute('data-sort-value');
+            return (attr !== null ? attr : cell.textContent).trim();
+        }
+
+        function compareRows(a, b) {
+            var av = cellSortValue(a, sortCol);
+            var bv = cellSortValue(b, sortCol);
+            var an = av !== '' ? parseFloat(av) : NaN;
+            var bn = bv !== '' ? parseFloat(bv) : NaN;
+            var aIsNum = av !== '' && !isNaN(an) && /^-?[\d.,]+$/.test(av);
+            var bIsNum = bv !== '' && !isNaN(bn) && /^-?[\d.,]+$/.test(bv);
+
+            var cmp;
+            if (aIsNum && bIsNum) {
+                cmp = an - bn;
+            } else {
+                cmp = av.toLowerCase().localeCompare(bv.toLowerCase(), undefined, { numeric: true, sensitivity: 'base' });
+            }
+            return sortDir === 1 ? cmp : -cmp;
+        }
+
+        function applySort() {
+            if (sortCol === null) return;
+
+            var sorted = allRows.slice().sort(compareRows);
+            sorted.forEach(function (r) { tbody.insertBefore(r, emptyRow); });
+            allRows = sorted;
+        }
+
+        function updateSortHeaderClasses() {
+            sortHeaders.forEach(function (th) {
+                var col = parseInt(th.getAttribute('data-mo-sort-col'), 10);
+                th.classList.remove('mo-th-sort-asc', 'mo-th-sort-desc');
+                if (col === sortCol) {
+                    th.classList.add(sortDir === 1 ? 'mo-th-sort-asc' : 'mo-th-sort-desc');
+                }
+            });
         }
 
         function render() {
@@ -95,8 +152,8 @@
             var summary = document.createElement('div');
             summary.className = 'mo-pg-summary';
             summary.innerHTML = totalResults === 0
-                ? 'Sin resultados'
-                : 'Mostrando <b>' + start + '–' + end + '</b> de <b>' + totalResults + '</b>';
+                ? moT('No results')
+                : moT('Showing {0} of {1}', '<b>' + start + '–' + end + '</b>', '<b>' + totalResults + '</b>');
             el.appendChild(summary);
 
             var right = document.createElement('div');
@@ -106,7 +163,7 @@
             var sizeWrap = document.createElement('div');
             sizeWrap.className = 'mo-pg-size';
             var label = document.createElement('label');
-            label.textContent = 'Filas por página';
+            label.textContent = moT('Rows per page');
             var select = document.createElement('select');
             [5, 10, 25, 50].forEach(function (n) {
                 var opt = document.createElement('option');
@@ -173,10 +230,41 @@
             });
         });
 
+        sortHeaders.forEach(function (th) {
+            th.classList.add('mo-th-sortable');
+            th.addEventListener('click', function () {
+                var col = parseInt(th.getAttribute('data-mo-sort-col'), 10);
+                if (sortCol === col) {
+                    sortDir = -sortDir;
+                } else {
+                    sortCol = col;
+                    sortDir = 1;
+                }
+                updateSortHeaderClasses();
+                applySort();
+                currentPage = 1;
+                render();
+            });
+        });
+
         render();
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    function initAll() {
         Array.prototype.slice.call(document.querySelectorAll('[data-mo-table]')).forEach(initTable);
+    }
+
+    // Blazor Server prerenderiza el componente y, al conectar el circuito
+    // interactivo, vuelve a ejecutar OnInitializedAsync y re-renderiza —
+    // reemplazando el <div data-mo-table> entero por uno nuevo sin
+    // inicializar. Tampoco garantiza que nuestro <script> corra antes de
+    // que el documento ya esté "complete" (streaming/SSR). Por eso, en vez
+    // de depender de DOMContentLoaded una sola vez, observamos el DOM y
+    // (re)inicializamos cualquier tabla que aparezca sin marcar.
+    initAll();
+
+    var observer = new MutationObserver(function () {
+        initAll();
     });
+    observer.observe(document.body, { childList: true, subtree: true });
 })();

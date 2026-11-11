@@ -3,7 +3,7 @@
 
 @inject SolicitudDesviacionService SolicitudService
 
-<PageTitle>Desviaciones aprobadas</PageTitle>
+<PageTitle>@L["Approved deviations"]</PageTitle>
 
 <div class="aprobadas-page">
     <section id="mo-banner">
@@ -11,20 +11,20 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Desviaciones aprobadas / Approved deviations</div>
-            <div id="mo-banner-title">Desviaciones aprobadas / Approved Deviations</div>
+            <div id="mo-banner-tag">@L["Approved deviations"]</div>
+            <div id="mo-banner-title">@L["Approved deviations"]</div>
             <div id="mo-banner-sub">
-                Consulta las desviaciones aprobadas, genera una ficha compartible, descárgala como imagen o imprímela.
+                @L["View approved deviations, generate a shareable sheet, download it as an image or print it."]
             </div>
         </div>
 
         <div class="hero-actions">
             <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">
-                Desviaciones / Deviations
+                @L["Deviations"]
             </a>
 
             <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
-                Nueva desviación / New Deviation
+                @L["New Deviation"]
             </a>
         </div>
     </section>
@@ -32,20 +32,20 @@
     <section class="panel-card">
         <div class="panel-head">
             <div>
-                <h2>Listado / List</h2>
-                <p class="panel-subtitle">Solo solicitudes aprobadas, con extensión aprobada o cerradas.</p>
+                <h2>@L["List"]</h2>
+                <p class="panel-subtitle">@L["Only approved requests, with approved extension or closed."]</p>
             </div>
 
             <span class="mo-badge mo-badge-primary">
-                <span class="mo-badge-dot"></span>@SolicitudesFiltradas.Count() registros
+                <span class="mo-badge-dot"></span>@L["{0} records", SolicitudesFiltradas.Count()]
             </span>
         </div>
 
         <div class="approved-filters">
             <div>
-                <label class="mo-form-label">Buscar / Search</label>
+                <label class="mo-form-label">@L["Search"]</label>
                 <input class="mo-form-control"
-                       placeholder="ID, parte, cliente, solicitante..."
+                       placeholder="@L["ID, part, customer, requester..."]"
                        @bind="filtro"
                        @bind:event="oninput" />
             </div>
@@ -54,71 +54,80 @@
         @if (cargando)
         {
             <div class="empty-state">
-                Cargando solicitudes aprobadas...
+                @L["Loading approved requests..."]
             </div>
         }
         else if (!SolicitudesFiltradas.Any())
         {
             <div class="empty-state">
-                No hay desviaciones aprobadas para mostrar.
+                @L["There are no approved deviations to show."]
             </div>
         }
         else
         {
-            <div class="approved-list">
-                @foreach (var item in SolicitudesFiltradas)
-                {
-                    <article class="approved-card">
-                        <div class="approved-main">
-                            <div class="approved-title">
-                                <span class="approved-id">#@item.SolicitudId</span>
-                                <div>
-                                    <h3>@Texto(item.NumeroParteAfectado)</h3>
-                                    <p>@Texto(item.Clientes)</p>
-                                </div>
-                            </div>
+            <div class="mo-table-wrap" data-mo-table data-page-size="10">
+                <table class="mo-table">
+                    <thead>
+                        <tr>
+                            <th data-mo-sort-col="0">ID</th>
+                            <th data-mo-sort-col="1">@L["Part / Customer"]</th>
+                            <th data-mo-sort-col="2">@L["Applicant"]</th>
+                            <th data-mo-sort-col="3">@L["Request Date"]</th>
+                            <th data-mo-sort-col="4">@L["Validity"]</th>
+                            <th data-mo-sort-col="5">@L["Status"]</th>
+                            <th></th>
+                        </tr>
+                        <tr class="mo-table-filter-row">
+                            <th><input class="mo-th-filter" data-mo-filter-col="0" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="1" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="2" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="3" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="4" placeholder="@L["Filter..."]" /></th>
+                            <th>
+                                <select class="mo-th-filter" data-mo-filter-col="5">
+                                    <option value="">@L["All"]</option>
+                                    <option value="@L["Closed"]">@L["Closed"]</option>
+                                    <option value="@L["Expired"]">@L["Expired"]</option>
+                                    <option value="@L["Valid"]">@L["Valid"]</option>
+                                </select>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in SolicitudesFiltradas)
+                        {
+                            <tr>
+                                <td data-sort-value="@item.SolicitudId">#@item.SolicitudId</td>
+                                <td>
+                                    <div class="cell-title">@Texto(item.NumeroParteAfectado)</div>
+                                    <div class="cell-subtitle">@Texto(item.Clientes)</div>
+                                </td>
+                                <td>@Texto(item.NombreSolicitante)</td>
+                                <td data-sort-value="@item.FechaSolicitud.ToString("yyyy-MM-dd")">@item.FechaSolicitud.ToString("yyyy-MM-dd")</td>
+                                <td data-sort-value="@item.FechaVigencia.ToString("yyyy-MM-dd")">@item.FechaVigencia.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <span class="mo-badge @EstadoVigenciaBadgeClase(item)">
+                                        <span class="mo-badge-dot"></span>@EstadoVigenciaTexto(item)
+                                    </span>
+                                </td>
+                                <td class="text-end approved-actions">
+                                    <a class="mo-btn mo-btn-primary mo-btn-sm"
+                                       href="solicitudes/@item.SolicitudId/compartir">
+                                        @L["Sheet"]
+                                    </a>
 
-                            <div class="approved-meta-grid">
-                                <div>
-                                    <span>Solicitante / Applicant</span>
-                                    <strong>@Texto(item.NombreSolicitante)</strong>
-                                </div>
-
-                                <div>
-                                    <span>Fecha solicitud / Request Date</span>
-                                    <strong>@item.FechaSolicitud.ToString("yyyy-MM-dd")</strong>
-                                </div>
-
-                                <div>
-                                    <span>Vigencia / Validity</span>
-                                    <strong>@item.FechaVigencia.ToString("yyyy-MM-dd")</strong>
-                                </div>
-
-                                <div>
-                                    <span>Estado / Status</span>
-                                    <strong>@Texto(item.EstadoSolicitudEs)</strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="approved-side">
-                            <span class="mo-badge @EstadoVigenciaBadgeClase(item)">
-                                <span class="mo-badge-dot"></span>@EstadoVigenciaTexto(item)
-                            </span>
-
-                            <a class="mo-btn mo-btn-primary mo-btn-sm"
-                               href="solicitudes/@item.SolicitudId/compartir">
-                                Ver ficha / Share Card
-                            </a>
-
-                            <a class="mo-btn mo-btn-secondary-outline mo-btn-sm"
-                               href="solicitudes/@item.SolicitudId">
-                                Detalle / Detail
-                            </a>
-                        </div>
-                    </article>
-                }
+                                    <a class="mo-btn mo-btn-secondary-outline mo-btn-sm"
+                                       href="solicitudes/@item.SolicitudId">
+                                        @L["Detail"]
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
+            <div class="mo-table-pagination" data-mo-pagination></div>
         }
     </section>
 </div>
@@ -184,12 +193,12 @@
     {
         if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
         {
-            return "Cerrada / Closed";
+            return Loc.T("Closed");
         }
 
         return EstaVencida(solicitud)
-            ? "Vencida / Expired"
-            : "Vigente / Active";
+            ? Loc.T("Expired")
+            : Loc.T("Valid");
     }
 
     private static string EstadoVigenciaBadgeClase(QcDesvSolicitudResumen solicitud)

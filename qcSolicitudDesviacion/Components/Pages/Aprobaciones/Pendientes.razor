@@ -4,7 +4,7 @@
 @inject AprobacionService AprobacionService
 @inject UsuarioActualService UsuarioActualService
 
-<PageTitle>Aprobaciones pendientes</PageTitle>
+<PageTitle>@L["Pending approvals"]</PageTitle>
 
 <div class="nueva-page">
     <section id="mo-banner">
@@ -12,26 +12,42 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Workflow / Approval Flow</div>
-            <div id="mo-banner-title">Aprobaciones pendientes / Pending Approvals</div>
+            <div id="mo-banner-tag">@L["Approval flow"]</div>
+            <div id="mo-banner-title">@L["Pending approvals"]</div>
             <div id="mo-banner-sub">
-                Solicitudes que requieren revisión de acuerdo con tus roles asignados.
+                @L["Requests that require review according to your assigned roles."]
             </div>
         </div>
 
         <div class="hero-actions">
-            <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">Desviaciones / Deviations</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">@L["Deviations"]</a>
         </div>
     </section>
 
     <section class="panel-card">
         <div class="panel-head">
             <div>
-                <h2>Mis pendientes / My pending approvals</h2>
-                <p class="panel-subtitle">Usuario: ID @usuarioActualId</p>
+                <h2>@L["My pending approvals"]</h2>
+                <p class="panel-subtitle">@L["User: ID {0}", usuarioActualId]</p>
             </div>
-            <span class="mo-badge mo-badge-primary">@pendientes.Count pendientes</span>
+            <span class="mo-badge mo-badge-primary">@L["{0} pending", PendientesFiltrados.Count()]</span>
         </div>
+
+        @if (!cargando && pendientes.Any())
+        {
+            <div class="pend-filters">
+                <div class="field-with-help">
+                    <label class="mo-form-label">@L["Department"]</label>
+                    <select class="mo-form-select" @bind="departamentoFiltro">
+                        <option value="">@L["All"]</option>
+                        @foreach (var depto in DepartamentosDisponibles)
+                        {
+                            <option value="@depto">@depto</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        }
 
         @if (cargando)
         {
@@ -40,8 +56,14 @@
         else if (!pendientes.Any())
         {
             <div class="empty-state compact">
-                <div class="empty-title">Sin pendientes / No pending approvals</div>
-                <p class="empty-text">No tienes aprobaciones pendientes en este momento.</p>
+                <div class="empty-title">@L["No pending approvals"]</div>
+                <p class="empty-text">@L["You do not have pending approvals right now."]</p>
+            </div>
+        }
+        else if (!PendientesFiltrados.Any())
+        {
+            <div class="empty-state compact">
+                @L["There are no pending approvals for the selected department."]
             </div>
         }
         else
@@ -50,16 +72,17 @@
                 <table class="mo-table procesos-table">
                     <thead>
                         <tr>
-                            <th>Solicitud / Request</th>
-                            <th>Parte / Part</th>
-                            <th>Paso / Step</th>
-                            <th>Tipo flujo / Flow</th>
-                            <th>Fecha asignación / Assigned Date</th>
+                            <th>@L["Request"]</th>
+                            <th>@L["Part"]</th>
+                            <th>@L["Department"]</th>
+                            <th>@L["Step"]</th>
+                            <th>@L["Flow type"]</th>
+                            <th>@L["Assigned date"]</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in pendientes)
+                        @foreach (var item in PendientesFiltrados)
                         {
                             <tr>
                                 <td>
@@ -70,8 +93,9 @@
                                     <div class="cell-title">@item.Solicitud?.NumeroParteAfectado</div>
                                     <div class="cell-subtitle">@item.Solicitud?.Clientes</div>
                                 </td>
+                                <td>@item.Solicitud?.DepartamentoSolicitante</td>
                                 <td>
-                                    <span class="mo-badge mo-badge-primary">@item.RolAprobador?.NombreEs</span>
+                                    <span class="mo-badge mo-badge-primary">@CatalogoTexto.Nombre(item.RolAprobador?.NombreEs, item.RolAprobador?.NombreEn)</span>
                                 </td>
                                 <td>
                                     <span class="mo-badge mo-badge-secondary">@item.TipoFlujoCodigo</span>
@@ -79,7 +103,7 @@
                                 <td>@item.FechaAsignacion.ToString("yyyy-MM-dd HH:mm")</td>
                                 <td class="text-end">
                                     <a class="mo-btn mo-btn-primary mo-btn-sm" href="aprobaciones/revisar/@item.Id">
-                                        Revisar / Review
+                                        @L["Review"]
                                     </a>
                                 </td>
                             </tr>
@@ -95,6 +119,22 @@
     private bool cargando = true;
     private List<QcDesvAprobacion> pendientes = new();
     private int usuarioActualId;
+    private string departamentoFiltro = string.Empty;
+
+    private IEnumerable<QcDesvAprobacion> PendientesFiltrados =>
+        string.IsNullOrWhiteSpace(departamentoFiltro)
+            ? pendientes
+            : pendientes.Where(p => string.Equals(
+                p.Solicitud?.DepartamentoSolicitante,
+                departamentoFiltro,
+                StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<string> DepartamentosDisponibles =>
+        pendientes
+            .Select(p => p.Solicitud?.DepartamentoSolicitante)
+            .Where(d => !string.IsNullOrWhiteSpace(d))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(d => d)!;
 
     protected override async Task OnInitializedAsync()
     {

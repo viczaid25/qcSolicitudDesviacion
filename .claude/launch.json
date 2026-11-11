@@ -2,6 +2,18 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "itPishingSystem",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/itPishingSystem/itPishingSystem/itPishingSystem.csproj",
+        "--urls",
+        "http://localhost:5199"
+      ],
+      "port": 5199
+    },
+    {
       "name": "qcSolicitudDesviacion",
       "runtimeExecutable": "dotnet",
       "runtimeArgs": [
@@ -178,6 +190,60 @@
       ],
       "port": 5290,
       "url": "http://localhost:5290"
+    },
+    {
+      "name": "itAccesoSistemas",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:\\Users\\dm45207\\source\\repos\\itAccesoSistemas\\itAccesoSistemas\\itAccesoSistemas.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5282
+    },
+    {
+      "name": "itSolicitudes",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/itSolicitudes/itSolicitudes/itSolicitudes.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5005
+    },
+    {
+      "name": "finBudgetSystem",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/finBudgetSystem/finBudgetSystem/finBudgetSystem.csproj",
+        "--urls",
+        "http://localhost:5310"
+      ],
+      "port": 5310,
+      "url": "http://localhost:5310"
+    },
+    {
+      "name": "finBudgetSystem-localdb",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "C:/Users/dm45207/source/repos/finBudgetSystem/finBudgetSystem/finBudgetSystem.csproj",
+        "--urls",
+        "http://localhost:5311",
+        "--",
+        "--ConnectionStrings:BudgetDb=Server=(localdb)\\MSSQLLocalDB;Database=finBudgetSystem_dev;Trusted_Connection=True;TrustServerCertificate=True",
+        "--ConnectionStrings:LegacyBudgetDb=Server=(localdb)\\MSSQLLocalDB;Database=meax_db_legacy_test;Trusted_Connection=True;TrustServerCertificate=True",
+        "--LegacySync:Enabled=true"
+      ],
+      "port": 5311,
+      "url": "http://localhost:5311"
     }
   ]
 }

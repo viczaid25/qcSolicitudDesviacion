@@ -7,20 +7,20 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
-<PageTitle>Ficha de desviación aprobada</PageTitle>
+<PageTitle>@L["Approved deviation sheet"]</PageTitle>
 
 <div class="share-page">
     @if (cargando)
     {
         <div class="empty-state">
-            Cargando ficha...
+            @L["Loading sheet..."]
         </div>
     }
     else if (solicitud is null)
     {
         <section class="panel-card">
             <div class="empty-state">
-                No se encontró la solicitud.
+                @L["The request was not found."]
             </div>
         </section>
     }
@@ -28,11 +28,11 @@
     {
         <section class="panel-card">
             <div class="empty-state">
-                Esta solicitud aún no está aprobada. Solo las solicitudes aprobadas, con extensión aprobada o cerradas pueden compartirse.
+                @L["This request is not approved yet. Only approved requests, with approved extension or closed, can be shared."]
             </div>
 
             <div class="share-toolbar">
-                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@Id">Volver al detalle / Back</a>
+                <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@Id">@L["Back to detail"]</a>
             </div>
         </section>
     }
@@ -41,29 +41,29 @@
         <section class="share-toolbar no-print">
             <div class="toolbar-group">
                 <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/aprobadas">
-                    Aprobadas / Approved
+                    @L["Approved"]
                 </a>
 
                 <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@Id">
-                    Detalle / Detail
+                    @L["Detail"]
                 </a>
             </div>
 
             <div class="toolbar-group">
                 <button type="button" class="mo-btn mo-btn-secondary-outline" @onclick="CopiarLinkAsync">
-                    Copiar enlace / Copy Link
+                    @L["Copy Link"]
                 </button>
 
                 <button type="button" class="mo-btn mo-btn-secondary-outline" @onclick="ImprimirAsync">
-                    Imprimir / Print
+                    @L["Print"]
                 </button>
 
                 <button type="button" class="mo-btn mo-btn-secondary-outline" @onclick="DescargarImagenAsync">
-                    Descargar PNG / Download PNG
+                    @L["Download {0}", "PNG"]
                 </button>
 
                 <button type="button" class="mo-btn mo-btn-primary" @onclick="CompartirImagenAsync">
-                    Compartir imagen / Share Image
+                    @L["Share Image"]
                 </button>
             </div>
         </section>
@@ -78,9 +78,9 @@
         <article id="deviation-share-card" class="share-sheet">
             <header class="share-header">
                 <div>
-                    <span class="share-kicker">Desviación aprobada / Approved Deviation</span>
-                    <h1>Solicitud de Desviación</h1>
-                    <p>Ficha para compartir en línea o imprimir.</p>
+                    <span class="share-kicker">@L["Approved deviation"]</span>
+                    <h1>@L["Deviation Request"]</h1>
+                    <p>@L["Sheet to share online or print."]</p>
                 </div>
 
                 <div class="share-id-box">
@@ -91,79 +91,79 @@
 
             <section class="share-status-row">
                 <div class="share-status-item">
-                    <span>Estado / Status</span>
-                    <strong>@Texto(solicitud.EstadoSolicitud?.NombreEs)</strong>
+                    <span>@L["Status"]</span>
+                    <strong>@Texto(CatalogoTexto.Nombre(solicitud.EstadoSolicitud?.NombreEs, solicitud.EstadoSolicitud?.NombreEn))</strong>
                 </div>
 
                 <div class="share-status-item">
-                    <span>Tipo / Type</span>
-                    <strong>@Texto(solicitud.TipoDesviacion?.NombreEs)</strong>
+                    <span>@L["Type"]</span>
+                    <strong>@Texto(CatalogoTexto.Nombre(solicitud.TipoDesviacion?.NombreEs, solicitud.TipoDesviacion?.NombreEn))</strong>
                 </div>
 
                 <div class="share-status-item">
-                    <span>Vigencia / Validity</span>
+                    <span>@L["Validity"]</span>
                     <strong>@Fecha(solicitud.FechaVigencia)</strong>
                 </div>
 
                 <div class="share-status-item">
-                    <span>Condición / Condition</span>
+                    <span>@L["Condition"]</span>
                     <strong>@EstadoVigenciaTexto()</strong>
                 </div>
             </section>
 
             <section class="share-section">
                 <div class="share-section-title">
-                    <h2>Información general / General Information</h2>
+                    <h2>@L["General information"]</h2>
                 </div>
 
                 <div class="share-info-grid">
                     <div>
-                        <span>Solicitante / Applicant</span>
+                        <span>@L["Applicant"]</span>
                         <strong>@Texto(solicitud.NombreSolicitante)</strong>
                     </div>
 
                     <div>
-                        <span>Fecha / Date</span>
+                        <span>@L["Date"]</span>
                         <strong>@Fecha(solicitud.FechaSolicitud)</strong>
                     </div>
 
                     <div>
-                        <span>Departamento / Department</span>
+                        <span>@L["Department"]</span>
                         <strong>@Texto(solicitud.DepartamentoSolicitante)</strong>
                     </div>
 
                     <div>
-                        <span>Unidad negocio / Business Unit</span>
+                        <span>@L["Business Unit"]</span>
                         <strong>@Texto(solicitud.UnidadNegocioAfectada)</strong>
                     </div>
 
                     <div>
-                        <span>Línea / Line</span>
+                        <span>@L["Line"]</span>
                         <strong>@Texto(solicitud.CodigoLinea)</strong>
                     </div>
 
                     <div>
-                        <span>Cliente(s) / Customer(s)</span>
+                        <span>@L["Customer(s)"]</span>
                         <strong>@Texto(solicitud.Clientes)</strong>
                     </div>
 
                     <div>
-                        <span>Número de parte / Part Number</span>
+                        <span>@L["Part Number"]</span>
                         <strong>@Texto(solicitud.NumeroParteAfectado)</strong>
                     </div>
 
                     <div>
-                        <span>Cantidad piezas / Quantity</span>
+                        <span>@L["Quantity"]</span>
                         <strong>@TextoNumero(solicitud.CantidadPiezas)</strong>
                     </div>
 
                     <div>
-                        <span>Requisito / Requirement</span>
+                        <span>@L["Requirement"]</span>
                         <strong>@RequisitoTexto()</strong>
                     </div>
 
                     <div>
-                        <span>Informar cliente / Inform Customer</span>
+                        <span>@L["Inform Customer"]</span>
                         <strong>@SiNo(solicitud.InformarCliente)</strong>
                     </div>
                 </div>
@@ -186,34 +186,34 @@
                 </div>
 
                 <div class="share-text-box">
-                    <span>Razón / Reason</span>
+                    <span>@L["Reason"]</span>
                     <p>@Texto(solicitud.RazonInformarCliente)</p>
                 </div>
             </section>
 
             <section class="share-section">
                 <div class="share-section-title">
-                    <h2>Descripción / Description</h2>
+                    <h2>@L["Description"]</h2>
                 </div>
 
                 <div class="share-description-grid">
                     <div>
-                        <span>¿Cómo debe realizarse el proceso?</span>
+                        <span>@L["How is the process performed under normal operating conditions?"]</span>
                         <p>@Texto(solicitud.Descripcion?.ComoDebeRealizarseProceso)</p>
                     </div>
 
                     <div>
-                        <span>Controles operación actual</span>
+                        <span>@L["What controls are followed under normal operating conditions?"]</span>
                         <p>@Texto(solicitud.Descripcion?.ControlesOperacionActual)</p>
                     </div>
 
                     <div>
-                        <span>Proceso después del cambio temporal</span>
+                        <span>@L["What is the temporary change that will be implemented?"]</span>
                         <p>@Texto(solicitud.Descripcion?.ProcesoDespuesCambioTemporal)</p>
                     </div>
 
                     <div>
-                        <span>Controles durante el cambio</span>
+                        <span>@L["Will additional controls be implemented during the temporary change to mitigate risks?"]</span>
                         <p>@Texto(solicitud.Descripcion?.ControlesDuranteCambio)</p>
                     </div>
                 </div>
@@ -221,28 +221,28 @@
 
             <section class="share-section">
                 <div class="share-section-title">
-                    <h2>Análisis de riesgo / Risk Analysis</h2>
+                    <h2>@L["Risk Analysis"]</h2>
                 </div>
 
                 @if (solicitud.AnalisisRiesgo is null)
                 {
                     <div class="share-muted-box">
-                        No aplica para desviación estándar o no se capturó análisis de riesgo.
+                        @L["Not applicable for a standard deviation, or no risk analysis was captured."]
                     </div>
                 }
                 else
                 {
                     <div class="risk-table">
                         <div class="risk-row risk-head">
-                            <span>Evaluación / Evaluation</span>
-                            <span>Severidad</span>
-                            <span>Ocurrencia</span>
-                            <span>Detección</span>
+                            <span>@L["Evaluation"]</span>
+                            <span>@L["Severity"]</span>
+                            <span>@L["Occurrence"]</span>
+                            <span>@L["Detection"]</span>
                             <span>RPN</span>
                         </div>
 
                         <div class="risk-row">
-                            <span>Operación actual</span>
+                            <span>@L["Current Operation"]</span>
                             <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
                             <strong>@solicitud.AnalisisRiesgo.OcurrenciaActual</strong>
                             <strong>@solicitud.AnalisisRiesgo.DeteccionActual</strong>
@@ -250,7 +250,7 @@
                         </div>
 
                         <div class="risk-row">
-                            <span>Con cambio temporal</span>
+                            <span>@L["With Temporary Change"]</span>
                             <strong>@solicitud.AnalisisRiesgo.SeveridadActual</strong>
                             <strong>@solicitud.AnalisisRiesgo.OcurrenciaConCambio</strong>
                             <strong>@solicitud.AnalisisRiesgo.DeteccionConCambio</strong>
@@ -262,13 +262,13 @@
 
             <section class="share-section">
                 <div class="share-section-title">
-                    <h2>Acciones / Actions</h2>
+                    <h2>@L["Actions"]</h2>
                 </div>
 
                 @if (!solicitud.Acciones.Any())
                 {
                     <div class="share-muted-box">
-                        Sin acciones capturadas.
+                        @L["No actions captured."]
                     </div>
                 }
                 else
@@ -280,14 +280,14 @@
                                 <p>@Texto(accion.DescripcionAccion)</p>
 
                                 <div class="share-action-meta">
-                                    <span>Responsable / Owner: <strong>@Texto(accion.Responsable)</strong></span>
-                                    <span>Fecha compromiso / Commitment: <strong>@Fecha(accion.FechaCompromiso)</strong></span>
+                                    <span>@(L["Owner: {0}"].Con(@<strong>@Texto(accion.Responsable)</strong>))</span>
+                                    <span>@(L["Commitment date: {0}"].Con(@<strong>@Fecha(accion.FechaCompromiso)</strong>))</span>
                                 </div>
 
                                 @if (accion.Archivos.Any())
                                 {
                                     <div class="share-files">
-                                        <span>Archivos / Files:</span>
+                                        <span>@L["Files:"]</span>
                                         @foreach (var archivo in accion.Archivos)
                                         {
                                             <strong>@archivo.NombreOriginal</strong>
@@ -302,13 +302,13 @@
 
             <section class="share-section">
                 <div class="share-section-title">
-                    <h2>Aprobadores / Approvers</h2>
+                    <h2>@L["Approvers"]</h2>
                 </div>
 
                 @if (!GruposAprobacion.Any())
                 {
                     <div class="share-muted-box">
-                        Sin aprobaciones registradas.
+                        @L["No approvals registered."]
                     </div>
                 }
                 else
@@ -325,9 +325,9 @@
                                         <div class="approver-card">
                                             <div class="approver-card-head">
                                                 <span class="approver-step">@aprobacion.Orden</span>
-                                                <strong>@Texto(aprobacion.RolAprobador?.NombreEs ?? aprobacion.RolAprobadorCodigo)</strong>
+                                                <strong>@Texto(aprobacion.RolAprobador is null ? aprobacion.RolAprobadorCodigo : CatalogoTexto.Nombre(aprobacion.RolAprobador.NombreEs, aprobacion.RolAprobador.NombreEn))</strong>
                                                 <span class="approval-status @ApprovalStatusClass(aprobacion.EstadoAprobacionCodigo)">
-                                                    @Texto(aprobacion.EstadoAprobacion?.NombreEs ?? aprobacion.EstadoAprobacionCodigo)
+                                                    @Texto(aprobacion.EstadoAprobacion is null ? aprobacion.EstadoAprobacionCodigo : CatalogoTexto.Nombre(aprobacion.EstadoAprobacion.NombreEs, aprobacion.EstadoAprobacion.NombreEn))
                                                 </span>
                                             </div>
 
@@ -351,8 +351,8 @@
 
             <footer class="share-footer">
                 <div>
-                    <strong>Sistema de Desviaciones</strong>
-                    <span>Documento generado: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</span>
+                    <strong>@L["Deviation System"]</strong>
+                    <span>@L["Document generated: {0}", DateTime.Now.ToString("yyyy-MM-dd HH:mm")]</span>
                 </div>
 
                 <div>
@@ -417,14 +417,14 @@
             "qcDesvShare.shareCardAsImage",
             "deviation-share-card",
             $"Desviacion-{Id}.png",
-            $"Desviación #{Id}",
-            $"Ficha de desviación aprobada #{Id}");
+            L["Deviation #{0}", Id].Value,
+            L["Approved deviation sheet #{0}", Id].Value);
     }
 
     private async Task CopiarLinkAsync()
     {
         await JS.InvokeVoidAsync("qcDesvShare.copyCurrentUrl");
-        mensaje = "Enlace copiado correctamente.";
+        mensaje = L["Link copied successfully."].Value;
     }
 
     private async Task ImprimirAsync()
@@ -448,12 +448,12 @@
 
         if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
         {
-            return "Cerrada / Closed";
+            return L["Closed"].Value;
         }
 
         return solicitud.FechaVigencia.Date < DateTime.Today
-            ? "Vencida / Expired"
-            : "Vigente / Active";
+            ? L["Expired"].Value
+            : L["Valid"].Value;
     }
 
     private string RequisitoTexto()
@@ -465,17 +465,17 @@
 
         if (solicitud.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
         {
-            return $"Otro / Other: {Texto(solicitud.RequisitoProcesoOtro)}";
+            return L["Other: {0}", Texto(solicitud.RequisitoProcesoOtro)].Value;
         }
 
-        return Texto(solicitud.RequisitoProceso?.NombreEs);
+        return Texto(CatalogoTexto.Nombre(solicitud.RequisitoProceso?.NombreEs, solicitud.RequisitoProceso?.NombreEn));
     }
 
     private string NombreGrupoAprobacion(int? extensionId)
     {
         if (solicitud is null || !extensionId.HasValue)
         {
-            return "Solicitud inicial / Initial Request";
+            return L["Initial request"].Value;
         }
 
         var extension = solicitud.Extensiones
@@ -485,7 +485,7 @@
             ? extensionId.Value.ToString()
             : extension.NumeroExtension.ToString();
 
-        return $"Extensión #{numero} / Extension #{numero}";
+        return L["Extension #{0}", numero].Value;
     }
 
     private static string ApprovalStatusClass(string estadoCodigo)
@@ -506,7 +506,7 @@
 
     private static string SiNo(bool valor)
     {
-        return valor ? "Sí / Yes" : "No / No";
+        return valor ? Loc.T("Yes") : Loc.T("No");
     }
 
     private static string Fecha(DateTime? fecha)
@@ -521,7 +521,7 @@
 
     private static string TextoNumero(int? valor)
     {
-        return valor.HasValue ? valor.Value.ToString("N0") : "No especificada / Not specified";
+        return valor.HasValue ? valor.Value.ToString("N0") : Loc.T("Not specified");
     }
 
     private sealed class GrupoAprobacionFicha

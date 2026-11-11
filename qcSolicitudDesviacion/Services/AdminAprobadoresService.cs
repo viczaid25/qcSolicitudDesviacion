@@ -3,6 +3,7 @@ using qcSolicitudDesviacion.Constants;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Models;
 using qcSolicitudDesviacion.ViewModels;
+using qcSolicitudDesviacion.Localization;
 
 namespace qcSolicitudDesviacion.Services;
 
@@ -98,12 +99,12 @@ public class AdminAprobadoresService
     {
         if (!await UsuarioEsAdminAsync(usuarioActualId, cancellationToken))
         {
-            return ServiceResult<int>.Failure("No tiene permisos para agregar usuarios.");
+            return ServiceResult<int>.Failure(Loc.T("You do not have permission to add users."));
         }
 
         if (string.IsNullOrWhiteSpace(pcLoginId))
         {
-            return ServiceResult<int>.Failure("Debe seleccionar un usuario válido.");
+            return ServiceResult<int>.Failure(Loc.T("You must select a valid user."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -126,7 +127,7 @@ public class AdminAprobadoresService
 
         if (usuarioMeax is null)
         {
-            return ServiceResult<int>.Failure("No se encontró el usuario en meax_all_user.");
+            return ServiceResult<int>.Failure(Loc.T("The user was not found in meax_all_user."));
         }
 
         var emailNormalizado = usuarioMeax.Email?.Trim().ToLowerInvariant();
@@ -154,7 +155,7 @@ public class AdminAprobadoresService
 
             return ServiceResult<int>.Success(
                 usuarioExistente.Id,
-                "El usuario ya existía en el sistema y fue actualizado.");
+                Loc.T("The user already existed in the system and was updated."));
         }
 
         var nuevoUsuario = new QcDesvUsuario
@@ -175,7 +176,7 @@ public class AdminAprobadoresService
 
         return ServiceResult<int>.Success(
             nuevoUsuario.Id,
-            "Usuario agregado correctamente. Ahora puede asignarle roles de aprobación.");
+            Loc.T("User added successfully. You can now assign approval roles."));
     }
 
     public async Task<AdminAprobadoresData> ObtenerDatosAsync(
@@ -257,7 +258,7 @@ public class AdminAprobadoresService
     {
         if (!await UsuarioEsAdminAsync(usuarioActualId, cancellationToken))
         {
-            return ServiceResult.Failure("No tiene permisos para administrar aprobadores.");
+            return ServiceResult.Failure(Loc.T("You do not have permission to manage approvers."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -267,7 +268,7 @@ public class AdminAprobadoresService
 
         if (usuario is null)
         {
-            return ServiceResult.Failure("El usuario seleccionado no existe.");
+            return ServiceResult.Failure(Loc.T("The selected user does not exist."));
         }
 
         var rolesNormalizados = rolesSeleccionados
@@ -282,7 +283,7 @@ public class AdminAprobadoresService
 
         if (rolesInvalidos.Count > 0)
         {
-            return ServiceResult.Failure($"Hay roles no válidos: {string.Join(", ", rolesInvalidos)}.");
+            return ServiceResult.Failure(Loc.T("There are invalid roles: {0}.", string.Join(", ", rolesInvalidos)));
         }
 
         var rolesActuales = await context.QcDesvUsuarioRoles
@@ -318,7 +319,7 @@ public class AdminAprobadoresService
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return ServiceResult.Success("Roles de aprobador actualizados correctamente.");
+        return ServiceResult.Success(Loc.T("Approver roles updated successfully."));
     }
 
     public Task<List<QcDesvAprobadorRolCrearVm>> ObtenerAprobadoresParaSolicitudAsync(
@@ -396,12 +397,12 @@ public class AdminAprobadoresService
     {
         if (!await UsuarioEsAdminAsync(usuarioActualId, cancellationToken))
         {
-            return ServiceResult.Failure("No tiene permisos para administrar usuarios.");
+            return ServiceResult.Failure(Loc.T("You do not have permission to manage users."));
         }
 
         if (usuarioId == usuarioActualId && !activo)
         {
-            return ServiceResult.Failure("No puede desactivar su propio usuario.");
+            return ServiceResult.Failure(Loc.T("You cannot deactivate your own user."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -411,7 +412,7 @@ public class AdminAprobadoresService
 
         if (usuario is null)
         {
-            return ServiceResult.Failure("El usuario seleccionado no existe.");
+            return ServiceResult.Failure(Loc.T("The selected user does not exist."));
         }
 
         usuario.Activo = activo;
@@ -419,8 +420,8 @@ public class AdminAprobadoresService
         await context.SaveChangesAsync(cancellationToken);
 
         return ServiceResult.Success(activo
-            ? "Usuario activado correctamente."
-            : "Usuario desactivado correctamente.");
+            ? Loc.T("User activated successfully.")
+            : Loc.T("User deactivated successfully."));
     }
 
     private static List<AdminAprobadorRolVm> ObtenerRolesAdministrables()

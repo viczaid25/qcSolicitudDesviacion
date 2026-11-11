@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using qcSolicitudDesviacion.Auth;
 using qcSolicitudDesviacion.Components;
 using qcSolicitudDesviacion.Data;
+using qcSolicitudDesviacion.Localization;
 using qcSolicitudDesviacion.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -73,6 +74,8 @@ builder.Services.AddScoped<AdminAprobadoresService>();
 builder.Services.AddScoped<EmailNotificationService>();
 builder.Services.AddHostedService<DeviationExpirationNotificationService>();
 
+builder.Services.AddMeaxLocalization(builder.Environment, builder.Configuration);
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -87,6 +90,9 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 
+// Idioma: va después de UseAuthentication porque sale del claim Idioma del JWT.
+app.UseMeaxLocalization();
+
 if (!devLoginActivo)
 {
     // Convierte el token SSO recibido por query (?meax_token=) en cookie de
@@ -99,6 +105,8 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapRazorPages();
+
+app.MapCultureEndpoint();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

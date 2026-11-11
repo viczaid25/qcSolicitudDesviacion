@@ -7,7 +7,7 @@
 @inject ArchivoService ArchivoService
 @inject NavigationManager Navigation
 
-<PageTitle>Editar solicitud de desviación</PageTitle>
+<PageTitle>@L["Edit Deviation Request"]</PageTitle>
 
 <div class="nueva-page">
     <section id="mo-banner">
@@ -15,15 +15,15 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Editar / Edit</div>
-            <div id="mo-banner-title">Editar solicitud de desviación / Edit Deviation Request</div>
+            <div id="mo-banner-tag">@L["Edit"]</div>
+            <div id="mo-banner-title">@L["Edit Deviation Request"]</div>
             <div id="mo-banner-sub">
-                Actualiza la información y reenvía la solicitud al flujo de aprobación.
+                @L["Update the information and resubmit the request to the approval flow."]
             </div>
         </div>
 
         <div class="hero-actions">
-            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@SolicitudId">Volver / Back</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes/@SolicitudId">@L["Back"]</a>
         </div>
     </section>
 
@@ -45,75 +45,75 @@
                     <section class="panel-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Información general / General Information</h2>
-                                <p class="panel-subtitle">Actualiza los datos principales.</p>
+                                <h2>@L["General information"]</h2>
+                                <p class="panel-subtitle">@L["Update the main data."]</p>
                             </div>
-                            <span class="mo-badge mo-badge-primary">Solicitud #@model.SolicitudId</span>
+                            <span class="mo-badge mo-badge-primary">@L["Request #{0}", model.SolicitudId]</span>
                         </div>
 
                         <div class="form-grid">
                             <div>
-                                <label class="mo-form-label">Nombre del solicitante / Applicant Name</label>
+                                <label class="mo-form-label">@L["Requester Name"]</label>
                                 <InputText class="mo-form-control" @bind-Value="model.NombreSolicitante" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Fecha / Date</label>
+                                <label class="mo-form-label">@L["Date"]</label>
                                 <InputDate class="mo-form-control" @bind-Value="model.FechaSolicitud" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Departamento solicitante / Requesting Department</label>
+                                <label class="mo-form-label">@L["Requesting department"]</label>
                                 <InputText class="mo-form-control" @bind-Value="model.DepartamentoSolicitante" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Unidad de negocio afectada / Affected Business Unit</label>
+                                <label class="mo-form-label">@L["Affected Business Unit"]</label>
                                 <InputText class="mo-form-control" @bind-Value="model.UnidadNegocioAfectada" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Código de la línea / Line Code</label>
+                                <label class="mo-form-label">@L["Line Code"]</label>
                                 <InputText class="mo-form-control" @bind-Value="model.CodigoLinea" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Cliente(s) / Customer(s)</label>
+                                <label class="mo-form-label">@L["Customer(s)"]</label>
                                 <InputText class="mo-form-control" @bind-Value="model.Clientes" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Tipo de desviación / Deviation Type</label>
+                                <label class="mo-form-label">@L["Deviation Type"]</label>
                                 <InputSelect class="mo-form-select" @bind-Value="model.TipoDesviacionCodigo">
                                     @foreach (var tipo in tiposDesviacion)
                                     {
-                                        <option value="@tipo.Codigo">@tipo.NombreEs / @tipo.NombreEn</option>
+                                        <option value="@tipo.Codigo">@CatalogoTexto.Nombre(tipo.NombreEs, tipo.NombreEn)</option>
                                     }
                                 </InputSelect>
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Tiempo de vigencia / Validity Period</label>
+                                <label class="mo-form-label">@L["Validity Period"]</label>
                                 <InputDate class="mo-form-control" @bind-Value="model.FechaVigencia" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Cantidad de piezas / Quantity of Pieces</label>
+                                <label class="mo-form-label">@L["Quantity of Pieces"]</label>
                                 <InputNumber class="mo-form-control" @bind-Value="model.CantidadPiezas" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Número de parte afectado / Affected Part Number</label>
+                                <label class="mo-form-label">@L["Affected Part Number"]</label>
                                 <InputText class="mo-form-control" @bind-Value="model.NumeroParteAfectado" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Requisitos del proceso / Process Requirement</label>
+                                <label class="mo-form-label">@L["Process Requirement"]</label>
                                 <InputSelect class="mo-form-select" @bind-Value="model.RequisitoProcesoCodigo">
-                                    <option value="">Seleccione / Select</option>
+                                    <option value="">@L["Select"]</option>
                                     @foreach (var requisito in requisitosProceso)
                                     {
-                                        <option value="@requisito.Codigo">@requisito.NombreEs / @requisito.NombreEn</option>
+                                        <option value="@requisito.Codigo">@CatalogoTexto.Nombre(requisito.NombreEs, requisito.NombreEn)</option>
                                     }
                                 </InputSelect>
                             </div>
@@ -121,7 +121,7 @@
                             @if (model.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
                             {
                                 <div>
-                                    <label class="mo-form-label">Especifique otro / Specify other</label>
+                                    <label class="mo-form-label">@L["Specify other"]</label>
                                     <InputText class="mo-form-control" @bind-Value="model.RequisitoProcesoOtro" />
                                 </div>
                             }
@@ -142,16 +142,16 @@
                             </div>
 
                             <div>
-                                <label class="mo-form-label">¿Informar al cliente? / Inform customer?</label>
+                                <label class="mo-form-label">@L["Inform customer?"]</label>
                                 <InputSelect class="mo-form-select" @bind-Value="model.InformarCliente">
-                                    <option value="false">No / No</option>
-                                    <option value="true">Sí / Yes</option>
+                                    <option value="false">@L["No"]</option>
+                                    <option value="true">@L["Yes"]</option>
                                 </InputSelect>
                             </div>
                         </div>
 
                         <div class="mt-3">
-                            <label class="mo-form-label">Razón / Reason</label>
+                            <label class="mo-form-label">@L["Reason"]</label>
                             <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.RazonInformarCliente" />
                         </div>
                     </section>
@@ -159,28 +159,28 @@
                     <section class="panel-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Descripción de la desviación / Deviation Description</h2>
+                                <h2>@L["Deviation Description"]</h2>
                             </div>
                         </div>
 
                         <div class="stack-fields">
                             <div>
-                                <label class="mo-form-label">¿Cómo debe realizarse el proceso? / How should the process be performed?</label>
+                                <label class="mo-form-label">@L["How is the process performed under normal operating conditions?"]</label>
                                 <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ComoDebeRealizarseProceso" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Controles actuales / Current controls</label>
+                                <label class="mo-form-label">@L["What controls are followed under normal operating conditions?"]</label>
                                 <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ControlesOperacionActual" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Proceso después del cambio temporal / Process after temporary change</label>
+                                <label class="mo-form-label">@L["What is the temporary change that will be implemented?"]</label>
                                 <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ProcesoDespuesCambioTemporal" />
                             </div>
 
                             <div>
-                                <label class="mo-form-label">Controles durante el cambio / Controls during change</label>
+                                <label class="mo-form-label">@L["Will additional controls be implemented during the temporary change to mitigate risks? If so, describe them."]</label>
                                 <InputTextArea class="mo-form-control" rows="3" @bind-Value="model.ControlesDuranteCambio" />
                             </div>
                         </div>
@@ -191,25 +191,25 @@
                         <section class="panel-card">
                             <div class="panel-head">
                                 <div>
-                                    <h2>Análisis de riesgo / Risk Analysis</h2>
-                                    <p class="panel-subtitle">Solo aplica para desviación crítica.</p>
+                                    <h2>@L["Risk Analysis"]</h2>
+                                    <p class="panel-subtitle">@L["Applies only to critical deviations."]</p>
                                 </div>
-                                <span class="mo-badge mo-badge-danger">Crítica / Critical</span>
+                                <span class="mo-badge mo-badge-danger">@L["Critical"]</span>
                             </div>
 
                             <div class="form-grid three">
                                 <div>
-                                    <label class="mo-form-label">Severidad / Severity</label>
+                                    <label class="mo-form-label">@L["Severity"]</label>
                                     <InputNumber class="mo-form-control" @bind-Value="model.SeveridadActual" min="1" max="10" />
                                 </div>
 
                                 <div>
-                                    <label class="mo-form-label">Ocurrencia actual / Current occurrence</label>
+                                    <label class="mo-form-label">@L["Current occurrence"]</label>
                                     <InputNumber class="mo-form-control" @bind-Value="model.OcurrenciaActual" min="1" max="10" />
                                 </div>
 
                                 <div>
-                                    <label class="mo-form-label">Detección actual / Current detection</label>
+                                    <label class="mo-form-label">@L["Current detection"]</label>
                                     <InputNumber class="mo-form-control" @bind-Value="model.DeteccionActual" min="1" max="10" />
                                 </div>
                             </div>
@@ -218,12 +218,12 @@
 
                             <div class="form-grid two">
                                 <div>
-                                    <label class="mo-form-label">Ocurrencia con cambio / Occurrence with Change</label>
+                                    <label class="mo-form-label">@L["Occurrence with Change"]</label>
                                     <InputNumber class="mo-form-control" @bind-Value="model.OcurrenciaConCambio" min="1" max="10" />
                                 </div>
 
                                 <div>
-                                    <label class="mo-form-label">Detección con cambio / Detection with Change</label>
+                                    <label class="mo-form-label">@L["Detection with Change"]</label>
                                     <InputNumber class="mo-form-control" @bind-Value="model.DeteccionConCambio" min="1" max="10" />
                                 </div>
                             </div>
@@ -233,31 +233,31 @@
                     <section class="panel-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Acciones / Actions</h2>
+                                <h2>@L["Actions"]</h2>
                             </div>
                         </div>
 
                         <div class="stack-fields">
                             <div>
-                                <label class="mo-form-label">Descripción de acciones / Action Description</label>
+                                <label class="mo-form-label">@L["Action Description"]</label>
                                 <InputTextArea class="mo-form-control" rows="4" @bind-Value="model.DescripcionAccion" />
                             </div>
 
                             <div class="form-grid two">
                                 <div>
-                                    <label class="mo-form-label">Responsable / Owner</label>
+                                    <label class="mo-form-label">@L["Owner"]</label>
                                     <InputText class="mo-form-control" @bind-Value="model.ResponsableAccion" />
                                 </div>
 
                                 <div>
-                                    <label class="mo-form-label">Fecha compromiso / Commitment Date</label>
+                                    <label class="mo-form-label">@L["Commitment Date"]</label>
                                     <InputDate class="mo-form-control" @bind-Value="model.FechaCompromisoAccion" />
                                 </div>
                             </div>
 
                             <div>
                                 <label class="mo-form-label">
-                                    Archivos adjuntos / Attachments
+                                    @L["Attachments"]
                                     @if (AccionRequiereAdjunto)
                                     {
                                         <span class="required-mark">*</span>
@@ -275,7 +275,7 @@
                                                         class="mo-btn mo-btn-danger-outline mo-btn-sm"
                                                         disabled="@eliminandoArchivoId.HasValue"
                                                         @onclick="() => EliminarArchivoExistenteAsync(archivo.Id)">
-                                                    Quitar / Remove
+                                                    @L["Remove"]
                                                 </button>
                                             </span>
                                         }
@@ -285,13 +285,13 @@
                                 <InputFile class="mo-form-control file-input" OnChange="@SeleccionarArchivos" multiple />
 
                                 <div class="field-help">
-                                    Tamaño máximo por archivo: 20 MB.
+                                    @L["Maximum size per file: 20 MB."]
                                 </div>
 
                                 @if (AccionRequiereAdjunto && !TieneAlgunArchivoAdjunto)
                                 {
                                     <div class="field-warning">
-                                        Debe adjuntar al menos un archivo si capturó descripción de acciones.
+                                        @L["You must attach at least one file if you entered an action description."]
                                     </div>
                                 }
 
@@ -313,8 +313,8 @@
                     <section class="panel-card sticky-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Reenviar / Resubmit</h2>
-                                <p class="panel-subtitle">Se generará un nuevo flujo de aprobación.</p>
+                                <h2>@L["Resubmit"]</h2>
+                                <p class="panel-subtitle">@L["A new approval flow will be generated."]</p>
                             </div>
                         </div>
 
@@ -324,7 +324,7 @@
                         }
 
                         <button class="mo-btn mo-btn-primary w-100" type="submit" disabled="@guardando">
-                            @(guardando ? "Guardando..." : "Guardar y reenviar / Save and resubmit")
+                            @(guardando ? L["Saving..."] : L["Save and resubmit"])
                         </button>
                     </section>
                 </aside>
@@ -416,7 +416,7 @@
 
         if (AccionRequiereAdjunto && !TieneAlgunArchivoAdjunto)
         {
-            mensaje = "Debe adjuntar al menos un archivo si capturó descripción de acciones.";
+            mensaje = L["You must attach at least one file if you entered an action description."].Value;
             return;
         }
 
@@ -442,7 +442,7 @@
 
             if (!archivoResultado.Succeeded)
             {
-                mensaje = $"La solicitud fue actualizada, pero un archivo no pudo subirse: {archivoResultado.Message}";
+                mensaje = L["The request was updated, but a file could not be uploaded: {0}", archivoResultado.Message].Value;
                 guardando = false;
                 return;
             }

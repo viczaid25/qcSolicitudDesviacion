@@ -21,8 +21,8 @@
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
-                title: title || "Desviación aprobada",
-                text: text || "Ficha de desviación aprobada",
+                title: title || moT("Approved deviation"),
+                text: text || moT("Approved deviation sheet"),
                 files: [file]
             });
 
@@ -30,7 +30,7 @@
         }
 
         downloadBlob(blob, safeFileName);
-        alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para que puedas compartirla manualmente.");
+        alert(moT("Your browser cannot share files directly. The image was downloaded so you can share it manually."));
     },
 
     copyCurrentUrl: async function () {
@@ -58,7 +58,7 @@ async function renderElementToBlob(elementId) {
     const element = document.getElementById(elementId);
 
     if (!element) {
-        alert("No se encontró la ficha para generar la imagen.");
+        alert(moT("The sheet to generate the image was not found."));
         return null;
     }
 

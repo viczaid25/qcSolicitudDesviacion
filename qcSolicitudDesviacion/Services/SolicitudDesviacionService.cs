@@ -3,6 +3,7 @@ using qcSolicitudDesviacion.Constants;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Models;
 using qcSolicitudDesviacion.ViewModels;
+using qcSolicitudDesviacion.Localization;
 
 namespace qcSolicitudDesviacion.Services;
 
@@ -55,7 +56,7 @@ public class SolicitudDesviacionService
 
         if (!usuarioExiste)
         {
-            return ServiceResult<int>.Failure("El usuario actual no existe o no está activo.");
+            return ServiceResult<int>.Failure(Loc.T("The current user does not exist or is not active."));
         }
 
         if (model.UsuarioSolicitanteId <= 0)
@@ -68,7 +69,7 @@ public class SolicitudDesviacionService
 
         if (!solicitanteExiste)
         {
-            return ServiceResult<int>.Failure("El usuario solicitante no existe o no está activo.");
+            return ServiceResult<int>.Failure(Loc.T("The applicant user does not exist or is not active."));
         }
 
         var aprobadoresSeleccionadosPorRol = ObtenerAprobadoresSeleccionadosPorRol(model);
@@ -218,7 +219,7 @@ public class SolicitudDesviacionService
 
             var detalle = ex.InnerException?.Message ?? ex.Message;
 
-            return ServiceResult<int>.Failure($"Error al crear la solicitud: {detalle}");
+            return ServiceResult<int>.Failure(Loc.T("Error creating the request: {0}", detalle));
         }
 
         // La solicitud ya quedó guardada (transacción confirmada arriba): un
@@ -239,7 +240,7 @@ public class SolicitudDesviacionService
             await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
         }
 
-        return ServiceResult<int>.Success(solicitudCreadaId, "Solicitud creada y enviada correctamente.");
+        return ServiceResult<int>.Success(solicitudCreadaId, Loc.T("Request created and submitted successfully."));
     }
 
     public async Task<List<QcDesvSolicitudResumen>> ObtenerResumenAsync(
@@ -251,6 +252,160 @@ public class SolicitudDesviacionService
             .AsNoTracking()
             .OrderByDescending(x => x.SolicitudId)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<QcDesvSolicitudConExtensiones>> ObtenerResumenConExtensionesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var solicitudes = await context.QcDesvSolicitudesResumen
+            .AsNoTracking()
+            .OrderByDescending(x => x.SolicitudId)
+            .ToListAsync(cancellationToken);
+
+        var solicitudIds = solicitudes.Select(x => x.SolicitudId).ToList();
+
+        var extensiones = await context.QcDesvExtensiones
+            .AsNoTracking()
+            .Where(x => solicitudIds.Contains(x.SolicitudId))
+            .Include(x => x.EstadoExtension)
+            .Select(x => new
+            {
+                x.SolicitudId,
+                Resumen = new QcDesvExtensionResumen
+                {
+                    Id = x.Id,
+                    NumeroExtension = x.NumeroExtension,
+                    EstadoExtensionCodigo = x.EstadoExtensionCodigo,
+                    EstadoExtensionEs = x.EstadoExtension!.NombreEs,
+                    EstadoExtensionEn = x.EstadoExtension!.NombreEn,
+                    NuevaFechaVigencia = x.NuevaFechaVigencia
+                }
+            })
+            .ToListAsync(cancellationToken);
+
+        var extensionesPorSolicitud = extensiones
+            .GroupBy(x => x.SolicitudId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.Resumen).ToList());
+
+        return solicitudes
+            .Select(x => new QcDesvSolicitudConExtensiones
+            {
+                Solicitud = x,
+                Extensiones = extensionesPorSolicitud.TryGetValue(x.SolicitudId, out var ext)
+                    ? ext
+                    : new List<QcDesvExtensionResumen>()
+            })
+            .ToList();
+    }
+
+    public async Task<QcDesvEstadisticas> ObtenerEstadisticasAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var solicitudesConExtensiones = await ObtenerResumenConExtensionesAsync(cancellationToken);
+        var solicitudes = solicitudesConExtensiones.Select(x => x.Solicitud).ToList();
+        var extensiones = solicitudesConExtensiones.SelectMany(x => x.Extensiones).ToList();
+
+        var hoy = DateTime.Today;
+
+        // Mismos criterios de vigencia que Desviaciones.razor: solo tiene sentido
+        // hablar de vencida/por vencer/vigente una vez que la solicitud ya fue
+        // aprobada -- mientras está en revisión su fecha de vigencia no aplica.
+        bool EsCerrada(QcDesvSolicitudResumen s) => s.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada;
+
+        bool EsAprobada(QcDesvSolicitudResumen s) =>
+            s.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Aprobada ||
+            s.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.ExtensionAprobada ||
+            EsCerrada(s);
+
+        bool EsRechazada(QcDesvSolicitudResumen s) => s.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Rechazada;
+        bool EsCancelada(QcDesvSolicitudResumen s) => s.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cancelada;
+
+        const int diasPorVencer = 15;
+
+        bool EsVencida(QcDesvSolicitudResumen s) =>
+            EsAprobada(s) && !EsCerrada(s) && s.FechaVigencia.Date < hoy;
+
+        bool EsPorVencer(QcDesvSolicitudResumen s) =>
+            EsAprobada(s) && !EsCerrada(s) &&
+            (s.FechaVigencia.Date - hoy).TotalDays is >= 0 and <= diasPorVencer;
+
+        bool EsVigente(QcDesvSolicitudResumen s) =>
+            EsAprobada(s) && !EsCerrada(s) && !EsVencida(s) && !EsPorVencer(s);
+
+        var resueltas = solicitudes.Count(s => EsAprobada(s) || EsRechazada(s) || EsCancelada(s));
+        var aprobadas = solicitudes.Count(EsAprobada);
+        var rechazadas = solicitudes.Count(EsRechazada);
+
+        var estadisticas = new QcDesvEstadisticas
+        {
+            TotalSolicitudes = solicitudes.Count,
+            TotalExtensiones = extensiones.Count,
+            Cerradas = solicitudes.Count(EsCerrada),
+            Vigentes = solicitudes.Count(EsVigente),
+            PorVencer = solicitudes.Count(EsPorVencer),
+            Vencidas = solicitudes.Count(EsVencida),
+            PorcentajeAprobacion = resueltas == 0 ? 0 : Math.Round(aprobadas * 100.0 / resueltas, 1),
+            PorcentajeRechazo = resueltas == 0 ? 0 : Math.Round(rechazadas * 100.0 / resueltas, 1),
+        };
+
+        estadisticas.PorEstado = AgruparPorTop(solicitudes, s => CatalogoTexto.Nombre(s.EstadoSolicitudEs, s.EstadoSolicitudEn), incluirOtros: false);
+        estadisticas.Por6M = AgruparPorTop(solicitudes, s => CatalogoTexto.Nombre(s.RequisitoProcesoEs, s.RequisitoProcesoEn), incluirOtros: false);
+        estadisticas.PorTipo = AgruparPorTop(solicitudes, s => CatalogoTexto.Nombre(s.TipoDesviacionEs, s.TipoDesviacionEn), incluirOtros: false);
+        estadisticas.PorEstadoExtension = AgruparPorTop(extensiones, e => CatalogoTexto.Nombre(e.EstadoExtensionEs, e.EstadoExtensionEn), incluirOtros: false);
+        estadisticas.TopUnidadesNegocio = AgruparPorTop(solicitudes, s => s.UnidadNegocioAfectada, top: 8);
+        estadisticas.TopSolicitantes = AgruparPorTop(solicitudes, s => s.NombreSolicitante, top: 8);
+        estadisticas.TopLineas = AgruparPorTop(solicitudes, s => s.CodigoLinea, top: 8);
+
+        estadisticas.TendenciaMensual = new List<QcDesvEtiquetaValor>();
+        for (var i = 11; i >= 0; i--)
+        {
+            var mes = new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-i);
+            var conteo = solicitudes.Count(s =>
+                s.FechaSolicitud.Year == mes.Year && s.FechaSolicitud.Month == mes.Month);
+
+            estadisticas.TendenciaMensual.Add(new QcDesvEtiquetaValor
+            {
+                Etiqueta = mes.ToString("MMM yyyy", new System.Globalization.CultureInfo("es-MX")),
+                Valor = conteo
+            });
+        }
+
+        return estadisticas;
+    }
+
+    private static List<QcDesvEtiquetaValor> AgruparPorTop<T>(
+        IEnumerable<T> items,
+        Func<T, string?> selector,
+        int? top = null,
+        bool incluirOtros = true)
+    {
+        var grupos = items
+            .Select(selector)
+            .Select(v => string.IsNullOrWhiteSpace(v) ? Loc.T("No data") : v!.Trim())
+            .GroupBy(v => v)
+            .Select(g => new QcDesvEtiquetaValor { Etiqueta = g.Key, Valor = g.Count() })
+            .OrderByDescending(x => x.Valor)
+            .ToList();
+
+        if (top is null || grupos.Count <= top)
+        {
+            return grupos;
+        }
+
+        var principales = grupos.Take(top.Value).ToList();
+
+        if (incluirOtros)
+        {
+            var otros = grupos.Skip(top.Value).Sum(x => x.Valor);
+            if (otros > 0)
+            {
+                principales.Add(new QcDesvEtiquetaValor { Etiqueta = Loc.T("Others"), Valor = otros });
+            }
+        }
+
+        return principales;
     }
 
     public async Task<QcDesvSolicitud?> ObtenerDetalleAsync(
@@ -299,17 +454,17 @@ public class SolicitudDesviacionService
 
         if (solicitud is null)
         {
-            return ServiceResult<QcDesvSolicitudFormModel>.Failure("La solicitud no existe.");
+            return ServiceResult<QcDesvSolicitudFormModel>.Failure(Loc.T("The request does not exist."));
         }
 
         if (solicitud.UsuarioSolicitanteId != usuarioActualId)
         {
-            return ServiceResult<QcDesvSolicitudFormModel>.Failure("Solo el solicitante original puede editar esta solicitud.");
+            return ServiceResult<QcDesvSolicitudFormModel>.Failure(Loc.T("Only the original applicant can edit this request."));
         }
 
         if (!PuedeEditarSolicitud(solicitud.EstadoSolicitudCodigo))
         {
-            return ServiceResult<QcDesvSolicitudFormModel>.Failure("Solo se pueden editar solicitudes en borrador o rechazadas.");
+            return ServiceResult<QcDesvSolicitudFormModel>.Failure(Loc.T("Only draft or rejected requests can be edited."));
         }
 
         var accion = solicitud.Acciones
@@ -375,7 +530,7 @@ public class SolicitudDesviacionService
     {
         if (model.SolicitudId <= 0)
         {
-            return ServiceResult<int>.Failure("La solicitud es obligatoria.");
+            return ServiceResult<int>.Failure(Loc.T("The request is required."));
         }
 
         var csrs = ObtenerCsrsNormalizados(model);
@@ -400,17 +555,17 @@ public class SolicitudDesviacionService
 
         if (solicitud is null)
         {
-            return ServiceResult<int>.Failure("La solicitud no existe.");
+            return ServiceResult<int>.Failure(Loc.T("The request does not exist."));
         }
 
         if (solicitud.UsuarioSolicitanteId != usuarioActualId)
         {
-            return ServiceResult<int>.Failure("Solo el solicitante original puede editar esta solicitud.");
+            return ServiceResult<int>.Failure(Loc.T("Only the original applicant can edit this request."));
         }
 
         if (!PuedeEditarSolicitud(solicitud.EstadoSolicitudCodigo))
         {
-            return ServiceResult<int>.Failure("Solo se pueden editar y reenviar solicitudes en borrador o rechazadas.");
+            return ServiceResult<int>.Failure(Loc.T("Only draft or rejected requests can be edited and resubmitted."));
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -582,7 +737,7 @@ public class SolicitudDesviacionService
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return ServiceResult<int>.Success(solicitud.Id, "Solicitud actualizada y reenviada correctamente.");
+            return ServiceResult<int>.Success(solicitud.Id, Loc.T("Request updated and resubmitted successfully."));
         }
         catch (Exception ex)
         {
@@ -590,56 +745,8 @@ public class SolicitudDesviacionService
 
             var detalle = ex.InnerException?.Message ?? ex.Message;
 
-            return ServiceResult<int>.Failure($"Error al actualizar la solicitud: {detalle}");
+            return ServiceResult<int>.Failure(Loc.T("Error updating the request: {0}", detalle));
         }
-    }
-
-    public async Task<ServiceResult> CancelarAsync(
-        int solicitudId,
-        int usuarioActualId,
-        string comentario,
-        CancellationToken cancellationToken = default)
-    {
-        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
-
-        var solicitud = await context.QcDesvSolicitudes
-            .FirstOrDefaultAsync(x => x.Id == solicitudId, cancellationToken);
-
-        if (solicitud is null)
-        {
-            return ServiceResult.Failure("La solicitud no existe.");
-        }
-
-        if (solicitud.UsuarioSolicitanteId != usuarioActualId)
-        {
-            return ServiceResult.Failure("Solo el solicitante puede cancelar la solicitud.");
-        }
-
-        if (solicitud.EstadoSolicitudCodigo == QcDesvCodigos.EstadoSolicitud.Cerrada)
-        {
-            return ServiceResult.Failure("No se puede cancelar una desviación cerrada.");
-        }
-
-        var estadoAnterior = solicitud.EstadoSolicitudCodigo;
-
-        solicitud.EstadoSolicitudCodigo = QcDesvCodigos.EstadoSolicitud.Cancelada;
-        solicitud.ModificadoPorUsuarioId = usuarioActualId;
-        solicitud.FechaModificacion = DateTime.Now;
-
-        context.QcDesvHistoriales.Add(new QcDesvHistorial
-        {
-            SolicitudId = solicitud.Id,
-            Accion = "Solicitud cancelada",
-            EstadoAnteriorCodigo = estadoAnterior,
-            EstadoNuevoCodigo = QcDesvCodigos.EstadoSolicitud.Cancelada,
-            Comentario = comentario,
-            UsuarioId = usuarioActualId,
-            FechaMovimiento = DateTime.Now
-        });
-
-        await context.SaveChangesAsync(cancellationToken);
-
-        return ServiceResult.Success("Solicitud cancelada correctamente.");
     }
 
     private static bool PuedeEditarSolicitud(string estadoSolicitudCodigo)
@@ -653,86 +760,86 @@ public class SolicitudDesviacionService
         var errores = new List<string>();
 
         if (model.UsuarioSolicitanteId <= 0)
-            errores.Add("El usuario solicitante es obligatorio.");
+            errores.Add(Loc.T("The applicant user is required."));
 
         if (string.IsNullOrWhiteSpace(model.NombreSolicitante))
-            errores.Add("El nombre del solicitante es obligatorio.");
+            errores.Add(Loc.T("The applicant name is required."));
 
         if (string.IsNullOrWhiteSpace(model.DepartamentoSolicitante))
-            errores.Add("El departamento solicitante es obligatorio.");
+            errores.Add(Loc.T("The requesting department is required."));
 
         if (string.IsNullOrWhiteSpace(model.UnidadNegocioAfectada))
-            errores.Add("La unidad de negocio afectada es obligatoria.");
+            errores.Add(Loc.T("The affected business unit is required."));
 
         if (string.IsNullOrWhiteSpace(model.CodigoLinea))
-            errores.Add("El código de la línea es obligatorio.");
+            errores.Add(Loc.T("The line code is required."));
 
         if (string.IsNullOrWhiteSpace(model.Clientes))
-            errores.Add("El cliente es obligatorio.");
+            errores.Add(Loc.T("The customer is required."));
 
         if (model.TipoDesviacionCodigo != QcDesvCodigos.TipoDesviacion.Critica &&
             model.TipoDesviacionCodigo != QcDesvCodigos.TipoDesviacion.Estandar)
         {
-            errores.Add("El tipo de desviación no es válido.");
+            errores.Add(Loc.T("The deviation type is not valid."));
         }
 
         if (model.FechaVigencia.Date < model.FechaSolicitud.Date)
-            errores.Add("La fecha de vigencia no puede ser menor a la fecha de solicitud.");
+            errores.Add(Loc.T("The expiration date cannot be earlier than the request date."));
 
         if (model.CantidadPiezas.HasValue && model.CantidadPiezas.Value <= 0)
-            errores.Add("La cantidad de piezas debe ser mayor a 0.");
+            errores.Add(Loc.T("The quantity of parts must be greater than 0."));
 
         if (string.IsNullOrWhiteSpace(model.NumeroParteAfectado))
-            errores.Add("El número de parte afectado es obligatorio.");
+            errores.Add(Loc.T("The affected part number is required."));
 
         if (string.IsNullOrWhiteSpace(model.RequisitoProcesoCodigo))
-            errores.Add("La categoría 6M es obligatoria.");
+            errores.Add(Loc.T("The 6M category is required."));
 
         if (model.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro &&
             string.IsNullOrWhiteSpace(model.RequisitoProcesoOtro))
         {
-            errores.Add("Debe especificar la categoría 6M cuando selecciona Otro.");
+            errores.Add(Loc.T("You must specify the 6M category when you select Other."));
         }
 
         var csrs = ObtenerCsrsNormalizados(model);
 
         if (csrs.Count == 0)
-            errores.Add("Debe capturar al menos un CSR.");
+            errores.Add(Loc.T("You must enter at least one CSR."));
 
         if (csrs.Any(x => x.Length > 250))
-            errores.Add("Cada CSR debe tener máximo 250 caracteres.");
+            errores.Add(Loc.T("Each CSR must have a maximum of 250 characters."));
 
         if (model.InformarCliente && string.IsNullOrWhiteSpace(model.RazonInformarCliente))
-            errores.Add("Debe capturar la razón para informar al cliente.");
+            errores.Add(Loc.T("You must enter the reason to inform the customer."));
 
         if (string.IsNullOrWhiteSpace(model.ComoDebeRealizarseProceso))
-            errores.Add("Debe capturar cómo debe realizarse el proceso.");
+            errores.Add(Loc.T("You must enter how the process should be performed."));
 
         if (string.IsNullOrWhiteSpace(model.ControlesOperacionActual))
-            errores.Add("Debe capturar los controles de la operación actual.");
+            errores.Add(Loc.T("You must enter the controls of the current operation."));
 
         if (string.IsNullOrWhiteSpace(model.ProcesoDespuesCambioTemporal))
-            errores.Add("Debe capturar cómo se ejecutará el proceso con el cambio temporal.");
+            errores.Add(Loc.T("You must enter how the process will run with the temporary change."));
 
         if (string.IsNullOrWhiteSpace(model.ControlesDuranteCambio))
-            errores.Add("Debe capturar los controles durante la operación con cambio.");
+            errores.Add(Loc.T("You must enter the controls during the operation with the change."));
 
         if (model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica)
         {
             if (ValorAmefInvalido(model.SeveridadActual))
-                errores.Add("La severidad debe estar entre 1 y 10.");
+                errores.Add(Loc.T("Severity must be between 1 and 10."));
 
             if (ValorAmefInvalido(model.OcurrenciaActual))
-                errores.Add("La ocurrencia actual debe estar entre 1 y 10.");
+                errores.Add(Loc.T("Current occurrence must be between 1 and 10."));
 
             if (ValorAmefInvalido(model.DeteccionActual))
-                errores.Add("La detección actual debe estar entre 1 y 10.");
+                errores.Add(Loc.T("Current detection must be between 1 and 10."));
 
             if (ValorAmefInvalido(model.OcurrenciaConCambio))
-                errores.Add("La ocurrencia con cambio debe estar entre 1 y 10.");
+                errores.Add(Loc.T("Occurrence with change must be between 1 and 10."));
 
             if (ValorAmefInvalido(model.DeteccionConCambio))
-                errores.Add("La detección con cambio debe estar entre 1 y 10.");
+                errores.Add(Loc.T("Detection with change must be between 1 and 10."));
         }
 
         return errores;
@@ -827,7 +934,7 @@ public class SolicitudDesviacionService
                 usuarioId.Value <= 0)
             {
                 return ServiceResult.Failure(
-                    $"Debe seleccionar un aprobador para el rol {rolCodigo}.");
+                    Loc.T("You must select an approver for role {0}.", rolCodigo));
             }
         }
 
@@ -849,7 +956,7 @@ public class SolicitudDesviacionService
             if (!usuariosActivos.Contains(usuarioId))
             {
                 return ServiceResult.Failure(
-                    "Uno de los aprobadores seleccionados no existe o está inactivo.");
+                    Loc.T("One of the selected approvers does not exist or is inactive."));
             }
         }
 
@@ -871,7 +978,7 @@ public class SolicitudDesviacionService
             if (!usuarioTieneRol)
             {
                 return ServiceResult.Failure(
-                    $"El usuario seleccionado para {rolCodigo} no tiene ese rol asignado.");
+                    Loc.T("The user selected for {0} does not have that role assigned.", rolCodigo));
             }
         }
 

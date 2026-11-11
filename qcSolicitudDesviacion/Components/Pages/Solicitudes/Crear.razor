@@ -8,7 +8,7 @@
 @inject AdminAprobadoresService AdminAprobadoresService
 @inject NavigationManager Navigation
 
-<PageTitle>Nueva solicitud de desviación</PageTitle>
+<PageTitle>@L["New deviation request"]</PageTitle>
 
 <div class="nueva-page">
     <section id="mo-banner">
@@ -16,15 +16,15 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Nueva desviación / New deviation</div>
-            <div id="mo-banner-title">Solicitud de desviación / Deviation Request</div>
+            <div id="mo-banner-tag">@L["New Deviation"]</div>
+            <div id="mo-banner-title">@L["Deviation Request"]</div>
             <div id="mo-banner-sub">
-                Captura la información requerida para iniciar el flujo de revisión y aprobación.
+                @L["Enter the required information to start the review and approval flow."]
             </div>
         </div>
 
         <div class="hero-actions">
-            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes">Volver / Back</a>
+            <a class="mo-btn mo-btn-secondary-outline" href="solicitudes">@L["Back"]</a>
         </div>
     </section>
 
@@ -41,17 +41,17 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Información general / General Information</h2>
-                            <p class="panel-subtitle">Datos principales de la solicitud.</p>
+                            <h2>@L["General information"]</h2>
+                            <p class="panel-subtitle">@L["Main request data."]</p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">Paso 1 / Step 1</span>
+                        <span class="mo-badge mo-badge-primary">@L["Step {0}", 1]</span>
                     </div>
 
                     <div class="form-grid">
                         <div class="field-with-help"
-                             data-help="Nombre del usuario autenticado. Este dato se toma automáticamente de la sesión y no se puede modificar.">
+                             data-help="@L["Name of the signed-in user. This value is taken automatically from the session and cannot be changed."]">
                             <label class="mo-form-label">
-                                Nombre del solicitante / Applicant Name
+                                @L["Requester Name"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -61,9 +61,9 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Fecha en que se crea la solicitud. Este dato se asigna automáticamente y no se puede modificar.">
+                             data-help="@L["Date the request is created. This value is assigned automatically and cannot be changed."]">
                             <label class="mo-form-label">
-                                Fecha / Date
+                                @L["Date"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -74,9 +74,9 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Departamento del solicitante. Se obtiene automáticamente desde dbo.meax_all_user usando el usuario autenticado.">
+                             data-help="@L["Requester's department. It is obtained automatically from dbo.meax_all_user using the signed-in user."]">
                             <label class="mo-form-label">
-                                Departamento solicitante / Requesting Department
+                                @L["Requesting department"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -85,19 +85,19 @@
                                    readonly />
 
                             <div class="field-help">
-                                Departamento obtenido desde meax_all_user.
+                                @L["Department obtained from meax_all_user."]
                             </div>
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Seleccione la unidad de negocio afectada por la desviación. Este dato identifica el área principal donde aplica el cambio temporal.">
+                             data-help="@L["Select the business unit affected by the deviation. This identifies the main area where the temporary change applies."]">
                             <label class="mo-form-label">
-                                Unidad de negocio afectada / Affected Business Unit
+                                @L["Affected Business Unit"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
                             <InputSelect class="mo-form-select" @bind-Value="model.UnidadNegocioAfectada">
-                                <option value="">Seleccione / Select</option>
+                                <option value="">@L["Select"]</option>
 
                                 @foreach (var unidad in UnidadesNegocio)
                                 {
@@ -107,14 +107,14 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Seleccione el código de línea, proceso o área donde se aplicará la desviación temporal.">
+                             data-help="@L["Select the line, process or area code where the temporary deviation will be applied."]">
                             <label class="mo-form-label">
-                                Código de la línea / Line Code
+                                @L["Line Code"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
                             <InputSelect class="mo-form-select" @bind-Value="model.CodigoLinea">
-                                <option value="">Seleccione / Select</option>
+                                <option value="">@L["Select"]</option>
 
                                 @foreach (var linea in CodigosLinea)
                                 {
@@ -124,9 +124,9 @@
                         </div>
 
                         <div class="field-with-help help-right"
-                             data-help="Seleccione si la desviación es crítica o estándar. Si selecciona estándar, el análisis de riesgo no será requerido.">
+                             data-help="@L["Select whether the deviation is critical or standard. If you select standard, the risk analysis will not be required."]">
                             <label class="mo-form-label">
-                                Tipo de desviación / Deviation Type
+                                @L["Deviation Type"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -136,21 +136,20 @@
                                     <button type="button"
                                             class="tipo-desviacion-btn @(tipo.Codigo == QcDesvCodigos.TipoDesviacion.Critica ? "critica" : "estandar") @(model.TipoDesviacionCodigo == tipo.Codigo ? "selected" : "")"
                                             @onclick="() => SeleccionarTipoDesviacion(tipo.Codigo)">
-                                        <span class="tipo-desviacion-nombre">@tipo.NombreEs</span>
-                                        <span class="tipo-desviacion-nombre-en">@tipo.NombreEn</span>
+                                        <span class="tipo-desviacion-nombre">@CatalogoTexto.Nombre(tipo.NombreEs, tipo.NombreEn)</span>
                                     </button>
                                 }
                             </div>
 
                             <div class="field-help">
-                                Si seleccionas Estándar, se omitirá el análisis de riesgo.
+                                @L["If you select Standard, the risk analysis will be skipped."]
                             </div>
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Fecha hasta la cual será válida la desviación temporal. No debe ser menor a la fecha de solicitud.">
+                             data-help="@L["Date until which the temporary deviation will be valid. It must not be earlier than the request date."]">
                             <label class="mo-form-label">
-                                Tiempo de vigencia / Validity Period
+                                @L["Validity Period"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -158,23 +157,23 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Cantidad estimada de piezas afectadas por la desviación. Este campo es opcional, pero si se captura debe ser mayor a cero.">
+                             data-help="@L["Estimated quantity of pieces affected by the deviation. This field is optional, but if entered it must be greater than zero."]">
                             <label class="mo-form-label">
-                                Cantidad de piezas / Quantity of Pieces
+                                @L["Quantity of Pieces"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
                             <InputNumber class="mo-form-control" @bind-Value="model.CantidadPiezas" />
 
                             <div class="field-help">
-                                Campo opcional. Si se captura, debe ser mayor a 0.
+                                @L["Optional field. If entered, it must be greater than 0."]
                             </div>
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Número de parte, modelo o componente afectado por la desviación temporal.">
+                             data-help="@L["Part number, model or component affected by the temporary deviation."]">
                             <label class="mo-form-label">
-                                Número de parte afectado / Affected Part Number
+                                @L["Affected Part Number"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -182,31 +181,31 @@
                         </div>
 
                         <div class="field-with-help help-right"
-                             data-help="Seleccione la categoría 6M relacionada con la desviación: Método, Materia, Mano de obra, Máquina, Medición u Otro.">
+                             data-help="@L["Select the 6M category related to the deviation: Method, Material, Manpower, Machine, Measurement or Other."]">
                             <label class="mo-form-label">
                                 6M
                                 <span class="field-help-icon">?</span>
                             </label>
 
                             <InputSelect class="mo-form-select" @bind-Value="model.RequisitoProcesoCodigo">
-                                <option value="">Seleccione / Select</option>
+                                <option value="">@L["Select"]</option>
                                 @foreach (var requisito in requisitosProceso)
                                 {
-                                    <option value="@requisito.Codigo">@requisito.NombreEs / @requisito.NombreEn</option>
+                                    <option value="@requisito.Codigo">@CatalogoTexto.Nombre(requisito.NombreEs, requisito.NombreEn)</option>
                                 }
                             </InputSelect>
 
                             <div class="field-help">
-                                Seleccione la categoría 6M aplicable / Select the applicable 6M category.
+                                @L["Select the applicable 6M category."]
                             </div>
                         </div>
 
                         @if (model.RequisitoProcesoCodigo == QcDesvCodigos.RequisitoProceso.Otro)
                         {
                             <div class="field-with-help"
-                                 data-help="Capture la categoría 6M cuando la opción seleccionada sea Otro.">
+                                 data-help="@L["Enter the 6M category when the selected option is Other."]">
                                 <label class="mo-form-label">
-                                    Especifique otro / Specify other
+                                    @L["Specify other"]
                                     <span class="field-help-icon">?</span>
                                 </label>
 
@@ -220,27 +219,27 @@
                     <div class="client-csr-card">
                         <div class="client-csr-head">
                             <div>
-                                <h3>Cliente y CSR / Customer and CSR</h3>
-                                <p>Capture el cliente y agregue todos los CSR necesarios.</p>
+                                <h3>@L["Customer and CSR"]</h3>
+                                <p>@L["Enter the customer and add all the required CSRs."]</p>
                             </div>
                         </div>
 
                         <div class="form-grid two">
                             <div class="customer-dynamic-block field-with-help"
-                                 data-help="Capture el cliente o clientes impactados por la desviación. Puede agregar todos los clientes necesarios.">
+                                 data-help="@L["Enter the customer or customers impacted by the deviation. You can add all the customers needed."]">
                                 <div class="customer-dynamic-head">
                                     <div>
                                         <label class="mo-form-label">
-                                            Cliente(s) / Customer(s)
+                                            @L["Customer(s)"]
                                             <span class="field-help-icon">?</span>
                                         </label>
-                                        <p>Agregue todos los clientes necesarios / Add all required customers.</p>
+                                        <p>@L["Add all required customers."]</p>
                                     </div>
 
                                     <button type="button"
                                             class="mo-btn mo-btn-primary mo-btn-sm"
                                             @onclick="AgregarCliente">
-                                        Agregar cliente / Add Customer
+                                        @L["Add Customer"]
                                     </button>
                                 </div>
 
@@ -256,7 +255,7 @@
 
                                             <input class="mo-form-control"
                                                    value="@clientes[index]"
-                                                   placeholder="Cliente @(index + 1)"
+                                                   placeholder="@L["Customer {0}", index + 1]"
                                                    @oninput="e => ActualizarCliente(index, e.Value?.ToString())" />
 
                                             @if (clientes.Count > 1)
@@ -264,7 +263,7 @@
                                                 <button type="button"
                                                         class="mo-btn mo-btn-danger-outline mo-btn-sm"
                                                         @onclick="() => QuitarCliente(index)">
-                                                    Quitar / Remove
+                                                    @L["Remove"]
                                                 </button>
                                             }
                                         </div>
@@ -273,20 +272,20 @@
                             </div>
 
                             <div class="csr-dynamic-block field-with-help help-right"
-                                 data-help="Capture los requisitos específicos del cliente relacionados con esta desviación. Puede agregar tantos CSR como sean necesarios.">
+                                 data-help="@L["Enter the customer-specific requirements related to this deviation. You can add as many CSRs as needed."]">
                                 <div class="csr-dynamic-head">
                                     <div>
                                         <label class="mo-form-label">
                                             CSR
                                             <span class="field-help-icon">?</span>
                                         </label>
-                                        <p>Agregue todos los CSR necesarios / Add all required CSRs.</p>
+                                        <p>@L["Add all required CSRs."]</p>
                                     </div>
 
                                     <button type="button"
                                             class="mo-btn mo-btn-primary mo-btn-sm"
                                             @onclick="AgregarCsr">
-                                        Agregar CSR / Add CSR
+                                        @L["Add CSR"]
                                     </button>
                                 </div>
 
@@ -310,7 +309,7 @@
                                                 <button type="button"
                                                         class="mo-btn mo-btn-danger-outline mo-btn-sm"
                                                         @onclick="() => QuitarCsr(index)">
-                                                    Quitar / Remove
+                                                    @L["Remove"]
                                                 </button>
                                             }
                                         </div>
@@ -324,23 +323,23 @@
 
                     <div class="form-grid">
                         <div class="field-with-help"
-                             data-help="Seleccione si es necesario informar al cliente sobre el cambio temporal solicitado.">
+                             data-help="@L["Select whether the customer needs to be informed about the requested temporary change."]">
                             <label class="mo-form-label">
-                                ¿Es necesario informar al cliente? / Inform customer?
+                                @L["Is it necessary to inform the customer?"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
                             <InputSelect class="mo-form-select" @bind-Value="model.InformarCliente">
-                                <option value="false">No / No</option>
-                                <option value="true">Sí / Yes</option>
+                                <option value="false">@L["No"]</option>
+                                <option value="true">@L["Yes"]</option>
                             </InputSelect>
                         </div>
                     </div>
 
                     <div class="mt-3 field-with-help"
-                         data-help="Explique la razón por la cual es necesario o no informar al cliente del cambio temporal. Si selecciona Sí, este campo es obligatorio.">
+                         data-help="@L["Explain why it is or is not necessary to inform the customer about the temporary change. If you select Yes, this field is required."]">
                         <label class="mo-form-label">
-                            Razón / Reason
+                            @L["Reason"]
                             <span class="field-help-icon">?</span>
                         </label>
 
@@ -351,17 +350,17 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Descripción de la desviación / Deviation Description</h2>
-                            <p class="panel-subtitle">Describe el proceso actual y el cambio temporal.</p>
+                            <h2>@L["Deviation Description"]</h2>
+                            <p class="panel-subtitle">@L["Describe the current process and the temporary change."]</p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">Paso 2 / Step 2</span>
+                        <span class="mo-badge mo-badge-primary">@L["Step {0}", 2]</span>
                     </div>
 
                     <div class="stack-fields">
                         <div class="field-with-help"
-                             data-help="Describe cómo debe realizarse normalmente el proceso de acuerdo con el método aprobado, instrucción de trabajo, procedimiento, estándar o especificación vigente.">
+                             data-help="@L["Describe how the process should normally be performed according to the approved method, work instruction, procedure, standard or current specification."]">
                             <label class="mo-form-label">
-                                ¿Cómo debe realizarse el proceso? / How should the process be performed?
+                                @L["How is the process performed under normal operating conditions?"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -371,9 +370,9 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Indica los controles actuales que se aplican antes de la desviación, por ejemplo inspecciones, verificaciones, poka-yokes, registros, validaciones, pruebas o revisiones del operador.">
+                             data-help="@L["Indicate the current controls applied before the deviation, for example inspections, verifications, poka-yokes, records, validations, tests or operator reviews."]">
                             <label class="mo-form-label">
-                                ¿Qué controles se siguen durante la operación actual? / Current operation controls
+                                @L["What controls are followed under normal operating conditions?"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -383,9 +382,9 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Explica cómo se realizará temporalmente el proceso durante la desviación. Describe claramente qué cambiará contra el proceso normal y cómo se ejecutará el cambio.">
+                             data-help="@L["Explain how the process will be performed temporarily during the deviation. Clearly describe what will change compared to the normal process and how the change will be carried out."]">
                             <label class="mo-form-label">
-                                ¿Cómo se ejecutará el proceso después del cambio temporal? / Process after temporary change
+                                @L["What is the temporary change that will be implemented?"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -395,9 +394,9 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Describe los controles adicionales o temporales que deberán aplicarse mientras la desviación esté vigente para asegurar que no se afecte calidad, seguridad, cliente o proceso.">
+                             data-help="@L["Describe the additional or temporary controls that must be applied while the deviation is in effect to ensure that quality, safety, the customer or the process are not affected."]">
                             <label class="mo-form-label">
-                                ¿Qué controles deben implementarse durante el cambio? / Controls during change
+                                @L["Will additional controls be implemented during the temporary change to mitigate risks? If so, describe them."]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -413,27 +412,27 @@
                     <section class="panel-card">
                         <div class="panel-head">
                             <div>
-                                <h2>Análisis de riesgo / Risk Analysis</h2>
-                                <p class="panel-subtitle">Aplicable solo para desviación crítica.</p>
+                                <h2>@L["Risk Analysis"]</h2>
+                                <p class="panel-subtitle">@L["Applies only to critical deviations."]</p>
                             </div>
-                            <span class="mo-badge mo-badge-danger">Crítica / Critical</span>
+                            <span class="mo-badge mo-badge-danger">@L["Critical"]</span>
                         </div>
 
                         <div class="mo-alert mo-alert-warning">
-                            Capture valores de AMEF entre 1 y 10.
+                            @L["Enter FMEA values between 1 and 10."]
                         </div>
 
                         <div class="section-divider"></div>
 
                         <label class="mo-form-label">
-                            Operación actual conforme al AMEF / Current operation according to FMEA
+                            @L["Current operation according to FMEA"]
                         </label>
 
                         <div class="form-grid three">
                             <div class="field-with-help"
-                                 data-help="Valor de severidad del AMEF actual. Evalúa qué tan grave sería el efecto de la falla para el cliente, producto, proceso o seguridad. Capture un valor del 1 al 10.">
+                                 data-help="@L["Severity value from the current FMEA. Evaluates how serious the effect of the failure would be for the customer, product, process or safety. Enter a value from 1 to 10."]">
                                 <label class="mo-form-label">
-                                    Severidad / Severity
+                                    @L["Severity"]
                                     <span class="field-help-icon">?</span>
                                 </label>
 
@@ -444,9 +443,9 @@
                             </div>
 
                             <div class="field-with-help"
-                                 data-help="Valor de ocurrencia del AMEF actual. Indica qué tan probable es que ocurra la falla con el proceso actual. Capture un valor del 1 al 10.">
+                                 data-help="@L["Occurrence value from the current FMEA. Indicates how likely the failure is to occur with the current process. Enter a value from 1 to 10."]">
                                 <label class="mo-form-label">
-                                    Ocurrencia / Occurrence
+                                    @L["Occurrence"]
                                     <span class="field-help-icon">?</span>
                                 </label>
 
@@ -457,9 +456,9 @@
                             </div>
 
                             <div class="field-with-help help-right"
-                                 data-help="Valor de detección del AMEF actual. Indica qué tan probable es detectar la falla antes de que llegue al cliente o al siguiente proceso. Capture un valor del 1 al 10.">
+                                 data-help="@L["Detection value from the current FMEA. Indicates how likely it is to detect the failure before it reaches the customer or the next process. Enter a value from 1 to 10."]">
                                 <label class="mo-form-label">
-                                    Detección / Detection
+                                    @L["Detection"]
                                     <span class="field-help-icon">?</span>
                                 </label>
 
@@ -473,14 +472,14 @@
                         <div class="section-divider"></div>
 
                         <label class="mo-form-label">
-                            Considerando el cambio / Considering the change
+                            @L["Considering the change"]
                         </label>
 
                         <div class="form-grid two">
                             <div class="field-with-help"
-                                 data-help="Valor de ocurrencia considerando el cambio temporal. Indica qué tan probable es que ocurra la falla después de implementar la desviación. Capture un valor del 1 al 10.">
+                                 data-help="@L["Occurrence value considering the temporary change. Indicates how likely the failure is to occur after implementing the deviation. Enter a value from 1 to 10."]">
                                 <label class="mo-form-label">
-                                    Ocurrencia con cambio / Occurrence with Change
+                                    @L["Occurrence with Change"]
                                     <span class="field-help-icon">?</span>
                                 </label>
 
@@ -491,9 +490,9 @@
                             </div>
 
                             <div class="field-with-help help-right"
-                                 data-help="Valor de detección considerando el cambio temporal. Indica qué tan probable es detectar la falla con los controles temporales propuestos. Capture un valor del 1 al 10.">
+                                 data-help="@L["Detection value considering the temporary change. Indicates how likely it is to detect the failure with the proposed temporary controls. Enter a value from 1 to 10."]">
                                 <label class="mo-form-label">
-                                    Detección con cambio / Detection with Change
+                                    @L["Detection with Change"]
                                     <span class="field-help-icon">?</span>
                                 </label>
 
@@ -509,19 +508,19 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Acciones / Actions</h2>
+                            <h2>@L["Actions"]</h2>
                             <p class="panel-subtitle">
-                                Describe las acciones y adjunta evidencia cuando aplique.
+                                @L["Describe the actions and attach evidence when applicable."]
                             </p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">Paso 3 / Step 3</span>
+                        <span class="mo-badge mo-badge-primary">@L["Step {0}", 3]</span>
                     </div>
 
                     <div class="stack-fields">
                         <div class="field-with-help"
-                             data-help="Describe las acciones que se realizarán para controlar, corregir o mitigar la desviación. Este campo es opcional, pero si capturas una descripción deberás adjuntar al menos un archivo como evidencia o soporte.">
+                             data-help="@L["Describe the actions that will be taken to control, correct or mitigate the deviation. This field is optional, but if you enter a description you must attach at least one file as evidence or support."]">
                             <label class="mo-form-label">
-                                Descripción de acciones / Action Description
+                                @L["Action Description"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -530,14 +529,14 @@
                                            @bind-Value="model.DescripcionAccion" />
 
                             <div class="field-help">
-                                Si captura una descripción de acciones, deberá adjuntar al menos un archivo.
+                                @L["If you enter an action description, you must attach at least one file."]
                             </div>
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Persona responsable de ejecutar o dar seguimiento a las acciones capturadas.">
+                             data-help="@L["Person responsible for carrying out or following up on the entered actions."]">
                             <label class="mo-form-label">
-                                Responsable / Owner
+                                @L["Owner"]
                                 <span class="field-help-icon">?</span>
                             </label>
 
@@ -545,9 +544,9 @@
                         </div>
 
                         <div class="field-with-help"
-                             data-help="Adjunte archivos de soporte o evidencia cuando capture una descripción de acciones. El tamaño máximo por archivo es 20 MB.">
+                             data-help="@L["Attach supporting or evidence files when you enter an action description. The maximum size per file is 20 MB."]">
                             <label class="mo-form-label">
-                                Archivos adjuntos / Attachments
+                                @L["Attachments"]
                                 @if (AccionRequiereAdjunto)
                                 {
                                     <span class="required-mark">*</span>
@@ -558,13 +557,13 @@
                             <InputFile class="mo-form-control file-input" OnChange="@SeleccionarArchivos" multiple />
 
                             <div class="field-help">
-                                Tamaño máximo por archivo: 20 MB.
+                                @L["Maximum size per file: 20 MB."]
                             </div>
 
                             @if (AccionRequiereAdjunto && archivosSeleccionados.Count == 0)
                             {
                                 <div class="field-warning">
-                                    Debe adjuntar al menos un archivo si capturó descripción de acciones.
+                                    @L["You must attach at least one file if you entered an action description."]
                                 </div>
                             }
 
@@ -584,12 +583,12 @@
                 <section class="panel-card">
                     <div class="panel-head">
                         <div>
-                            <h2>Aprobadores / Approvers</h2>
+                            <h2>@L["Approvers"]</h2>
                             <p class="panel-subtitle">
-                                Seleccione el usuario responsable de aprobar cada etapa del flujo.
+                                @L["Select the user responsible for approving each stage of the flow."]
                             </p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">Paso 4 / Step 4</span>
+                        <span class="mo-badge mo-badge-primary">@L["Step {0}", 4]</span>
                     </div>
 
                     <div class="approver-flow-list">
@@ -601,9 +600,7 @@
                                 <p>QMS</p>
 
                                 <div class="field-help">
-                                    Se asigna automáticamente a los administradores del sistema; no requiere
-                                    seleccionar un aprobador. / Automatically assigned to system administrators;
-                                    no approver selection required.
+                                    @L["Automatically assigned to system administrators; no approver selection required."]
                                 </div>
                             </div>
                         </article>
@@ -611,7 +608,7 @@
                         @if (rolesAprobadores.Count == 0)
                         {
                             <div class="mo-alert mo-alert-danger">
-                                No hay aprobadores configurados. Primero configure usuarios en Administración &gt; Aprobadores.
+                                @L["No approvers are configured. First configure users in Administration > Approvers."]
                             </div>
                         }
                         else
@@ -624,13 +621,12 @@
                                     </div>
 
                                     <div class="approver-info">
-                                        <h3>@rol.NombreEs</h3>
-                                        <p>@rol.NombreEn</p>
+                                        <h3>@CatalogoTexto.Nombre(rol.NombreEs, rol.NombreEn)</h3>
 
                                         @if (rol.Usuarios.Count == 0)
                                         {
                                             <div class="field-warning">
-                                                No hay usuarios activos con este rol.
+                                                @L["There are no active users with this role."]
                                             </div>
                                         }
                                         else
@@ -638,7 +634,7 @@
                                             <InputSelect TValue="int?"
                                                          class="mo-form-select"
                                                          @bind-Value="rol.UsuarioSeleccionadoId">
-                                                <option value="">Seleccione aprobador / Select approver</option>
+                                                <option value="">@L["Select approver"]</option>
 
                                                 @foreach (var usuario in rol.Usuarios)
                                                 {
@@ -649,7 +645,7 @@
                                             </InputSelect>
 
                                             <div class="field-help">
-                                                Usuarios disponibles para el rol @rol.NombreEs.
+                                                @L["Users available for the {0} role.", CatalogoTexto.Nombre(rol.NombreEs, rol.NombreEn)]
                                             </div>
                                         }
                                     </div>
@@ -662,12 +658,12 @@
                 <section class="panel-card submit-panel">
                     <div class="panel-head">
                         <div>
-                            <h2>Enviar solicitud / Submit Request</h2>
+                            <h2>@L["Submit request"]</h2>
                             <p class="panel-subtitle">
-                                Al enviar, la solicitud pasará al flujo de aprobación iniciando con QMS.
+                                @L["When submitted, the request will enter the approval flow starting with QMS."]
                             </p>
                         </div>
-                        <span class="mo-badge mo-badge-primary">Final / Submit</span>
+                        <span class="mo-badge mo-badge-primary">@L["Final"]</span>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(mensaje))
@@ -679,11 +675,11 @@
 
                     <div class="submit-panel-inner">
                         <a class="mo-btn mo-btn-secondary" href="solicitudes">
-                            Cancelar / Cancel
+                            @L["Cancel"]
                         </a>
 
                         <button class="mo-btn mo-btn-primary" type="submit" disabled="@guardando">
-                            @(guardando ? "Guardando..." : "Crear y enviar / Create and submit")
+                            @(guardando ? L["Saving..."] : L["Create and submit"])
                         </button>
                     </div>
                 </section>
@@ -697,14 +693,11 @@
                     <div class="modal-head">
                         <div>
                             <h3>
-                                ¿Qué impacto tiene la falta de cumplimiento identificada durante la revisión del proceso?
+                                @L["What impact does the non-compliance identified during the process review have?"]
                             </h3>
-                            <p class="modal-subtitle">
-                                <em>What impact does the non-compliance identified during the process review have?</em>
-                            </p>
                         </div>
 
-                        <button type="button" class="modal-close" @onclick="CerrarModalCriterios" aria-label="Cerrar">
+                        <button type="button" class="modal-close" @onclick="CerrarModalCriterios" aria-label="@L["Close"]">
                             &times;
                         </button>
                     </div>
@@ -712,50 +705,31 @@
                     <div class="modal-body">
                         @if (model.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica)
                         {
-                            <span class="mo-badge mo-badge-danger">Impacto alto / High impact</span>
+                            <span class="mo-badge mo-badge-danger">@L["High impact"]</span>
 
                             <ul>
                                 <li>
-                                    No hay evidencia de la adhesión en la conformidad de un requisito comprometido
-                                    con cliente (AMEF, plan de control, instrucción de trabajo, diagrama de flujo,
-                                    norma de empaque)
+                                    @L["There is no evidence of adherence to compliance with a customer-committed requirement (FMEA, control plan, work instruction, process flow diagram, packaging standard)"]
                                 </li>
-                                <li>Riesgo mayor para el producto final</li>
+                                <li>@L["Major risk to the final product"]</li>
                             </ul>
-
-                            <p class="modal-en">
-                                <em>
-                                    There is no evidence of adherence to compliance with a customer-committed
-                                    requirement (FMEA, control plan, work instruction, process flow diagram,
-                                    packaging standard). Major risk to the final product.
-                                </em>
-                            </p>
                         }
                         else
                         {
-                            <span class="mo-badge mo-badge-primary">Bajo impacto / Low impact</span>
+                            <span class="mo-badge mo-badge-primary">@L["Low impact"]</span>
 
                             <ul>
                                 <li>
-                                    No hay evidencia de la adhesión en la conformidad de un requisito no
-                                    comprometido con cliente (procedimientos, equipos de medición)
+                                    @L["There is no evidence of adherence to compliance with a requirement not committed to the customer (procedures, measuring equipment)"]
                                 </li>
-                                <li>Sin riesgo apreciable para el producto final</li>
+                                <li>@L["No appreciable risk to the final product"]</li>
                             </ul>
-
-                            <p class="modal-en">
-                                <em>
-                                    There is no evidence of adherence to compliance with a requirement not
-                                    committed to the customer (procedures, measuring equipment). No appreciable
-                                    risk to the final product.
-                                </em>
-                            </p>
                         }
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="mo-btn mo-btn-primary" @onclick="CerrarModalCriterios">
-                            Entendido / Got it
+                            @L["Understood"]
                         </button>
                     </div>
                 </div>
@@ -1007,29 +981,29 @@
     {
         if (rolesAprobadores.Count == 0)
         {
-            mensaje = "No hay aprobadores configurados. Primero configure usuarios en Administración > Aprobadores.";
+            mensaje = L["No approvers are configured. First configure users in Administration > Approvers."].Value;
             return false;
         }
 
         var rolesSinUsuarios = rolesAprobadores
             .Where(x => x.Usuarios.Count == 0)
-            .Select(x => x.NombreEs)
+            .Select(x => CatalogoTexto.Nombre(x.NombreEs, x.NombreEn))
             .ToList();
 
         if (rolesSinUsuarios.Count > 0)
         {
-            mensaje = $"Hay roles sin usuarios configurados: {string.Join(", ", rolesSinUsuarios)}.";
+            mensaje = L["There are roles without configured users: {0}.", string.Join(", ", rolesSinUsuarios)].Value;
             return false;
         }
 
         var rolesFaltantes = rolesAprobadores
             .Where(x => !x.UsuarioSeleccionadoId.HasValue || x.UsuarioSeleccionadoId.Value <= 0)
-            .Select(x => x.NombreEs)
+            .Select(x => CatalogoTexto.Nombre(x.NombreEs, x.NombreEn))
             .ToList();
 
         if (rolesFaltantes.Count > 0)
         {
-            mensaje = $"Debe seleccionar aprobador para: {string.Join(", ", rolesFaltantes)}.";
+            mensaje = L["You must select an approver for: {0}.", string.Join(", ", rolesFaltantes)].Value;
             return false;
         }
 
@@ -1060,7 +1034,7 @@
 
         if (AccionRequiereAdjunto && archivosSeleccionados.Count == 0)
         {
-            mensaje = "Debe adjuntar al menos un archivo si capturó descripción de acciones.";
+            mensaje = L["You must attach at least one file if you entered an action description."].Value;
             guardando = false;
             return;
         }
@@ -1103,7 +1077,7 @@
 
             if (!archivoResultado.Succeeded)
             {
-                mensaje = $"La solicitud fue creada, pero un archivo no pudo subirse: {archivoResultado.Message}";
+                mensaje = L["The request was created, but a file could not be uploaded: {0}", archivoResultado.Message].Value;
                 exito = false;
                 guardando = false;
                 return;
@@ -1111,7 +1085,7 @@
         }
 
         exito = true;
-        mensaje = "Solicitud creada correctamente.";
+        mensaje = L["Request created successfully."].Value;
 
         Navigation.NavigateTo($"solicitudes/{resultado.Data}");
     }

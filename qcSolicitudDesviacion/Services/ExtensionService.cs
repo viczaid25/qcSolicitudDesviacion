@@ -3,6 +3,7 @@ using qcSolicitudDesviacion.Constants;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Models;
 using qcSolicitudDesviacion.ViewModels;
+using qcSolicitudDesviacion.Localization;
 
 namespace qcSolicitudDesviacion.Services;
 
@@ -42,12 +43,12 @@ public class ExtensionService
     {
         if (model.SolicitudId <= 0)
         {
-            return ServiceResult<int>.Failure("La solicitud es obligatoria.");
+            return ServiceResult<int>.Failure(Loc.T("The request is required."));
         }
 
         if (string.IsNullOrWhiteSpace(model.RazonExtension))
         {
-            return ServiceResult<int>.Failure("La razón de la extensión es obligatoria.");
+            return ServiceResult<int>.Failure(Loc.T("The reason for the extension is required."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -57,12 +58,12 @@ public class ExtensionService
 
         if (solicitud is null)
         {
-            return ServiceResult<int>.Failure("La solicitud no existe.");
+            return ServiceResult<int>.Failure(Loc.T("The request does not exist."));
         }
 
         if (solicitud.UsuarioSolicitanteId != usuarioActualId)
         {
-            return ServiceResult<int>.Failure("Solo el solicitante original puede pedir extensión.");
+            return ServiceResult<int>.Failure(Loc.T("Only the original applicant can request an extension."));
         }
 
         var estadosPermitidos = new[]
@@ -73,12 +74,12 @@ public class ExtensionService
 
         if (!estadosPermitidos.Contains(solicitud.EstadoSolicitudCodigo))
         {
-            return ServiceResult<int>.Failure("Solo se puede solicitar extensión de una desviación aprobada.");
+            return ServiceResult<int>.Failure(Loc.T("An extension can only be requested for an approved deviation."));
         }
 
         if (solicitud.NumeroExtensionActual >= 2)
         {
-            return ServiceResult<int>.Failure("La desviación ya alcanzó el máximo de 2 extensiones.");
+            return ServiceResult<int>.Failure(Loc.T("The deviation has already reached the maximum of 2 extensions."));
         }
 
         var existeExtensionPendiente = await context.QcDesvExtensiones
@@ -89,12 +90,12 @@ public class ExtensionService
 
         if (existeExtensionPendiente)
         {
-            return ServiceResult<int>.Failure("Ya existe una extensión pendiente para esta desviación.");
+            return ServiceResult<int>.Failure(Loc.T("There is already a pending extension for this deviation."));
         }
 
         if (model.NuevaFechaVigencia.Date <= solicitud.FechaVigencia.Date)
         {
-            return ServiceResult<int>.Failure("La nueva fecha de vigencia debe ser mayor a la fecha actual de vigencia.");
+            return ServiceResult<int>.Failure(Loc.T("The new expiration date must be later than the current expiration date."));
         }
 
         var fechaMaximaPermitida = solicitud.FechaCreacion.Date.AddMonths(6);
@@ -102,7 +103,7 @@ public class ExtensionService
         if (model.NuevaFechaVigencia.Date > fechaMaximaPermitida)
         {
             return ServiceResult<int>.Failure(
-                $"La nueva fecha de vigencia no puede exceder 6 meses desde la creación. Fecha máxima permitida: {fechaMaximaPermitida:yyyy-MM-dd}.");
+                Loc.T("The new expiration date cannot exceed 6 months from creation. Maximum allowed date: {0}.", fechaMaximaPermitida.ToString("yyyy-MM-dd")));
         }
 
         var aprobadoresSeleccionadosPorRol = ObtenerAprobadoresSeleccionadosPorRol(model);
@@ -179,7 +180,7 @@ public class ExtensionService
         catch (Exception ex)
         {
             await transaction.RollbackAsync(cancellationToken);
-            return ServiceResult<int>.Failure($"Error al solicitar extensión: {ex.Message}");
+            return ServiceResult<int>.Failure(Loc.T("Error requesting extension: {0}", ex.Message));
         }
 
         // La extensión ya quedó guardada (transacción confirmada arriba): un
@@ -200,7 +201,7 @@ public class ExtensionService
             await _emailService.NotificarPasoEmitidoAsync(primeraAprobacion.Id, cancellationToken);
         }
 
-        return ServiceResult<int>.Success(extensionCreadaId, "Extensión solicitada correctamente.");
+        return ServiceResult<int>.Success(extensionCreadaId, Loc.T("Extension requested successfully."));
     }
 
     private static Dictionary<string, int?> ObtenerAprobadoresSeleccionadosPorRol(
@@ -227,7 +228,7 @@ public class ExtensionService
                 usuarioId.Value <= 0)
             {
                 return ServiceResult.Failure(
-                    $"Debe seleccionar un aprobador para el rol {rolCodigo}.");
+                    Loc.T("You must select an approver for role {0}.", rolCodigo));
             }
         }
 
@@ -249,7 +250,7 @@ public class ExtensionService
             if (!usuariosActivos.Contains(usuarioId))
             {
                 return ServiceResult.Failure(
-                    "Uno de los aprobadores seleccionados no existe o está inactivo.");
+                    Loc.T("One of the selected approvers does not exist or is inactive."));
             }
         }
 
@@ -271,7 +272,7 @@ public class ExtensionService
             if (!usuarioTieneRol)
             {
                 return ServiceResult.Failure(
-                    $"El usuario seleccionado para {rolCodigo} no tiene ese rol asignado.");
+                    Loc.T("The user selected for {0} does not have that role assigned.", rolCodigo));
             }
         }
 

@@ -3,7 +3,7 @@
 
 @inject SolicitudDesviacionService SolicitudService
 
-<PageTitle>Inicio - Solicitud de Desviación</PageTitle>
+<PageTitle>@L["Home - Deviation Request"]</PageTitle>
 
 <div class="index-page">
     <section id="mo-banner">
@@ -11,29 +11,29 @@
         <div class="mo-banner-orb mo-banner-orb-2"></div>
 
         <div id="mo-banner-content">
-            <div id="mo-banner-tag">Sistema de desviaciones / Deviation System</div>
+            <div id="mo-banner-tag">@L["Deviation System"]</div>
 
-            <div id="mo-banner-title">Solicitud de Desviación</div>
+            <div id="mo-banner-title">@L["Deviation Request"]</div>
 
             <div id="mo-banner-sub">
-                Controla solicitudes de desviación, aprobaciones, extensiones y cierre desde un solo lugar.
+                @L["Manage deviation requests, approvals, extensions and closure from a single place."]
             </div>
 
             <div class="hero-meta">
-                <span class="meta-chip">Solicitudes / Requests</span>
-                <span class="meta-chip">Aprobaciones / Approvals</span>
-                <span class="meta-chip">Extensiones / Extensions</span>
-                <span class="meta-chip">Cierre / Closure</span>
+                <span class="meta-chip">@L["Requests"]</span>
+                <span class="meta-chip">@L["Approvals"]</span>
+                <span class="meta-chip">@L["Extensions"]</span>
+                <span class="meta-chip">@L["Closure"]</span>
             </div>
         </div>
 
         <div class="hero-actions">
             <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
-                Nueva desviación / New Deviation
+                @L["New Deviation"]
             </a>
 
             <a class="mo-btn mo-btn-secondary-outline" href="desviaciones">
-                Ver desviaciones / View Deviations
+                @L["View Deviations"]
             </a>
         </div>
     </section>
@@ -51,46 +51,46 @@
     {
         <section class="stats-grid">
             <a class="stat-card" href="desviaciones">
-                <span>Total solicitudes / Total Requests</span>
+                <span>@L["Total Requests"]</span>
                 <strong>@totalSolicitudes</strong>
-                <p>Solicitudes registradas en el sistema.</p>
+                <p>@L["Requests registered in the system."]</p>
             </a>
 
             <a class="stat-card stat-vigente" href="desviaciones">
-                <span>Vigentes / Active</span>
+                <span>@L["Active Requests"]</span>
                 <strong>@solicitudesVigentes</strong>
-                <p>Solicitudes abiertas dentro de su fecha de vigencia.</p>
+                <p>@L["Open requests within their validity date."]</p>
             </a>
 
             <a class="stat-card stat-vencida" href="desviaciones">
-                <span>Vencidas / Expired</span>
+                <span>@L["Expired Requests"]</span>
                 <strong>@solicitudesVencidas</strong>
-                <p>Solicitudes abiertas con fecha de vigencia vencida.</p>
+                <p>@L["Open requests past their validity date."]</p>
             </a>
 
             <a class="stat-card stat-cerrada" href="desviaciones">
-                <span>Cerradas / Closed</span>
+                <span>@L["Closed Requests"]</span>
                 <strong>@solicitudesCerradas</strong>
-                <p>Desviaciones cerradas con datos de control.</p>
+                <p>@L["Closed deviations with control data."]</p>
             </a>
         </section>
 
         <section class="panel-card recent-panel">
             <div class="panel-head">
                 <div>
-                    <h2>Solicitudes recientes / Recent Requests</h2>
-                    <p class="panel-subtitle">Últimas desviaciones registradas.</p>
+                    <h2>@L["Recent Requests"]</h2>
+                    <p class="panel-subtitle">@L["Latest registered deviations."]</p>
                 </div>
 
                 <a class="panel-link" href="desviaciones">
-                    Ver todas / View all
+                    @L["View all"]
                 </a>
             </div>
 
             @if (!solicitudesRecientes.Any())
             {
                 <div class="empty-state compact">
-                    Sin solicitudes registradas.
+                    @L["No registered requests."]
                 </div>
             }
             else
@@ -106,9 +106,9 @@
 
                             <div class="recent-meta">
                                 <span class="mo-badge @QcDesvEstadoBadge.ClaseSolicitud(item.EstadoSolicitudCodigo)">
-                                    <span class="mo-badge-dot"></span>@item.EstadoSolicitudEs
+                                    <span class="mo-badge-dot"></span>@CatalogoTexto.Nombre(item.EstadoSolicitudEs, item.EstadoSolicitudEn)
                                 </span>
-                                <small>Vigencia: @item.FechaVigencia.ToString("yyyy-MM-dd")</small>
+                                <small>@L["Validity: {0}", item.FechaVigencia.ToString("yyyy-MM-dd")]</small>
                             </div>
                         </a>
                     }

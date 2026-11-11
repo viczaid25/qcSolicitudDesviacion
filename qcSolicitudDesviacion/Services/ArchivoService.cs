@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Models;
+using qcSolicitudDesviacion.Localization;
 
 namespace qcSolicitudDesviacion.Services;
 
@@ -28,22 +29,22 @@ public class ArchivoService
     {
         if (solicitudId <= 0)
         {
-            return ServiceResult<int>.Failure("La solicitud es obligatoria.");
+            return ServiceResult<int>.Failure(Loc.T("The request is required."));
         }
 
         if (archivo is null)
         {
-            return ServiceResult<int>.Failure("El archivo es obligatorio.");
+            return ServiceResult<int>.Failure(Loc.T("The file is required."));
         }
 
         if (archivo.Size <= 0)
         {
-            return ServiceResult<int>.Failure("El archivo está vacío.");
+            return ServiceResult<int>.Failure(Loc.T("The file is empty."));
         }
 
         if (archivo.Size > maxFileSizeBytes)
         {
-            return ServiceResult<int>.Failure("El archivo excede el tamaño máximo permitido.");
+            return ServiceResult<int>.Failure(Loc.T("The file exceeds the maximum allowed size."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -53,7 +54,7 @@ public class ArchivoService
 
         if (!solicitudExiste)
         {
-            return ServiceResult<int>.Failure("La solicitud no existe.");
+            return ServiceResult<int>.Failure(Loc.T("The request does not exist."));
         }
 
         if (accionId.HasValue)
@@ -63,7 +64,7 @@ public class ArchivoService
 
             if (!accionPerteneceSolicitud)
             {
-                return ServiceResult<int>.Failure("La acción no pertenece a la solicitud indicada.");
+                return ServiceResult<int>.Failure(Loc.T("The action does not belong to the specified request."));
             }
         }
 
@@ -110,7 +111,7 @@ public class ArchivoService
             context.QcDesvArchivos.Add(archivoDb);
             await context.SaveChangesAsync(cancellationToken);
 
-            return ServiceResult<int>.Success(archivoDb.Id, "Archivo subido correctamente.");
+            return ServiceResult<int>.Success(archivoDb.Id, Loc.T("File uploaded successfully."));
         }
         catch (Exception ex)
         {
@@ -119,7 +120,7 @@ public class ArchivoService
                 File.Delete(fullPath);
             }
 
-            return ServiceResult<int>.Failure($"Error al subir archivo: {ex.Message}");
+            return ServiceResult<int>.Failure(Loc.T("Error uploading file: {0}", ex.Message));
         }
     }
 
@@ -135,7 +136,7 @@ public class ArchivoService
 
         if (archivo is null)
         {
-            return ServiceResult.Failure("El archivo no existe.");
+            return ServiceResult.Failure(Loc.T("The file does not exist."));
         }
 
         var webRootPath = _environment.WebRootPath
@@ -157,11 +158,11 @@ public class ArchivoService
                 File.Delete(fullPath);
             }
 
-            return ServiceResult.Success("Archivo eliminado correctamente.");
+            return ServiceResult.Success(Loc.T("File deleted successfully."));
         }
         catch (Exception ex)
         {
-            return ServiceResult.Failure($"Error al eliminar archivo: {ex.Message}");
+            return ServiceResult.Failure(Loc.T("Error deleting file: {0}", ex.Message));
         }
     }
 }

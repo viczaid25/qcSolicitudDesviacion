@@ -6,3 +6,33 @@
     background: rgba(255,255,255,0.12);
     color: #fff;
 }
+
+/* ── Encabezados ordenables de .mo-table (mo-table.js) ────── */
+.mo-th-sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 20px !important;
+}
+.mo-th-sortable:hover { color: #4a4a68; }
+.mo-th-sortable::after {
+    content: '\2195';
+    position: absolute;
+    right: 6px;
+    opacity: 0.35;
+    font-size: 10px;
+}
+.mo-th-sortable.mo-th-sort-asc::after {
+    content: '\2191';
+    opacity: 1;
+    color: var(--mo-blue);
+}
+.mo-th-sortable.mo-th-sort-desc::after {
+    content: '\2193';
+    opacity: 1;
+    color: var(--mo-blue);
+}
+
+/* Idioma (translate-system): extras para Blazor; las opciones son <a> y el ícono es SVG */
+a.mo-lang-opt, a.mo-lang-opt:hover { text-decoration: none; }
+#mo-lang-chevron { margin-left: 6px; flex-shrink: 0; transition: transform 0.15s; }

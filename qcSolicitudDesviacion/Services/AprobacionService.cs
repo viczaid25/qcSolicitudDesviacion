@@ -2,6 +2,7 @@
 using qcSolicitudDesviacion.Constants;
 using qcSolicitudDesviacion.Data;
 using qcSolicitudDesviacion.Models;
+using qcSolicitudDesviacion.Localization;
 
 namespace qcSolicitudDesviacion.Services;
 
@@ -73,17 +74,17 @@ public class AprobacionService
 
         if (aprobacion is null)
         {
-            return ServiceResult.Failure("La aprobación no existe.");
+            return ServiceResult.Failure(Loc.T("The approval does not exist."));
         }
 
         if (!aprobacion.EsPasoActual)
         {
-            return ServiceResult.Failure("Esta aprobación no es el paso actual.");
+            return ServiceResult.Failure(Loc.T("This approval is not the current step."));
         }
 
         if (aprobacion.EstadoAprobacionCodigo != QcDesvCodigos.EstadoAprobacion.Pendiente)
         {
-            return ServiceResult.Failure("Esta aprobación ya fue procesada.");
+            return ServiceResult.Failure(Loc.T("This approval has already been processed."));
         }
 
         if (!await UsuarioPuedeResponderAprobacionAsync(
@@ -92,7 +93,7 @@ public class AprobacionService
                 usuarioActualId,
                 cancellationToken))
         {
-            return ServiceResult.Failure("No tiene permisos para aprobar esta solicitud.");
+            return ServiceResult.Failure(Loc.T("You do not have permission to approve this request."));
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -176,7 +177,7 @@ public class AprobacionService
 
             var detalle = ex.InnerException?.Message ?? ex.Message;
 
-            return ServiceResult.Failure($"Error al aprobar: {detalle}");
+            return ServiceResult.Failure(Loc.T("Error approving: {0}", detalle));
         }
 
         // La aprobación ya quedó guardada (transacción confirmada arriba): un
@@ -193,7 +194,7 @@ public class AprobacionService
             await _emailService.NotificarAprobacionFinalAsync(solicitud.Id, cancellationToken);
         }
 
-        return ServiceResult.Success("Aprobación registrada correctamente.");
+        return ServiceResult.Success(Loc.T("Approval recorded successfully."));
     }
 
     public async Task<ServiceResult> RechazarAsync(
@@ -204,7 +205,7 @@ public class AprobacionService
     {
         if (string.IsNullOrWhiteSpace(comentarios))
         {
-            return ServiceResult.Failure("Debe capturar comentarios para rechazar.");
+            return ServiceResult.Failure(Loc.T("You must enter comments to reject."));
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -217,17 +218,17 @@ public class AprobacionService
 
         if (aprobacion is null)
         {
-            return ServiceResult.Failure("La aprobación no existe.");
+            return ServiceResult.Failure(Loc.T("The approval does not exist."));
         }
 
         if (!aprobacion.EsPasoActual)
         {
-            return ServiceResult.Failure("Esta aprobación no es el paso actual.");
+            return ServiceResult.Failure(Loc.T("This approval is not the current step."));
         }
 
         if (aprobacion.EstadoAprobacionCodigo != QcDesvCodigos.EstadoAprobacion.Pendiente)
         {
-            return ServiceResult.Failure("Esta aprobación ya fue procesada.");
+            return ServiceResult.Failure(Loc.T("This approval has already been processed."));
         }
 
         if (!await UsuarioPuedeResponderAprobacionAsync(
@@ -236,12 +237,14 @@ public class AprobacionService
                 usuarioActualId,
                 cancellationToken))
         {
-            return ServiceResult.Failure("No tiene permisos para rechazar esta solicitud.");
+            return ServiceResult.Failure(Loc.T("You do not have permission to reject this request."));
         }
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
         QcDesvSolicitud solicitud;
+
+        var esRechazoDeExtension = aprobacion.TipoFlujoCodigo == QcDesvCodigos.TipoFlujo.Extension;
 
         try
         {
@@ -254,7 +257,17 @@ public class AprobacionService
             aprobacion.FechaDecision = DateTime.Now;
             aprobacion.EsPasoActual = false;
 
-            solicitud.EstadoSolicitudCodigo = QcDesvCodigos.EstadoSolicitud.Rechazada;
+            // Rechazar una EXTENSIÓN no debe tumbar el estado de la solicitud
+            // original -- esa ya estaba aprobada. Se regresa a lo que era
+            // antes de pedir la extensión (APROBADA, o EXTENSION_APROBADA si
+            // ya había una extensión previa aprobada), en vez de marcar toda
+            // la desviación como RECHAZADA.
+            solicitud.EstadoSolicitudCodigo = esRechazoDeExtension
+                ? (solicitud.NumeroExtensionActual > 0
+                    ? QcDesvCodigos.EstadoSolicitud.ExtensionAprobada
+                    : QcDesvCodigos.EstadoSolicitud.Aprobada)
+                : QcDesvCodigos.EstadoSolicitud.Rechazada;
+
             solicitud.ModificadoPorUsuarioId = usuarioActualId;
             solicitud.FechaModificacion = DateTime.Now;
 
@@ -267,9 +280,9 @@ public class AprobacionService
             {
                 SolicitudId = solicitud.Id,
                 ExtensionId = aprobacion.ExtensionId,
-                Accion = "Solicitud rechazada",
+                Accion = esRechazoDeExtension ? "Extensión rechazada" : "Solicitud rechazada",
                 EstadoAnteriorCodigo = estadoAnterior,
-                EstadoNuevoCodigo = QcDesvCodigos.EstadoSolicitud.Rechazada,
+                EstadoNuevoCodigo = solicitud.EstadoSolicitudCodigo,
                 Comentario = comentarios.Trim(),
                 UsuarioId = usuarioActualId,
                 FechaMovimiento = DateTime.Now
@@ -284,7 +297,7 @@ public class AprobacionService
 
             var detalle = ex.InnerException?.Message ?? ex.Message;
 
-            return ServiceResult.Failure($"Error al rechazar: {detalle}");
+            return ServiceResult.Failure(Loc.T("Error rejecting: {0}", detalle));
         }
 
         // La solicitud ya quedó guardada (transacción confirmada arriba): un
@@ -293,9 +306,11 @@ public class AprobacionService
         // commit (eso lanzaría una segunda excepción sin capturar y tumbaría
         // el circuito completo de Blazor Server).
         var posicion = aprobacion.RolAprobador?.NombreEn ?? aprobacion.RolAprobadorCodigo;
-        await _emailService.NotificarRechazoAsync(solicitud.Id, posicion, cancellationToken);
+        await _emailService.NotificarRechazoAsync(solicitud.Id, posicion, esRechazoDeExtension, cancellationToken);
 
-        return ServiceResult.Success("Solicitud rechazada correctamente.");
+        return ServiceResult.Success(esRechazoDeExtension
+            ? Loc.T("Extension rejected successfully.")
+            : Loc.T("Request rejected successfully."));
     }
 
     public async Task<QcDesvAprobacion?> ObtenerDetalleAprobacionAsync(

@@ -4,7 +4,7 @@
 @inject SolicitudDesviacionService SolicitudService
 @inject UsuarioActualService UsuarioActualService
 
-<PageTitle>Mis solicitudes</PageTitle>
+<PageTitle>@L["My Requests"]</PageTitle>
 
 <div class="nueva-page">
     <section id="mo-banner">
@@ -13,23 +13,23 @@
 
         <div id="mo-banner-content">
             <div id="mo-banner-tag">qcSolicitudDesviacion</div>
-            <div id="mo-banner-title">Mis solicitudes / My Requests</div>
+            <div id="mo-banner-title">@L["My Requests"]</div>
             <div class="hero-meta">
-                <span class="meta-chip">Control de proceso / Process Control</span>
-                <span class="meta-chip">Aprobaciones / Approvals</span>
-                <span class="meta-chip">Extensiones / Extensions</span>
+                <span class="meta-chip">@L["Process Control"]</span>
+                <span class="meta-chip">@L["Approvals"]</span>
+                <span class="meta-chip">@L["Extensions"]</span>
             </div>
             <div id="mo-banner-sub">
-                Consulta, revisa y da seguimiento a las solicitudes de desviación que has registrado.
+                @L["View, review and follow up on the deviation requests you have registered."]
             </div>
         </div>
 
         <div class="hero-actions">
             <a class="mo-btn mo-btn-primary" href="solicitudes/crear">
-                Nueva solicitud / New request
+                @L["New request"]
             </a>
             <a class="mo-btn mo-btn-secondary-outline" href="aprobaciones/pendientes">
-                Aprobaciones / Approvals
+                @L["Approvals"]
             </a>
         </div>
     </section>
@@ -37,17 +37,17 @@
     <section class="panel-card">
         <div class="panel-head">
             <div>
-                <h2>Listado de mis solicitudes / My request list</h2>
-                <p class="panel-subtitle">Solicitudes registradas por ti en el sistema.</p>
+                <h2>@L["My request list"]</h2>
+                <p class="panel-subtitle">@L["Requests you have registered in the system."]</p>
             </div>
             <span class="mo-badge mo-badge-primary">
-                <span class="mo-badge-dot"></span>@SolicitudesFiltradas.Count() registros
+                <span class="mo-badge-dot"></span>@L["{0} records", SolicitudesFiltradas.Count()]
             </span>
         </div>
 
         <div class="toolbar-actions mb-3">
             <input class="mo-form-control search-input"
-                   placeholder="Buscar por ID, línea, BU, cliente o estado..."
+                   placeholder="@L["Search by ID, line, BU, customer or status..."]"
                    @bind="filtro"
                    @bind:event="oninput" />
         </div>
@@ -61,24 +61,43 @@
         else if (!SolicitudesFiltradas.Any())
         {
             <div class="empty-state compact">
-                <div class="empty-title">Sin solicitudes / No requests</div>
-                <p class="empty-text">No se encontraron solicitudes con los filtros actuales.</p>
+                <div class="empty-title">@L["No requests"]</div>
+                <p class="empty-text">@L["No requests were found with the current filters."]</p>
             </div>
         }
         else
         {
-            <div class="mo-table-wrap table-wrap">
+            <div class="mo-table-wrap table-wrap" data-mo-table data-page-size="10">
                 <table class="mo-table procesos-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Solicitante / Requester</th>
-                            <th>Línea / Line</th>
-                            <th>Unidad de negocio / BU</th>
-                            <th>6M</th>
-                            <th>Tipo / Type</th>
-                            <th>Estado / Status</th>
-                            <th>Vigencia / Validity</th>
+                            <th data-mo-sort-col="0">ID</th>
+                            <th data-mo-sort-col="1">@L["Requester"]</th>
+                            <th data-mo-sort-col="2">@L["Line"]</th>
+                            <th data-mo-sort-col="3">@L["Business Unit"]</th>
+                            <th data-mo-sort-col="4">6M</th>
+                            <th data-mo-sort-col="5">@L["Type"]</th>
+                            <th data-mo-sort-col="6">@L["Status"]</th>
+                            <th data-mo-sort-col="7">@L["Validity"]</th>
+                            <th></th>
+                        </tr>
+                        <tr class="mo-table-filter-row">
+                            <th><input class="mo-th-filter" data-mo-filter-col="0" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="1" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="2" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="3" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="4" placeholder="@L["Filter..."]" /></th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="5" placeholder="@L["Filter..."]" /></th>
+                            <th>
+                                <select class="mo-th-filter" data-mo-filter-col="6">
+                                    <option value="">@L["All"]</option>
+                                    @foreach (var estado in EstadosDisponibles)
+                                    {
+                                        <option value="@estado">@estado</option>
+                                    }
+                                </select>
+                            </th>
+                            <th><input class="mo-th-filter" data-mo-filter-col="7" placeholder="@L["Filter..."]" /></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -86,7 +105,7 @@
                         @foreach (var item in SolicitudesFiltradas)
                         {
                             <tr>
-                                <td>
+                                <td data-sort-value="@item.SolicitudId">
                                     <div class="cell-title">#@item.SolicitudId</div>
                                     <div class="cell-subtitle">@item.FechaSolicitud.ToString("yyyy-MM-dd")</div>
                                 </td>
@@ -101,25 +120,25 @@
                                     <div class="cell-title">@item.UnidadNegocioAfectada</div>
                                 </td>
                                 <td>
-                                    <div class="cell-title">@item.RequisitoProcesoEs</div>
+                                    <div class="cell-title">@CatalogoTexto.Nombre(item.RequisitoProcesoEs, item.RequisitoProcesoEn)</div>
                                 </td>
                                 <td>
                                     <span class="mo-badge @(item.TipoDesviacionCodigo == QcDesvCodigos.TipoDesviacion.Critica ? "mo-badge-danger" : "mo-badge-secondary")">
-                                        <span class="mo-badge-dot"></span>@item.TipoDesviacionEs / @item.TipoDesviacionEn
+                                        <span class="mo-badge-dot"></span>@CatalogoTexto.Nombre(item.TipoDesviacionEs, item.TipoDesviacionEn)
                                     </span>
                                 </td>
                                 <td>
                                     <span class="mo-badge @QcDesvEstadoBadge.ClaseSolicitud(item.EstadoSolicitudCodigo)">
-                                        <span class="mo-badge-dot"></span>@item.EstadoSolicitudEs
+                                        <span class="mo-badge-dot"></span>@CatalogoTexto.Nombre(item.EstadoSolicitudEs, item.EstadoSolicitudEn)
                                     </span>
                                 </td>
-                                <td>
+                                <td data-sort-value="@item.FechaVigencia.ToString("yyyy-MM-dd")">
                                     <div class="cell-title">@item.FechaVigencia.ToString("yyyy-MM-dd")</div>
-                                    <div class="cell-subtitle">Extensiones: @item.NumeroExtensionActual</div>
+                                    <div class="cell-subtitle">@L["Extensions: {0}", item.NumeroExtensionActual]</div>
                                 </td>
                                 <td class="text-end">
                                     <a class="mo-btn mo-btn-primary mo-btn-sm" href="solicitudes/@item.SolicitudId">
-                                        Ver / View
+                                        @L["View"]
                                     </a>
                                 </td>
                             </tr>
@@ -127,6 +146,7 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mo-table-pagination" data-mo-pagination></div>
         }
     </section>
 </div>
@@ -136,15 +156,31 @@
     private string filtro = string.Empty;
     private List<QcDesvSolicitudResumen> solicitudes = new();
 
-    private IEnumerable<QcDesvSolicitudResumen> SolicitudesFiltradas =>
-        string.IsNullOrWhiteSpace(filtro)
-            ? solicitudes
-            : solicitudes.Where(x =>
-                x.SolicitudId.ToString().Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
-                x.CodigoLinea.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
-                x.UnidadNegocioAfectada.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
-                x.Clientes.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
-                x.EstadoSolicitudEs.Contains(filtro, StringComparison.OrdinalIgnoreCase));
+    private IEnumerable<QcDesvSolicitudResumen> SolicitudesFiltradas
+    {
+        get
+        {
+            var query = string.IsNullOrWhiteSpace(filtro)
+                ? solicitudes.AsEnumerable()
+                : solicitudes.Where(x =>
+                    x.SolicitudId.ToString().Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                    x.CodigoLinea.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                    x.UnidadNegocioAfectada.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                    x.Clientes.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                    x.EstadoSolicitudEs.Contains(filtro, StringComparison.OrdinalIgnoreCase));
+
+            // Orden por default: ID de mayor a menor. El ordenamiento fino por
+            // columna lo hace el cliente (mo-table.js) sobre las filas ya
+            // renderizadas.
+            return query.OrderByDescending(x => x.SolicitudId);
+        }
+    }
+
+    private IEnumerable<string> EstadosDisponibles =>
+        solicitudes
+            .Select(x => CatalogoTexto.Nombre(x.EstadoSolicitudEs, x.EstadoSolicitudEn))
+            .Distinct()
+            .OrderBy(x => x);
 
     protected override async Task OnInitializedAsync()
     {
